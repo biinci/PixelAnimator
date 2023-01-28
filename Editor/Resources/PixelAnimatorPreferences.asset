@@ -12,6 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c6c1fde151efb845a5b0117c7d54b23, type: 3}
   m_Name: PixelAnimatorPreferences
   m_EditorClassIdentifier: 
-  spriteProperties: []
+  spriteProperties:
+  - name: 
+    dataType: 0
+    guid: 6fa74b00187e3c44cade1f31c593589a
+  - name: 
+    dataType: 0
+    guid: d71bd90aab37a77458e3830b62f92ae3
+  - name: 
+    dataType: 0
+    guid: 1b53d09302a7c794f8a14a752101e614
   hitBoxProperties: []
-  boxData: []
+  boxData:
+  - color: {r: 1, g: 0, b: 0, a: 1}
+    boxType: hIT
+    activeLayer: 2
+    physicMaterial: {fileID: 0}
+    rounded: 0
+    guid: 7bcc150ff54fb0b4f9c8b2a7e75b4c89

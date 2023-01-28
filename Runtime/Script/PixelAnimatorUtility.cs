@@ -238,6 +238,58 @@ namespace binc.PixelAnimator.Utility{
             };
         }
 
+        public static void DrawGrid(Rect rect, Texture2D spritePreview, int spriteScale){
+
+            var whiteColor = new Color(0.75f, 0.75f, 0.75f);
+            var blackColor = new Color(0.75f, 0.75f, 0.75f);
+
+            // Set grid texture.
+            var gridWhiteTex = new Texture2D(1, 1); //Set grid, black and white.
+            gridWhiteTex.SetPixel(0, 0, whiteColor);
+            gridWhiteTex.Apply();
+
+            var gridBlackTex = new Texture2D(1, 1);
+            gridBlackTex.SetPixel(0, 0, blackColor);
+            gridBlackTex.Apply();
+
+
+            var grid = new Rect(rect.x, rect.y, 16 * spriteScale, 16 * spriteScale); //define a single 16x16 tile
+
+            for (var i = 0; i < spritePreview.width / 16; i++) {
+
+
+                for (var j = 0; j < spritePreview.height / 16; j += 2) {
+
+                    var tex = i % 2 == 0 ? gridWhiteTex : gridBlackTex;
+                    GUI.DrawTexture(grid, tex);
+                    grid.y += grid.height; 
+                    var texTwo = tex == gridWhiteTex ? gridBlackTex : gridWhiteTex;
+                    GUI.DrawTexture(grid, texTwo);
+                    grid.y += grid.height;
+                }
+
+                grid.y = rect.y;
+                grid.x += grid.width;
+
+            }
+
+            if (!(rect.x + rect.width - grid.x > 0)) return;
+
+            grid.width = rect.x + rect.width - grid.x; 
+
+            for (var j = 0; j < spritePreview.height / 16; j += 2) {
+                //iterate over Y
+                GUI.DrawTexture(grid, gridBlackTex); 
+                grid.y += grid.height;
+                GUI.DrawTexture(grid, gridWhiteTex);
+                grid.y += grid.height;
+            }
+
+            grid.height = rect.y + rect.height - grid.y;
+            if (rect.y + rect.height - grid.y > 0) GUI.DrawTexture(grid, gridBlackTex); 
+        }
+
+
         
 
     }

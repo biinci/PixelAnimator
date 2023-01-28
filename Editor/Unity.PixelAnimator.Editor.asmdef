@@ -2,11 +2,10 @@
     "name": "com.binc.pixel-animator.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:a29a0dd676108dc4590d2e825a191ab9"
+        "GUID:a29a0dd676108dc4590d2e825a191ab9",
+        "GUID:d528c8c98d269ca44a06cd9624a03945"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
