@@ -270,9 +270,7 @@ namespace binc.PixelAnimator.Editor.Window{
             
             SetZoom(evtCurrent);
 
-            if (canvasRect.Contains(evtCurrent.mousePosition) && evtCurrent.type == EventType.MouseDown)
-                windowFocus = WindowFocus.SpriteWindow;
-
+           
 
             GUI.Window(1, canvasRect, CanvasWindow, GUIContent.none, GUIStyle.none);
             UpdateScale();
@@ -282,6 +280,8 @@ namespace binc.PixelAnimator.Editor.Window{
             var outLinePos = canvasRect.position - Vector2.one * outLineWidth;
             var outLineSize = new Vector2(canvasRect.width + outLineWidth * 2, canvasRect.size.y + outLineWidth * 2); 
             EditorGUI.DrawRect( new Rect(outLinePos, outLineSize), new Color(0f, 0f, 0f));
+            if (canvasRect.Contains(evtCurrent.mousePosition) && evtCurrent.type == EventType.MouseDown)
+                            windowFocus = WindowFocus.SpriteWindow;
 
         }
 
@@ -304,7 +304,7 @@ namespace binc.PixelAnimator.Editor.Window{
             SetBox();
 
         }
-
+        
         private void SetZoom(Event eventCurr){
             if (eventCurr.button == 2) viewOffset += eventCurr.delta * 0.5f;
             if (eventCurr.type == EventType.ScrollWheel) {
