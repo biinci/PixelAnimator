@@ -331,17 +331,20 @@ namespace binc.PixelAnimator.Editor.Window{
             spriteOrigin.y = adjustedPosition.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
 
             //handle the canvas view bounds X
-            if (viewOffset.x > adjustedSpriteWidth * 0.5f)
-                viewOffset.x = adjustedSpriteWidth * 0.5f;
-            if (viewOffset.x < -adjustedSpriteWidth * 0.5f)
-                viewOffset.x = -adjustedSpriteWidth * 0.5f;
+            viewOffset.x = Mathf.Clamp(viewOffset.x, adjustedSpriteWidth * 0.5f, adjustedSpriteWidth * -0.5f);
+            // if (viewOffset.x > adjustedSpriteWidth * 0.5f)
+            //     viewOffset.x = adjustedSpriteWidth * 0.5f;
+            // if (viewOffset.x < -adjustedSpriteWidth * 0.5f)
+            //     viewOffset.x = -adjustedSpriteWidth * 0.5f;
 
 
             //handle the canvas view bounds Y
-            if (viewOffset.y > adjustedSpriteHeight * 0.5f)
-                viewOffset.y = adjustedSpriteHeight * 0.5f;
-            if (viewOffset.y < -adjustedSpriteHeight * 0.5f)
-                viewOffset.y = -adjustedSpriteHeight * 0.5f;
+            viewOffset.y = Mathf.Clamp(viewOffset.y, adjustedSpriteHeight * 0.5f, adjustedSpriteHeight * -0.5f);
+        //     if (viewOffset.y > adjustedSpriteHeight * 0.5f)
+        //         viewOffset.y = adjustedSpriteHeight * 0.5f;
+        //     if (viewOffset.y < -adjustedSpriteHeight * 0.5f)
+        //         viewOffset.y = -adjustedSpriteHeight * 0.5f;
+        // }
         }
 
         private void SetBox(){
