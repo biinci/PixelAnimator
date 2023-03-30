@@ -24,19 +24,9 @@ namespace binc.PixelAnimator.Editor.Window{
         private Texture2D spritePreview;
         private int spriteScale;
         private Vector2 viewOffset;
-        private enum HandleTypes{
-            TopLeft,
-            TopCenter,
-            TopRight,
-            LeftCenter,
-            BottomRight,
-            BottomCenter,
-            BottomLeft,
-            RightCenter,
-            Middle,
-            None
-        }
+
         private HandleTypes editingHandle;
+        private Vector2 _clickedMousePos;
         private Color blackColor = new Color(0.5f, 0.5f, 0.5f);
         private Color whiteColor = new Color(0.75f, 0.75f, 0.75f);
         private Texture2D gridWhiteTex = new Texture2D(1,1);
@@ -54,8 +44,7 @@ namespace binc.PixelAnimator.Editor.Window{
             gridBlackTex.Apply();
         }
 
-        public void SetCanvas(Event eventCurrent, Sprite sprite, Rect editorRect, PixelAnimation pixelAnim){
-            this.pixelAnim = pixelAnim;
+        public void SetCanvas(Event eventCurrent, Sprite sprite, Rect editorRect){
             spritePreview = AssetPreview.GetAssetPreview(sprite);
             SetZoom(eventCurrent, editorRect);
             GUI.Window(1, canvasRect, _=>{DrawCanvas();}, GUIContent.none, GUIStyle.none);
@@ -109,7 +98,7 @@ namespace binc.PixelAnimator.Editor.Window{
             spritePreview.filterMode = FilterMode.Point;
 
             // if (pixelAnim.Groups.Count > 0)
-            foreach (var group in pixelAnim.Groups) {
+            foreach (var group in window.SelectedAnim.Groups) {
                 // DrawBox(group, preferences.GetBoxData(group.BoxDataGuid), spriteScale, 
                 //    new Vector2(spritePreview.width, spritePreview.height),
                     // editingHandle);
@@ -158,14 +147,16 @@ namespace binc.PixelAnimator.Editor.Window{
         private void DrawBox(Group group, BoxData boxData, int scale, Vector2 spriteSize,
             HandleTypes handleTypes){
             if (!group.isVisible) return;
+            if (window.PropertyFocus != Window.PropertyFocusEnum.HitBox) return;
             var eventCurrent = Event.current;
             var rectColor = boxData.color;
-
+            
+            var isActiveGroup = window.SelectedAnim.Groups.IndexOf(group) == window.ActiveGroupIndex;
             for(var l  = 0; l < group.layers.Count; l++){
-                    
-                var isGroupActive = pixelAnim.Groups.IndexOf(group) == activeGroupIndex && //TODO: get the active group/layer data 
-                activeLayerIndex == l &&
-                propertyFocus == PropertyFocus.HitBox && group.isExpanded;
+                
+                var isActiveLayer = l == window.ActiveLayerIndex;
+                var isBoxActive = isActiveGroup && isActiveLayer && group.isExpanded;//TODO: get the active group/layer data
+                
 
                 var frame = group.layers[l].frames[activeFrameIndex];// Getting the active frame on all layers
                 if(frame.frameType == FrameType.EmptyFrame) continue;
@@ -174,7 +165,7 @@ namespace binc.PixelAnimator.Editor.Window{
                 rect.size *= scale;
                 
 
-                if (isGroupActive) {
+                if (isBoxActive) {
 
                     const float handleSize = 8.5f; // r = rect
                     var rTopLeft = new Rect(rect.xMin - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
@@ -298,9 +289,9 @@ namespace binc.PixelAnimator.Editor.Window{
                     if (eventCurrent.type == EventType.MouseUp) {
                         editingHandle = HandleTypes.None;
                     }
-
-                } 
-                var color = isGroupActive ? new Color(rectColor.r, rectColor.g, rectColor.b, 0.2f) : Color.clear;
+                    
+                }   
+                var color = isBoxActive ? new Color(rectColor.r, rectColor.g, rectColor.b, 0.2f) : Color.clear;
                 Handles.DrawSolidRectangleWithOutline(rect, color, rectColor);
                 
             }
