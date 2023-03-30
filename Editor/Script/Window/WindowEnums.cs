@@ -3,19 +3,19 @@ using UnityEngine;
 
 namespace binc.PixelAnimator.Editor.Window{
 
-    private enum PropertyFocusEnum{
+    public enum PropertyFocusEnum{
         HitBox,
         Sprite
     }
 
-    private enum WindowFocusEnum{
+    public enum WindowFocusEnum{
         Property,
         TimeLine,
         SpriteWindow
     }
 
     //Box handles.
-    private enum HandleTypes{
+    public enum HandleTypes{
         TopLeft,
         TopCenter,
         TopRight,
