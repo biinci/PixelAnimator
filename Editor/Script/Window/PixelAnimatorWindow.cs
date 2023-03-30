@@ -95,7 +95,7 @@ namespace binc.PixelAnimator.Editor.Window{
         [SerializeField] private HandleTypes editingHandle;
 
         private WindowFocusEnum windowFocus;
-        public PropertyFocusEnum PropertyFocus{get; private set;}
+        public PropertyFocusEnum PropertyFocusEnum{get; private set;}
 
 
         #endregion
@@ -176,7 +176,7 @@ namespace binc.PixelAnimator.Editor.Window{
             if (SelectedAnim == null || SelectedAnim.Groups == null) return;
 
 
-            if (isPlaying) PropertyFocus = PropertyFocus.Sprite;
+            if (isPlaying) PropertyFocusEnum = this.PropertyFocusEnum.Sprite;
             editingHandle = SelectedAnim.Groups.Count > 0 ? editingHandle : HandleTypes.None;
             SetFrameCopyPaste();
             EditorGUI.LabelField(new Rect(600, 300, 300, 200), ActiveGroupIndex + "   " + ActiveLayerIndex + "   " + ActiveFrameIndex);
@@ -350,7 +350,7 @@ namespace binc.PixelAnimator.Editor.Window{
                                               adjustedRect.Contains(mousePos);
 
                         if (!changeActiveBox) continue;
-                        PropertyFocus = PropertyFocus.HitBox;
+                        PropertyFocusEnum = this.PropertyFocusEnum.HitBox;
                         ActiveGroupIndex = g;
                         ActiveLayerIndex = l;
                         group.isExpanded = true;
@@ -373,7 +373,7 @@ namespace binc.PixelAnimator.Editor.Window{
                     
                 var isExistBox = SelectedAnim.Groups.IndexOf(group) == ActiveGroupIndex &&
                 ActiveLayerIndex == l &&
-                PropertyFocus == PropertyFocus.HitBox && group.isExpanded;
+                PropertyFocusEnum == this.PropertyFocusEnum.HitBox && group.isExpanded;
 
                 var frame = group.layers[l].frames[ActiveFrameIndex];// Getting the active frame on all layers
                 if(frame.frameType == FrameType.EmptyFrame) continue;
@@ -619,21 +619,21 @@ namespace binc.PixelAnimator.Editor.Window{
             GUI.color = new Color(0, 0, 0, 0.2f);
             var windowRect = new Rect(10, 10, 250, 250); // Background rect.
 
-            switch (PropertyFocus) {
-                case PropertyFocus.HitBox:
+            switch (PropertyFocusEnum) {
+                case this.PropertyFocusEnum.HitBox:
                     if (SelectedAnim.Groups.Count == 0) {
-                        PropertyFocus = PropertyFocus.Sprite;
+                        PropertyFocusEnum = this.PropertyFocusEnum.Sprite;
                         break;
                     }
                     if(ActiveGroupIndex >= SelectedAnim.Groups.Count) CheckAndFixVariable();
                     if (SelectedAnim.Groups[ActiveGroupIndex].layers[ActiveLayerIndex].frames[ActiveFrameIndex]
                             .frameType != FrameType.KeyFrame) break;
                     GUI.Window(4, windowRect,
-                        _ => { DrawProperties(PropertyType.HitBox, "HitBox Properties"); }, GUIContent.none);
+                        (object _) => { DrawProperties(PropertyType.HitBox, "HitBox Properties"); }, GUIContent.none);
                     break;
-                case PropertyFocus.Sprite:
+                case this.PropertyFocusEnum.Sprite:
                     GUI.Window(5, windowRect,
-                        _ => { DrawProperties(PropertyType.Sprite, "Sprite Properties"); }, GUIContent.none);
+                        (object _) => { DrawProperties(PropertyType.Sprite, "Sprite Properties"); }, GUIContent.none);
 
                     break;
                 default:
@@ -913,7 +913,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
                 if(spriteCell.Contains(Event.current.mousePosition) && leftClicked){
                     ActiveFrameIndex = i;
-                    PropertyFocus = PropertyFocus.Sprite;
+                    PropertyFocusEnum = this.PropertyFocusEnum.Sprite;
                 }
 
                 if (i != ActiveFrameIndex) continue; 
@@ -1184,7 +1184,7 @@ namespace binc.PixelAnimator.Editor.Window{
                             ActiveGroupIndex = g;
                             ActiveLayerIndex = l;
                             ActiveFrameIndex = f;
-                            PropertyFocus = PropertyFocus.HitBox;
+                            PropertyFocusEnum = this.PropertyFocusEnum.HitBox;
                         }
 
                     }
@@ -1281,8 +1281,8 @@ namespace binc.PixelAnimator.Editor.Window{
             var column = columnRects[ActiveFrameIndex];
             
 
-            switch (PropertyFocus) {
-                case PropertyFocus.HitBox:
+            switch (PropertyFocusEnum) {
+                case this.PropertyFocusEnum.HitBox:
                     if(SelectedAnim.Groups.Count <= 0) return;
                     if (!SelectedAnim.Groups[ActiveGroupIndex].isExpanded) return;
                     if (SelectedAnim.Groups[ActiveGroupIndex].layers.Count <= 0) break;
@@ -1297,7 +1297,7 @@ namespace binc.PixelAnimator.Editor.Window{
                     bottomRight = new Rect(column.xMin - size, layerRect.yMax - size, size, size);
 
                     break;
-                case PropertyFocus.Sprite:
+                case this.PropertyFocusEnum.Sprite:
                     size = 10;
                     var leftX = column.x - biggerSpriteSize.x;
                     var rightX = column.x - size;
@@ -1318,7 +1318,7 @@ namespace binc.PixelAnimator.Editor.Window{
         
 
         private void SetFrameCopyPaste(){
-            if (windowFocus != WindowFocusEnum.TimeLine || PropertyFocus != PropertyFocus.HitBox) return;
+            if (windowFocus != WindowFocusEnum.TimeLine || PropertyFocusEnum != this.PropertyFocusEnum.HitBox) return;
             var eventCurrent = Event.current;
             if (eventCurrent.type == EventType.ValidateCommand && eventCurrent.commandName == "Copy")
                 eventCurrent.Use();
@@ -1559,7 +1559,7 @@ namespace binc.PixelAnimator.Editor.Window{
                         ActiveGroupIndex = groups.Count - 1;
                         ActiveLayerIndex = groups[^1].layers.Count-1;
                         evtCurr.Use();
-                        PropertyFocus = PropertyFocus.HitBox;
+                        PropertyFocusEnum = this.PropertyFocusEnum.HitBox;
                         break;
                     case KeyCode.UpArrow:
                         if(ActiveLayerIndex == 0){
@@ -1569,7 +1569,7 @@ namespace binc.PixelAnimator.Editor.Window{
                             ActiveLayerIndex--;
                         }
                         evtCurr.Use();
-                        PropertyFocus = PropertyFocus.HitBox;
+                        PropertyFocusEnum = this.PropertyFocusEnum.HitBox;
                         break;
                     case KeyCode.DownArrow when groups.Count > 0:
                         if(ActiveLayerIndex == group.layers.Count-1){
@@ -1580,7 +1580,7 @@ namespace binc.PixelAnimator.Editor.Window{
                         }
 
                         evtCurr.Use();
-                        PropertyFocus = PropertyFocus.HitBox;
+                        PropertyFocusEnum = this.PropertyFocusEnum.HitBox;
                         break;
                 }
 

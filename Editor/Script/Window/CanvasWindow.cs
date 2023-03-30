@@ -147,7 +147,7 @@ namespace binc.PixelAnimator.Editor.Window{
         private void DrawBox(Group group, BoxData boxData, int scale, Vector2 spriteSize,
             HandleTypes handleTypes){
             if (!group.isVisible) return;
-            if (window.PropertyFocus != Window.PropertyFocusEnum.HitBox) return;
+            if (window.PropertyFocusEnum != Window.PropertyFocusEnum.HitBox) return;
             var eventCurrent = Event.current;
             var rectColor = boxData.color;
             
@@ -158,7 +158,7 @@ namespace binc.PixelAnimator.Editor.Window{
                 var isBoxActive = isActiveGroup && isActiveLayer && group.isExpanded;//TODO: get the active group/layer data
                 
 
-                var frame = group.layers[l].frames[activeFrameIndex];// Getting the active frame on all layers
+                var frame = group.layers[l].frames[ActiveFrameIndex];// Getting the active frame on all layers
                 if(frame.frameType == FrameType.EmptyFrame) continue;
                 var rect = frame.hitBoxRect; //Getting frame rect for the drawing.
                 rect.position *= scale; //Changing rect position and size for zoom.
