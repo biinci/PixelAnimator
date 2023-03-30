@@ -2,11 +2,10 @@
     "name": "com.binc.pixel-animator",
     "rootNamespace": "binc.PixelAnimator",
     "references": [
-        "GUID:d528c8c98d269ca44a06cd9624a03945"
+        "GUID:d528c8c98d269ca44a06cd9624a03945",
+        "GUID:b93f844d45cfcc44fa2b0eed5c9ec6bb"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

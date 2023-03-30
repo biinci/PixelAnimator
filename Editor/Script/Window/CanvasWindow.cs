@@ -5,18 +5,12 @@ using binc.PixelAnimator.Common;
 using binc.PixelAnimator.Preferences;
  
 
-
-
 namespace binc.PixelAnimator.Editor.Window{
 
-    
-    
     public class CanvasWindow{
         
         private Rect canvasRect;
         private Rect CanvasRect => canvasRect;
-        private PixelAnimation pixelAnim;
-        private PixelAnimatorPreferences preferences;
         private PixelAnimatorWindow window;
         
         private Sprite sprite;
@@ -33,8 +27,7 @@ namespace binc.PixelAnimator.Editor.Window{
         private Texture2D gridBlackTex = new Texture2D(1,1);
         
 
-        public CanvasWindow(PixelAnimatorPreferences preferences, PixelAnimatorWindow window){
-            this.preferences = preferences;
+        public CanvasWindow(PixelAnimatorWindow window){
             this.window = window;
 
             gridWhiteTex.SetPixel(0, 0, whiteColor);
@@ -44,12 +37,20 @@ namespace binc.PixelAnimator.Editor.Window{
             gridBlackTex.Apply();
         }
 
-        public void SetCanvas(Event eventCurrent, Sprite sprite, Rect editorRect){
+        public Rect SetCanvas(Event eventCurrent, Sprite sprite, Rect editorRect){ 
             spritePreview = AssetPreview.GetAssetPreview(sprite);
+
             SetZoom(eventCurrent, editorRect);
             GUI.Window(1, canvasRect, _=>{DrawCanvas();}, GUIContent.none, GUIStyle.none);
             UpdateScale(editorRect);
 
+            const float outLineWidth = 3f;
+            var outLinePos = canvasRect.position - Vector2.one * outLineWidth;
+            var outLineSize = new Vector2(canvasRect.width + outLineWidth * 2, canvasRect.size.y + outLineWidth * 2);
+            EditorGUI.DrawRect(new Rect(outLinePos, outLineSize), new Color(0f, 0f, 0f));
+           
+            SetBox();
+            return canvasRect;
         }
 
 
@@ -73,7 +74,7 @@ namespace binc.PixelAnimator.Editor.Window{
             var adjustedSpriteHeight = spritePreview.height * spriteScale;
             var adjustedPosition = new Rect(Vector2.zero, editorRect.size);
             adjustedPosition.width += 10;
-            adjustedPosition.height -= adjustedPosition.yMax ; //- timelineRect.y
+            adjustedPosition.height -= adjustedPosition.yMax - window.TimelineRect.y; //- timelineRect.y
             spriteOrigin.x = adjustedPosition.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
             spriteOrigin.y = adjustedPosition.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
 
@@ -97,12 +98,12 @@ namespace binc.PixelAnimator.Editor.Window{
             GUI.DrawTexture(spriteRect, spritePreview, ScaleMode.ScaleToFit); //our sprite
             spritePreview.filterMode = FilterMode.Point;
 
-            // if (pixelAnim.Groups.Count > 0)
-            foreach (var group in window.SelectedAnim.Groups) {
-                // DrawBox(group, preferences.GetBoxData(group.BoxDataGuid), spriteScale, 
-                //    new Vector2(spritePreview.width, spritePreview.height),
-                    // editingHandle);
-            }
+             if (window.SelectedAnim.Groups.Count > 0)
+                foreach (var group in window.SelectedAnim.Groups) {
+                    var boxData = window.Preferences.GetBoxData(group.BoxDataGuid);
+                    var spriteSize = new Vector2(spritePreview.width, spritePreview.height);
+                    DrawBox(group, boxData, spriteScale, spriteSize, editingHandle);
+                }
         }
 
 
@@ -143,6 +144,48 @@ namespace binc.PixelAnimator.Editor.Window{
             if (rect.y + rect.height - grid.y > 0) GUI.DrawTexture(grid, gridBlackTex); 
         }
 
+
+        private void SetBox()
+        {
+            var selectedAnim = window.SelectedAnim;
+            var groups = selectedAnim.Groups;
+            if (selectedAnim == null || groups.Count == 0 || groups[window.ActiveGroupIndex].layers.Count == 0) return;
+            var eventCurr = Event.current;
+
+            if (groups.Count > 0)
+            {
+
+                for (var g = 0; g < groups.Count; g++)
+                {
+                    var group = selectedAnim.Groups[g];
+                    if (group.layers.Count == 0) continue;
+                    for (var l = 0; l < group.layers.Count; l++)
+                    {
+                        var layer = group.layers[l];
+                        var boxRect = layer.frames[window.ActiveFrameIndex].hitBoxRect;
+
+                        var adjustedRect = new Rect(boxRect.position * spriteScale, boxRect.size * spriteScale);
+
+                        boxRect.width = Mathf.Clamp(boxRect.width, 0, float.MaxValue);
+                        boxRect.height = Mathf.Clamp(boxRect.height, 0, float.MaxValue);
+
+                        var mousePos = eventCurr.mousePosition;
+                        var changeActiveBox = window.LeftClicked && eventCurr.clickCount == 2 && group.isVisible &&
+                                              adjustedRect.Contains(mousePos);
+
+                        if (!changeActiveBox) continue;
+                        window.PropertyFocus = PropertyFocusEnum.HitBox;
+                        window.SetActiveGroup(g);
+                        window.SetActiveLayer(l);
+                        group.isExpanded = true;
+
+
+                    }
+                }
+            }
+
+
+        }
 
         private void DrawBox(Group group, BoxData boxData, int scale, Vector2 spriteSize,
             HandleTypes handleTypes){
@@ -296,6 +339,9 @@ namespace binc.PixelAnimator.Editor.Window{
                 
             }
         }
+
+
+
 
         private void SetHandle(HandleTypes handleType){
             editingHandle = handleType;

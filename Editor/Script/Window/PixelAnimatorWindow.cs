@@ -18,8 +18,9 @@ namespace binc.PixelAnimator.Editor.Window{
 
         private const string PixelAnimatorPath = "Assets/binc/PixelAnimator/";
 
-        private Rect timelineRect,
-            partitionHandleRect,
+        public Rect TimelineRect => timelineRect;
+        private Rect timelineRect;
+        private Rect partitionHandleRect,
             burgerRect,
             backRect,
             playRect,
@@ -87,7 +88,8 @@ namespace binc.PixelAnimator.Editor.Window{
         private Vector2 propertyYScrollPos = Vector2.one;
 
         private bool eventFoldout;
-        private bool rightClicked, leftClicked;
+        public bool RightClicked { get; private set; }
+        public bool LeftClicked { get; private set; }
         [SerializeField] private bool loadedResources;
 
 
@@ -95,8 +97,9 @@ namespace binc.PixelAnimator.Editor.Window{
         [SerializeField] private HandleTypes editingHandle;
 
         private WindowFocusEnum windowFocus;
-        public PropertyFocusEnum PropertyFocus{get; private set;}
+        public PropertyFocusEnum PropertyFocus{get; set;}
 
+        private CanvasWindow canvasWindow;
 
         #endregion
         
@@ -121,6 +124,7 @@ namespace binc.PixelAnimator.Editor.Window{
             LoadInitResources();
 
             editingHandle = HandleTypes.None;
+            canvasWindow = new CanvasWindow(this);
             SetLayerMenu();
             SetGroupMenu();
 
@@ -165,8 +169,8 @@ namespace binc.PixelAnimator.Editor.Window{
         
         private void OnGUI(){
             if(!loadedResources) LoadInitResources();
-            rightClicked = Event.current.type == EventType.MouseDown && Event.current.button == 1;
-            leftClicked = Event.current.type == EventType.MouseDown && Event.current.button == 0;
+            RightClicked = Event.current.type == EventType.MouseDown && Event.current.button == 1;
+            LeftClicked = Event.current.type == EventType.MouseDown && Event.current.button == 0;
 
             EditorGUI.DrawRect(new Rect(Vector2.zero, maxSize), new Color(0.13f, 0.13f, 0.15f));
             SelectedObject();
@@ -196,7 +200,8 @@ namespace binc.PixelAnimator.Editor.Window{
                 if (SelectedAnim.GetSpriteList().Count > 0) {
 
                     if (!isPlaying) DrawPropertyWindow();
-                    DrawCanvas(eventCurrent);
+                    canvasWindow.SetCanvas(Event.current, SelectedAnim.GetSpriteList()[ActiveFrameIndex], position);
+                    //DrawCanvas(eventCurrent);
                 }
                 else {
                     ZeroSpriteCount();
@@ -213,11 +218,11 @@ namespace binc.PixelAnimator.Editor.Window{
             SetTimelineRect(eventCurrent);
 
             //Window layout.            
-            GUI.BringWindowToBack(1);
             GUI.BringWindowToFront(4);
             GUI.BringWindowToFront(5);
             GUI.BringWindowToFront(2);
             GUI.BringWindowToBack(7);
+            GUI.BringWindowToBack(1);
 
 
         }
@@ -239,282 +244,282 @@ namespace binc.PixelAnimator.Editor.Window{
 
         #region SpriteWindow
 
-        private void DrawCanvas(Event evtCurrent){
-            if(SelectedAnim == null) return;
+        //private void DrawCanvas(Event evtCurrent){
+        //    if(SelectedAnim == null) return;
 
-            var spriteList = SelectedAnim.GetSpriteList();
+        //    var spriteList = SelectedAnim.GetSpriteList();
 
-            spritePreview = AssetPreview.GetAssetPreview(spriteList[ActiveFrameIndex]); // Get active frame texture.
-            if (spritePreview == null) return;
+        //    spritePreview = AssetPreview.GetAssetPreview(spriteList[ActiveFrameIndex]); // Get active frame texture.
+        //    if (spritePreview == null) return;
             
-            SetZoom(evtCurrent);
+        //    SetZoom(evtCurrent);
 
            
 
-            GUI.Window(1, canvasRect, CanvasWindow, GUIContent.none, GUIStyle.none);
-            UpdateScale();
+        //    GUI.Window(1, canvasRect, CanvasWindow, GUIContent.none, GUIStyle.none);
+        //    UpdateScale();
 
-            //Drawing outline
-            const float outLineWidth = 3f;
-            var outLinePos = canvasRect.position - Vector2.one * outLineWidth;
-            var outLineSize = new Vector2(canvasRect.width + outLineWidth * 2, canvasRect.size.y + outLineWidth * 2); 
-            EditorGUI.DrawRect( new Rect(outLinePos, outLineSize), new Color(0f, 0f, 0f));
-            if (canvasRect.Contains(evtCurrent.mousePosition) && evtCurrent.type == EventType.MouseDown)
-                            windowFocus = WindowFocusEnum.SpriteWindow;
+        //    //Drawing outline
+        //    const float outLineWidth = 3f;
+        //    var outLinePos = canvasRect.position - Vector2.one * outLineWidth;
+        //    var outLineSize = new Vector2(canvasRect.width + outLineWidth * 2, canvasRect.size.y + outLineWidth * 2); 
+        //    EditorGUI.DrawRect( new Rect(outLinePos, outLineSize), new Color(0f, 0f, 0f));
+        //    if (canvasRect.Contains(evtCurrent.mousePosition) && evtCurrent.type == EventType.MouseDown)
+        //                    windowFocus = WindowFocusEnum.SpriteWindow;
 
-        }
+        //}
 
-        private void CanvasWindow(int windowID){
-            var spriteRect = new Rect(0, 0, spritePreview.width * spriteScale, spritePreview.height * spriteScale);
+        //private void CanvasWindow(int windowID){
+        //    var spriteRect = new Rect(0, 0, spritePreview.width * spriteScale, spritePreview.height * spriteScale);
 
-            PixelAnimatorUtility.DrawGrid(spriteRect, spritePreview, spriteScale);
-            GUI.DrawTexture(spriteRect, spritePreview, ScaleMode.ScaleToFit); //our sprite
-            spritePreview.filterMode = FilterMode.Point;
+        //    PixelAnimatorUtility.DrawGrid(spriteRect, spritePreview, spriteScale);
+        //    GUI.DrawTexture(spriteRect, spritePreview, ScaleMode.ScaleToFit); //our sprite
+        //    spritePreview.filterMode = FilterMode.Point;
 
-            if (SelectedAnim.Groups.Count > 0)
-                foreach (var group in SelectedAnim.Groups) {
-                    DrawBox(group, Preferences.GetBoxData(group.BoxDataGuid), spriteScale, 
-                       new Vector2(spritePreview.width, spritePreview.height),
-                        editingHandle);
-                }
+        //    if (SelectedAnim.Groups.Count > 0)
+        //        foreach (var group in SelectedAnim.Groups) {
+        //            DrawBox(group, Preferences.GetBoxData(group.BoxDataGuid), spriteScale, 
+        //               new Vector2(spritePreview.width, spritePreview.height),
+        //                editingHandle);
+        //        }
 
             
-            SetPlayKeys();
-            SetBox();
+        //    SetPlayKeys();
+        //    SetBox();
 
-        }
+        //}
         
-        private void SetZoom(Event eventCurr){
-            if (eventCurr.button == 2) viewOffset += eventCurr.delta * 0.5f;
-            if (eventCurr.type == EventType.ScrollWheel) {
-                var inversedDelta = Mathf.Sign(eventCurr.delta.y) < 0 ? 1 : -1;
-                spriteScale += inversedDelta;
-            }
+        //private void SetZoom(Event eventCurr){
+        //    if (eventCurr.button == 2) viewOffset += eventCurr.delta * 0.5f;
+        //    if (eventCurr.type == EventType.ScrollWheel) {
+        //        var inversedDelta = Mathf.Sign(eventCurr.delta.y) < 0 ? 1 : -1;
+        //        spriteScale += inversedDelta;
+        //    }
 
-            spriteScale = Mathf.Clamp(spriteScale, 1, (int)(position.height / spritePreview.height));
+        //    spriteScale = Mathf.Clamp(spriteScale, 1, (int)(position.height / spritePreview.height));
 
-            canvasRect.position = new Vector2(viewOffset.x + spriteOrigin.x, viewOffset.y + spriteOrigin.y);
-            canvasRect.size = new Vector2(spritePreview.width * spriteScale, spritePreview.height * spriteScale);
-        }
-
-
-        private void UpdateScale(){
-            if (spritePreview == null) return;
-
-            var adjustedSpriteWidth = spritePreview.width * spriteScale;
-            var adjustedSpriteHeight = spritePreview.height * spriteScale;
-            var adjustedPosition = new Rect(Vector2.zero, position.size);
-            adjustedPosition.width += 10;
-            adjustedPosition.height -= adjustedPosition.yMax - timelineRect.y;
-            spriteOrigin.x = adjustedPosition.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
-            spriteOrigin.y = adjustedPosition.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
-
-            //handle the canvas view bounds X
-            // viewOffset.x = Mathf.Clamp(viewOffset.x, adjustedSpriteWidth * 0.5f, adjustedSpriteWidth * -0.5f);
-            if (viewOffset.x > adjustedSpriteWidth * 0.5f)
-                viewOffset.x = adjustedSpriteWidth * 0.5f;
-            if (viewOffset.x < -adjustedSpriteWidth * 0.5f)
-                viewOffset.x = -adjustedSpriteWidth * 0.5f;
+        //    canvasRect.position = new Vector2(viewOffset.x + spriteOrigin.x, viewOffset.y + spriteOrigin.y);
+        //    canvasRect.size = new Vector2(spritePreview.width * spriteScale, spritePreview.height * spriteScale);
+        //}
 
 
-            //handle the canvas view bounds Y
-            // viewOffset.y = Mathf.Clamp(viewOffset.y, adjustedSpriteHeight * 0.5f, adjustedSpriteHeight * -0.5f);
-            if (viewOffset.y > adjustedSpriteHeight * 0.5f)
-                viewOffset.y = adjustedSpriteHeight * 0.5f;
-            if (viewOffset.y < -adjustedSpriteHeight * 0.5f)
-                viewOffset.y = -adjustedSpriteHeight * 0.5f;
-        }
+        //private void UpdateScale(){
+        //    if (spritePreview == null) return;
+
+        //    var adjustedSpriteWidth = spritePreview.width * spriteScale;
+        //    var adjustedSpriteHeight = spritePreview.height * spriteScale;
+        //    var adjustedPosition = new Rect(Vector2.zero, position.size);
+        //    adjustedPosition.width += 10;
+        //    adjustedPosition.height -= adjustedPosition.yMax - timelineRect.y;
+        //    spriteOrigin.x = adjustedPosition.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
+        //    spriteOrigin.y = adjustedPosition.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
+
+        //    //handle the canvas view bounds X
+        //    // viewOffset.x = Mathf.Clamp(viewOffset.x, adjustedSpriteWidth * 0.5f, adjustedSpriteWidth * -0.5f);
+        //    if (viewOffset.x > adjustedSpriteWidth * 0.5f)
+        //        viewOffset.x = adjustedSpriteWidth * 0.5f;
+        //    if (viewOffset.x < -adjustedSpriteWidth * 0.5f)
+        //        viewOffset.x = -adjustedSpriteWidth * 0.5f;
+
+
+        //    //handle the canvas view bounds Y
+        //    // viewOffset.y = Mathf.Clamp(viewOffset.y, adjustedSpriteHeight * 0.5f, adjustedSpriteHeight * -0.5f);
+        //    if (viewOffset.y > adjustedSpriteHeight * 0.5f)
+        //        viewOffset.y = adjustedSpriteHeight * 0.5f;
+        //    if (viewOffset.y < -adjustedSpriteHeight * 0.5f)
+        //        viewOffset.y = -adjustedSpriteHeight * 0.5f;
+        //}
         
 
-        private void SetBox(){
-            var groups = SelectedAnim.Groups;
-            if (SelectedAnim == null || groups.Count == 0 || groups[ActiveGroupIndex].layers.Count == 0) return;
-            var eventCurr = Event.current;
+        //private void SetBox(){
+        //    var groups = SelectedAnim.Groups;
+        //    if (SelectedAnim == null || groups.Count == 0 || groups[ActiveGroupIndex].layers.Count == 0) return;
+        //    var eventCurr = Event.current;
 
-            if (groups.Count > 0) {
+        //    if (groups.Count > 0) {
                 
-                for (var g = 0; g < groups.Count; g++) {
-                    var group = SelectedAnim.Groups[g];
-                    if (group.layers.Count == 0) continue;
-                    for (var l = 0; l < group.layers.Count; l++) {
-                        var layer = group.layers[l];
-                        var boxRect = layer.frames[ActiveFrameIndex].hitBoxRect;
+        //        for (var g = 0; g < groups.Count; g++) {
+        //            var group = SelectedAnim.Groups[g];
+        //            if (group.layers.Count == 0) continue;
+        //            for (var l = 0; l < group.layers.Count; l++) {
+        //                var layer = group.layers[l];
+        //                var boxRect = layer.frames[ActiveFrameIndex].hitBoxRect;
                         
-                        var adjustedRect = new Rect(boxRect.position * spriteScale, boxRect.size * spriteScale);
+        //                var adjustedRect = new Rect(boxRect.position * spriteScale, boxRect.size * spriteScale);
 
-                        boxRect.width = Mathf.Clamp(boxRect.width, 0, float.MaxValue);
-                        boxRect.height = Mathf.Clamp(boxRect.height, 0, float.MaxValue);
+        //                boxRect.width = Mathf.Clamp(boxRect.width, 0, float.MaxValue);
+        //                boxRect.height = Mathf.Clamp(boxRect.height, 0, float.MaxValue);
 
-                        var mousePos = eventCurr.mousePosition;
-                        var changeActiveBox = leftClicked && eventCurr.clickCount == 2 && group.isVisible &&
-                                              adjustedRect.Contains(mousePos);
+        //                var mousePos = eventCurr.mousePosition;
+        //                var changeActiveBox = LeftClicked && eventCurr.clickCount == 2 && group.isVisible &&
+        //                                      adjustedRect.Contains(mousePos);
 
-                        if (!changeActiveBox) continue;
-                        PropertyFocus = PropertyFocusEnum.HitBox;
-                        ActiveGroupIndex = g;
-                        ActiveLayerIndex = l;
-                        group.isExpanded = true;
-
-
-                    }
-                }
-            }
+        //                if (!changeActiveBox) continue;
+        //                PropertyFocus = PropertyFocusEnum.HitBox;
+        //                ActiveGroupIndex = g;
+        //                ActiveLayerIndex = l;
+        //                group.isExpanded = true;
 
 
-        }
+        //            }
+        //        }
+        //    }
 
-        private void DrawBox(Group group, BoxData boxData, int scale, Vector2 spriteSize,
-            HandleTypes handleTypes){
-            if (!group.isVisible) return;
-            var eventCurrent = Event.current;
-            var rectColor = boxData.color;
 
-            for(var l  = 0; l < group.layers.Count; l++){
+        //}
+
+        //private void DrawBox(Group group, BoxData boxData, int scale, Vector2 spriteSize,
+        //    HandleTypes handleTypes){
+        //    if (!group.isVisible) return;
+        //    var eventCurrent = Event.current;
+        //    var rectColor = boxData.color;
+
+        //    for(var l  = 0; l < group.layers.Count; l++){
                     
-                var isExistBox = SelectedAnim.Groups.IndexOf(group) == ActiveGroupIndex &&
-                ActiveLayerIndex == l &&
-                PropertyFocus == PropertyFocusEnum.HitBox && group.isExpanded;
+        //        var isExistBox = SelectedAnim.Groups.IndexOf(group) == ActiveGroupIndex &&
+        //        ActiveLayerIndex == l &&
+        //        PropertyFocus == PropertyFocusEnum.HitBox && group.isExpanded;
 
-                var frame = group.layers[l].frames[ActiveFrameIndex];// Getting the active frame on all layers
-                if(frame.frameType == FrameType.EmptyFrame) continue;
-                var rect = frame.hitBoxRect; //Getting frame rect for the drawing.
-                rect.position *= scale; //Changing rect position and size for zoom.
-                rect.size *= scale;
+        //        var frame = group.layers[l].frames[ActiveFrameIndex];// Getting the active frame on all layers
+        //        if(frame.frameType == FrameType.EmptyFrame) continue;
+        //        var rect = frame.hitBoxRect; //Getting frame rect for the drawing.
+        //        rect.position *= scale; //Changing rect position and size for zoom.
+        //        rect.size *= scale;
                 
 
-                if (isExistBox) {
+        //        if (isExistBox) {
 
-                    const float handleSize = 8.5f; // r = rect
-                    var rTopLeft = new Rect(rect.xMin - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
-                    var rTopCenter = new Rect(rect.xMin + rect.width / 2 - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
-                    var rTopRight = new Rect(rect.xMax - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
-                    var rRightCenter = new Rect(rect.xMax - handleSize / 2, rect.yMin + (rect.yMax - rect.yMin) / 2 - handleSize / 2,
-                        handleSize, handleSize);
-                    var rBottomRight = new Rect(rect.xMax - handleSize / 2, rect.yMax - handleSize / 2, handleSize, handleSize);
-                    var rBottomCenter = new Rect(rect.xMin + rect.width / 2 - handleSize / 2, rect.yMax - handleSize / 2, handleSize, handleSize);
-                    var rBottomLeft = new Rect(rect.xMin - handleSize / 2, rect.yMax - handleSize / 2, handleSize, handleSize);
-                    var rLeftCenter = new Rect(rect.xMin - handleSize / 2, rect.yMin + (rect.yMax - rect.yMin) / 2 - handleSize / 2,
-                        handleSize, handleSize);
-                    var rAdjustedMiddle = new Rect(rect.x + handleSize / 2, rect.y + handleSize / 2, rect.width - handleSize,
-                        rect.height - handleSize);
+        //            const float handleSize = 8.5f; // r = rect
+        //            var rTopLeft = new Rect(rect.xMin - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
+        //            var rTopCenter = new Rect(rect.xMin + rect.width / 2 - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
+        //            var rTopRight = new Rect(rect.xMax - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
+        //            var rRightCenter = new Rect(rect.xMax - handleSize / 2, rect.yMin + (rect.yMax - rect.yMin) / 2 - handleSize / 2,
+        //                handleSize, handleSize);
+        //            var rBottomRight = new Rect(rect.xMax - handleSize / 2, rect.yMax - handleSize / 2, handleSize, handleSize);
+        //            var rBottomCenter = new Rect(rect.xMin + rect.width / 2 - handleSize / 2, rect.yMax - handleSize / 2, handleSize, handleSize);
+        //            var rBottomLeft = new Rect(rect.xMin - handleSize / 2, rect.yMax - handleSize / 2, handleSize, handleSize);
+        //            var rLeftCenter = new Rect(rect.xMin - handleSize / 2, rect.yMin + (rect.yMax - rect.yMin) / 2 - handleSize / 2,
+        //                handleSize, handleSize);
+        //            var rAdjustedMiddle = new Rect(rect.x + handleSize / 2, rect.y + handleSize / 2, rect.width - handleSize,
+        //                rect.height - handleSize);
 
-                    if (eventCurrent.button == 0 && eventCurrent.type == EventType.MouseDown) {
-                        if (rTopLeft.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.TopLeft;
-                        else if (rTopCenter.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.TopCenter;
-                        else if (rTopRight.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.TopRight;
-                        else if (rRightCenter.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.RightCenter;
-                        else if (rBottomRight.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.BottomRight;
-                        else if (rBottomCenter.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.BottomCenter;
-                        else if (rBottomLeft.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.BottomLeft;
-                        else if (rLeftCenter.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.LeftCenter;
-                        else if (rAdjustedMiddle.Contains(eventCurrent.mousePosition)) {
-                            editingHandle = HandleTypes.Middle;
-                            _clickedMousePos = eventCurrent.mousePosition;
-                        }
-                        else {
-                            editingHandle = HandleTypes.None;
-                        }
-                    }
+        //            if (eventCurrent.button == 0 && eventCurrent.type == EventType.MouseDown) {
+        //                if (rTopLeft.Contains(eventCurrent.mousePosition))
+        //                    editingHandle = HandleTypes.TopLeft;
+        //                else if (rTopCenter.Contains(eventCurrent.mousePosition))
+        //                    editingHandle = HandleTypes.TopCenter;
+        //                else if (rTopRight.Contains(eventCurrent.mousePosition))
+        //                    editingHandle = HandleTypes.TopRight;
+        //                else if (rRightCenter.Contains(eventCurrent.mousePosition))
+        //                    editingHandle = HandleTypes.RightCenter;
+        //                else if (rBottomRight.Contains(eventCurrent.mousePosition))
+        //                    editingHandle = HandleTypes.BottomRight;
+        //                else if (rBottomCenter.Contains(eventCurrent.mousePosition))
+        //                    editingHandle = HandleTypes.BottomCenter;
+        //                else if (rBottomLeft.Contains(eventCurrent.mousePosition))
+        //                    editingHandle = HandleTypes.BottomLeft;
+        //                else if (rLeftCenter.Contains(eventCurrent.mousePosition))
+        //                    editingHandle = HandleTypes.LeftCenter;
+        //                else if (rAdjustedMiddle.Contains(eventCurrent.mousePosition)) {
+        //                    editingHandle = HandleTypes.Middle;
+        //                    _clickedMousePos = eventCurrent.mousePosition;
+        //                }
+        //                else {
+        //                    editingHandle = HandleTypes.None;
+        //                }
+        //            }
 
-                    if (eventCurrent.type == EventType.MouseDrag && eventCurrent.type != EventType.MouseUp) {
-                        switch (editingHandle) {
-                            case HandleTypes.TopLeft:
-                                frame.hitBoxRect.xMin = (int)eventCurrent.mousePosition.x / scale;
-                                frame.hitBoxRect.yMin = (int)eventCurrent.mousePosition.y / scale;
-                                break;
-                            case HandleTypes.TopCenter:
-                                frame.hitBoxRect.yMin = (int)eventCurrent.mousePosition.y / scale;
-                                break;
-                            case HandleTypes.TopRight:
-                                frame.hitBoxRect.xMax = (int)eventCurrent.mousePosition.x / scale;
-                                frame.hitBoxRect.yMin = (int)eventCurrent.mousePosition.y / scale;
-                                break;
-                            case HandleTypes.RightCenter:
-                                frame.hitBoxRect.xMax = (int)eventCurrent.mousePosition.x / scale;
-                                break;
-                            case HandleTypes.BottomRight:
-                                frame.hitBoxRect.xMax = (int)eventCurrent.mousePosition.x / scale;
-                                frame.hitBoxRect.yMax = (int)eventCurrent.mousePosition.y / scale;
-                                break;
-                            case HandleTypes.BottomCenter:
-                                frame.hitBoxRect.yMax = (int)eventCurrent.mousePosition.y / scale;
-                                break;
-                            case HandleTypes.BottomLeft:
-                                frame.hitBoxRect.xMin = (int)eventCurrent.mousePosition.x / scale;
-                                frame.hitBoxRect.yMax = (int)eventCurrent.mousePosition.y / scale;
-                                break;
-                            case HandleTypes.LeftCenter:
-                                frame.hitBoxRect.xMin = (int)eventCurrent.mousePosition.x / scale;
-                                break;
-                            case HandleTypes.Middle:
-                                var deltaX = (_clickedMousePos.x - rect.xMin) / scale;
-                                var deltaY = (_clickedMousePos.y - rect.yMin) / scale;
+        //            if (eventCurrent.type == EventType.MouseDrag && eventCurrent.type != EventType.MouseUp) {
+        //                switch (editingHandle) {
+        //                    case HandleTypes.TopLeft:
+        //                        frame.hitBoxRect.xMin = (int)eventCurrent.mousePosition.x / scale;
+        //                        frame.hitBoxRect.yMin = (int)eventCurrent.mousePosition.y / scale;
+        //                        break;
+        //                    case HandleTypes.TopCenter:
+        //                        frame.hitBoxRect.yMin = (int)eventCurrent.mousePosition.y / scale;
+        //                        break;
+        //                    case HandleTypes.TopRight:
+        //                        frame.hitBoxRect.xMax = (int)eventCurrent.mousePosition.x / scale;
+        //                        frame.hitBoxRect.yMin = (int)eventCurrent.mousePosition.y / scale;
+        //                        break;
+        //                    case HandleTypes.RightCenter:
+        //                        frame.hitBoxRect.xMax = (int)eventCurrent.mousePosition.x / scale;
+        //                        break;
+        //                    case HandleTypes.BottomRight:
+        //                        frame.hitBoxRect.xMax = (int)eventCurrent.mousePosition.x / scale;
+        //                        frame.hitBoxRect.yMax = (int)eventCurrent.mousePosition.y / scale;
+        //                        break;
+        //                    case HandleTypes.BottomCenter:
+        //                        frame.hitBoxRect.yMax = (int)eventCurrent.mousePosition.y / scale;
+        //                        break;
+        //                    case HandleTypes.BottomLeft:
+        //                        frame.hitBoxRect.xMin = (int)eventCurrent.mousePosition.x / scale;
+        //                        frame.hitBoxRect.yMax = (int)eventCurrent.mousePosition.y / scale;
+        //                        break;
+        //                    case HandleTypes.LeftCenter:
+        //                        frame.hitBoxRect.xMin = (int)eventCurrent.mousePosition.x / scale;
+        //                        break;
+        //                    case HandleTypes.Middle:
+        //                        var deltaX = (_clickedMousePos.x - rect.xMin) / scale;
+        //                        var deltaY = (_clickedMousePos.y - rect.yMin) / scale;
                                 
-                                var posX = (int)eventCurrent.mousePosition.x / scale - (int)deltaX;
-                                var posY = (int)eventCurrent.mousePosition.y / scale - (int)deltaY;
+        //                        var posX = (int)eventCurrent.mousePosition.x / scale - (int)deltaX;
+        //                        var posY = (int)eventCurrent.mousePosition.y / scale - (int)deltaY;
 
-                                var sizeX = (int)rect.size.x / scale;
-                                var sizeY = (int)rect.size.y / scale;
+        //                        var sizeX = (int)rect.size.x / scale;
+        //                        var sizeY = (int)rect.size.y / scale;
 
-                                frame.hitBoxRect.position = new Vector2(posX, posY);
-                                frame.hitBoxRect.size = new Vector2(sizeX, sizeY);
-                                _clickedMousePos = eventCurrent.mousePosition;
-                                break;
-                            case HandleTypes.None:
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException(nameof(handleTypes), handleTypes, null);
-                        }
-                    }
+        //                        frame.hitBoxRect.position = new Vector2(posX, posY);
+        //                        frame.hitBoxRect.size = new Vector2(sizeX, sizeY);
+        //                        _clickedMousePos = eventCurrent.mousePosition;
+        //                        break;
+        //                    case HandleTypes.None:
+        //                        break;
+        //                    default:
+        //                        throw new ArgumentOutOfRangeException(nameof(handleTypes), handleTypes, null);
+        //                }
+        //            }
 
-                    EditorGUI.DrawRect(rTopLeft, rectColor);
-                    EditorGUI.DrawRect(rTopCenter, rectColor);
-                    EditorGUI.DrawRect(rTopRight, rectColor);
-                    EditorGUI.DrawRect(rRightCenter, rectColor);
-                    EditorGUI.DrawRect(rBottomRight, rectColor);
-                    EditorGUI.DrawRect(rBottomCenter, rectColor);
-                    EditorGUI.DrawRect(rBottomLeft, rectColor);
-                    EditorGUI.DrawRect(rLeftCenter, rectColor);
+        //            EditorGUI.DrawRect(rTopLeft, rectColor);
+        //            EditorGUI.DrawRect(rTopCenter, rectColor);
+        //            EditorGUI.DrawRect(rTopRight, rectColor);
+        //            EditorGUI.DrawRect(rRightCenter, rectColor);
+        //            EditorGUI.DrawRect(rBottomRight, rectColor);
+        //            EditorGUI.DrawRect(rBottomCenter, rectColor);
+        //            EditorGUI.DrawRect(rBottomLeft, rectColor);
+        //            EditorGUI.DrawRect(rLeftCenter, rectColor);
 
 
-                    EditorGUIUtility.AddCursorRect(rTopLeft, MouseCursor.ResizeUpLeft);
-                    EditorGUIUtility.AddCursorRect(rTopCenter, MouseCursor.ResizeVertical);
-                    EditorGUIUtility.AddCursorRect(rTopRight, MouseCursor.ResizeUpRight);
-                    EditorGUIUtility.AddCursorRect(rRightCenter, MouseCursor.ResizeHorizontal);
-                    EditorGUIUtility.AddCursorRect(rBottomRight, MouseCursor.ResizeUpLeft);
-                    EditorGUIUtility.AddCursorRect(rBottomCenter, MouseCursor.ResizeVertical);
-                    EditorGUIUtility.AddCursorRect(rBottomLeft, MouseCursor.ResizeUpRight);
-                    EditorGUIUtility.AddCursorRect(rLeftCenter, MouseCursor.ResizeHorizontal);
-                    EditorGUIUtility.AddCursorRect(rAdjustedMiddle, MouseCursor.MoveArrow);
+        //            EditorGUIUtility.AddCursorRect(rTopLeft, MouseCursor.ResizeUpLeft);
+        //            EditorGUIUtility.AddCursorRect(rTopCenter, MouseCursor.ResizeVertical);
+        //            EditorGUIUtility.AddCursorRect(rTopRight, MouseCursor.ResizeUpRight);
+        //            EditorGUIUtility.AddCursorRect(rRightCenter, MouseCursor.ResizeHorizontal);
+        //            EditorGUIUtility.AddCursorRect(rBottomRight, MouseCursor.ResizeUpLeft);
+        //            EditorGUIUtility.AddCursorRect(rBottomCenter, MouseCursor.ResizeVertical);
+        //            EditorGUIUtility.AddCursorRect(rBottomLeft, MouseCursor.ResizeUpRight);
+        //            EditorGUIUtility.AddCursorRect(rLeftCenter, MouseCursor.ResizeHorizontal);
+        //            EditorGUIUtility.AddCursorRect(rAdjustedMiddle, MouseCursor.MoveArrow);
 
-                    rect.width = Mathf.Clamp(rect.width, 0, int.MaxValue);
-                    rect.height = Mathf.Clamp(rect.height, 0, int.MaxValue);
+        //            rect.width = Mathf.Clamp(rect.width, 0, int.MaxValue);
+        //            rect.height = Mathf.Clamp(rect.height, 0, int.MaxValue);
 
-                    frame.hitBoxRect.x = Mathf.Clamp(frame.hitBoxRect.x, 0, spriteSize.x - frame.hitBoxRect.width);
-                    frame.hitBoxRect.y = Mathf.Clamp(frame.hitBoxRect.y, 0, spriteSize.y - frame.hitBoxRect.height);
-                    frame.hitBoxRect.width = Mathf.Clamp(frame.hitBoxRect.width, 0, spriteSize.x - frame.hitBoxRect.x);
-                    frame.hitBoxRect.height = Mathf.Clamp(frame.hitBoxRect.height, 0, spriteSize.y - frame.hitBoxRect.y);
+        //            frame.hitBoxRect.x = Mathf.Clamp(frame.hitBoxRect.x, 0, spriteSize.x - frame.hitBoxRect.width);
+        //            frame.hitBoxRect.y = Mathf.Clamp(frame.hitBoxRect.y, 0, spriteSize.y - frame.hitBoxRect.height);
+        //            frame.hitBoxRect.width = Mathf.Clamp(frame.hitBoxRect.width, 0, spriteSize.x - frame.hitBoxRect.x);
+        //            frame.hitBoxRect.height = Mathf.Clamp(frame.hitBoxRect.height, 0, spriteSize.y - frame.hitBoxRect.y);
 
-                    if (eventCurrent.type == EventType.MouseUp) {
-                        editingHandle = HandleTypes.None;
-                    }
+        //            if (eventCurrent.type == EventType.MouseUp) {
+        //                editingHandle = HandleTypes.None;
+        //            }
 
-                } 
-                var color = isExistBox ? new Color(rectColor.r, rectColor.g, rectColor.b, 0.2f) : Color.clear;
-                Handles.DrawSolidRectangleWithOutline(rect, color, rectColor);
+        //        } 
+        //        var color = isExistBox ? new Color(rectColor.r, rectColor.g, rectColor.b, 0.2f) : Color.clear;
+        //        Handles.DrawSolidRectangleWithOutline(rect, color, rectColor);
                 
-            }
+        //    }
 
 
-        }
+        //}
 
         #endregion
 
@@ -620,7 +625,7 @@ namespace binc.PixelAnimator.Editor.Window{
             var windowRect = new Rect(10, 10, 250, 250); // Background rect.
 
             switch (PropertyFocus) {
-                case this.PropertyFocusEnum.HitBox:
+                case PropertyFocusEnum.HitBox:
                     if (SelectedAnim.Groups.Count == 0) {
                         PropertyFocus = PropertyFocusEnum.Sprite;
                         break;
@@ -629,11 +634,11 @@ namespace binc.PixelAnimator.Editor.Window{
                     if (SelectedAnim.Groups[ActiveGroupIndex].layers[ActiveLayerIndex].frames[ActiveFrameIndex]
                             .frameType != FrameType.KeyFrame) break;
                     GUI.Window(4, windowRect,
-                        (object _) => { DrawProperties(PropertyType.HitBox, "HitBox Properties"); }, GUIContent.none);
+                        _ => { DrawProperties(PropertyType.HitBox, "HitBox Properties"); }, GUIContent.none);
                     break;
-                case this.PropertyFocusEnum.Sprite:
+                case PropertyFocusEnum.Sprite:
                     GUI.Window(5, windowRect,
-                        (object _) => { DrawProperties(PropertyType.Sprite, "Sprite Properties"); }, GUIContent.none);
+                        _ => { DrawProperties(PropertyType.Sprite, "Sprite Properties"); }, GUIContent.none);
 
                     break;
                 default:
@@ -911,7 +916,7 @@ namespace binc.PixelAnimator.Editor.Window{
                 if(spriteTex != null)
                     GUI.DrawTexture(spriteTexRect, spriteTex);
 
-                if(spriteCell.Contains(Event.current.mousePosition) && leftClicked){
+                if(spriteCell.Contains(Event.current.mousePosition) && LeftClicked){
                     ActiveFrameIndex = i;
                     PropertyFocus = PropertyFocusEnum.Sprite;
                 }
@@ -1063,7 +1068,7 @@ namespace binc.PixelAnimator.Editor.Window{
                 var gRect = groupEditorData[g];
                 var group = groups[g];
                 
-                if (leftClicked) {
+                if (LeftClicked) {
 
                     if(groupEditorData[g].bodyRect.Contains(evtCurrent.mousePosition) && g != ActiveGroupIndex){
                         ActiveGroupIndex = g;
@@ -1090,7 +1095,7 @@ namespace binc.PixelAnimator.Editor.Window{
                     settingsPopup.ShowAsContext(); 
                     ActiveGroupIndex = g;
                 }
-                else if(gRect.bodyRect.Contains(evtCurrent.mousePosition) && rightClicked){  
+                else if(gRect.bodyRect.Contains(evtCurrent.mousePosition) && RightClicked){  
                     settingsPopup.ShowAsContext();
                     ActiveGroupIndex = g;
                 }
@@ -1173,14 +1178,14 @@ namespace binc.PixelAnimator.Editor.Window{
                             var prevFrameRect = new Rect(columnRects[f - 1].xMin - columnWidth / 2 - size / 2, yFramePos, size, size);
                             SetFrameType(frameRect, layer.frames, f, prevFrameRect,evtCurr);
                         }else if(layer.frames.Count > 1){
-                            if(frameRect.Contains(evtCurr.mousePosition) && leftClicked){
+                            if(frameRect.Contains(evtCurr.mousePosition) && LeftClicked){
                                 frame.frameType = frame.frameType == FrameType.KeyFrame ? FrameType.EmptyFrame : FrameType.KeyFrame;
                                 if(frame.frameType == FrameType.EmptyFrame  && layer.frames[f+1].frameType == FrameType.CopyFrame)
                                     layer.frames[f+1].frameType = FrameType.KeyFrame;
                             }
                         }
                         
-                        if(cell.Contains(evtCurr.mousePosition) && leftClicked ){
+                        if(cell.Contains(evtCurr.mousePosition) && LeftClicked ){
                             ActiveGroupIndex = g;
                             ActiveLayerIndex = l;
                             ActiveFrameIndex = f;
@@ -1203,7 +1208,7 @@ namespace binc.PixelAnimator.Editor.Window{
                 GUI.DrawTexture(linkedRect, linkedFrameTex);
             }
 
-            if (frameRect.Contains(evtCurr.mousePosition) && leftClicked) {
+            if (frameRect.Contains(evtCurr.mousePosition) && LeftClicked) {
                 if(ActiveFrameIndex != frameIndex){
                     ActiveFrameIndex = frameIndex;
                     return;
@@ -1282,7 +1287,7 @@ namespace binc.PixelAnimator.Editor.Window{
             
 
             switch (PropertyFocus) {
-                case this.PropertyFocusEnum.HitBox:
+                case PropertyFocusEnum.HitBox:
                     if(SelectedAnim.Groups.Count <= 0) return;
                     if (!SelectedAnim.Groups[ActiveGroupIndex].isExpanded) return;
                     if (SelectedAnim.Groups[ActiveGroupIndex].layers.Count <= 0) break;
@@ -1297,7 +1302,7 @@ namespace binc.PixelAnimator.Editor.Window{
                     bottomRight = new Rect(column.xMin - size, layerRect.yMax - size, size, size);
 
                     break;
-                case this.PropertyFocusEnum.Sprite:
+                case PropertyFocusEnum.Sprite:
                     size = 10;
                     var leftX = column.x - biggerSpriteSize.x;
                     var rightX = column.x - size;
@@ -1645,7 +1650,20 @@ namespace binc.PixelAnimator.Editor.Window{
                 GUIContent.none
             );
         }
-        
+
+        public void SetActiveGroup(int index) {
+            ActiveGroupIndex = index;
+        }
+
+        public void SetActiveLayer(int index) {
+            ActiveLayerIndex = index;
+        }
+
+        public void SetActiveFrame(int index) {
+            ActiveFrameIndex = index;
+        }
+
+
     }
 
 
