@@ -17,6 +17,7 @@ namespace binc.PixelAnimator.Editor.Window{
         private Rect CanvasRect => canvasRect;
         private PixelAnimation pixelAnim;
         private PixelAnimatorPreferences preferences;
+        private PixelAnimatorWindow window;
         
         private Sprite sprite;
         private Vector2 spriteOrigin;
@@ -42,8 +43,9 @@ namespace binc.PixelAnimator.Editor.Window{
         private Texture2D gridBlackTex = new Texture2D(1,1);
         
 
-        public CanvasWindow(PixelAnimatorPreferences preferences){
+        public CanvasWindow(PixelAnimatorPreferences preferences, PixelAnimatorWindow window){
             this.preferences = preferences;
+            this.window = window;
 
             gridWhiteTex.SetPixel(0, 0, whiteColor);
             gridWhiteTex.Apply();
@@ -51,13 +53,13 @@ namespace binc.PixelAnimator.Editor.Window{
             gridBlackTex.SetPixel(0, 0, blackColor);
             gridBlackTex.Apply();
         }
+
         public void SetCanvas(Event eventCurrent, Sprite sprite, Rect editorRect, PixelAnimation pixelAnim){
             this.pixelAnim = pixelAnim;
             spritePreview = AssetPreview.GetAssetPreview(sprite);
             SetZoom(eventCurrent, editorRect);
             GUI.Window(1, canvasRect, _=>{DrawCanvas();}, GUIContent.none, GUIStyle.none);
             UpdateScale(editorRect);
-
 
         }
 
