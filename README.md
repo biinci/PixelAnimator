@@ -1,6 +1,9 @@
 
 # **Pixel Animator**
 ## Bu animatörü [AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
+*Bu araç kesinlikle bir Retrobox değil. Kendine özgün özellikleri barındıran bambaşka bir araçtır.*
+
+
 
 Öncellikle şunu belirtmeliyim ki bu animatör en verimli 2D Pixel Art animasyonlar için kullanılabilir. Zira başka bir tarzda hiç test etmedim.
 
