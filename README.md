@@ -1,6 +1,3 @@
----
-language: en
----
 
 # **Pixel Animator**
 ## Bu animatörü **AdamCYounis**'ın **RetroBox** aracından esinlendim.
@@ -9,6 +6,9 @@ language: en
 
 Pixel Animator, **kare kare** animasyonu ile **Unity hitbox**'ları senkronize etmek için Unity dahilinde geliştirdiğim bir araç. Ve yanında bi kaç ek özellik daha var.
 
+
+## **Başlarken**
+------------------
 
 ### **Kurulum**
 Bu url'yi kullanarak [Unity Package olarak indirebilirsiniz](https://docs.unity3d.com/Manual/upm-ui-giturl.html):
