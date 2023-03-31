@@ -1,6 +1,6 @@
 
 # **Pixel Animator**
-## Bu animatörü ![**AdamCYounis**](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
+## Bu animatörü ![AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
 
 Öncellikle şunu belirtmeliyim ki bu animatör en verimli 2D Pixel Art animasyonlar için kullanılabilir. Zira başka bir tarzda hiç test etmedim.
 
