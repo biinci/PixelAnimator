@@ -29,7 +29,7 @@ Belki ilerde Unity'nin Asset Store'unada koyabilirim.
 
 
 
-İlk *Pixel Animasyon* objenizi oluşturduktan sonra animatörü, kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz. 
+İlk *Pixel Animasyon* objenizi oluşturduktan sonra animatörü kullanmak için, kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz. 
 
 ![](https://github.com/biinci/PixelAnimator/blob/main/GIFs/Add_Animator_Component.gif)
 
