@@ -17,6 +17,7 @@ https://github.com/biinci/PixelAnimator.git
 ```
 Belki ilerde Unity'nin Asset Store'unada koyabilirim.
 
+İlk önce *AssetMenu>Create>PixelAnimation>New Animation* yolunu izleyerek Pixel Animasyon objesini oluşturmanız gerekir.
 
 <img src="https://github.com/biinci/PixelAnimator/blob/main/GIFs/Create_PixelAnimation.gif" width="350" height="400" />
 
