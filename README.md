@@ -1,6 +1,6 @@
 
 # **Pixel Animator**
-## Bu animatörü yaparkenn [AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
+## Bu animatörü yaparken [AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
 ### *Bu araç kesinlikle bir RetroBox değil. Kendine özgün özellikleri barındıran bambaşka bir araçtır.*
 
 
