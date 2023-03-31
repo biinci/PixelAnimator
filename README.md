@@ -16,7 +16,8 @@ Bu url'yi kullanarak [Unity Package olarak indirebilirsiniz](https://docs.unity3
 https://github.com/biinci/PixelAnimator.git
 ```
 Belki ilerde Unity'nin Asset Store'unada koyabilirim.
-***
+
+------------------
 ### **Kullanım**
 İlk önce *AssetMenu>Create>PixelAnimation>New Animation* yolunu izleyerek Pixel Animasyon objesini oluşturmanız gerekir.
 
