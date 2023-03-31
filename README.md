@@ -17,14 +17,13 @@ https://github.com/biinci/PixelAnimator.git
 ```
 Belki ilerde Unity'nin Asset Store'unada koyabilirim.
 
-[](https://github.com/biinci/PixelAnimator/blob/main/GIFs/Create_PixelAnimation.gif)
 
 <img src="https://github.com/biinci/PixelAnimator/blob/main/GIFs/Create_PixelAnimation.gif" width="350" height="400" />
 
 
 
 
-İlk *Pixel Animasyon* objenizi oluşturduktan sonra animatörü kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz. 
+İlk *Pixel Animasyon* objenizi oluşturduktan sonra animatörü, kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz. 
 
 ![](https://github.com/biinci/PixelAnimator/blob/main/GIFs/Add_Animator_Component.gif)
 
