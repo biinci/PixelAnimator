@@ -1,7 +1,7 @@
 
 # **Pixel Animator**
 ## Bu animatörü yaparken [AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
-### *Bu araç kesinlikle bir RetroBox değil. Kendine özgün özellikleri barındıran bambaşka bir araçtır.*
+### *Bu araç kesinlikle bir RetroBox değil. Bazı kendine özgün özellikleri barındıran başka bir araçtır.*
 
 
 
