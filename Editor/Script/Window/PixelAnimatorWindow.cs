@@ -93,8 +93,7 @@ namespace binc.PixelAnimator.Editor.Window{
         [SerializeField] private bool loadedResources;
 
 
-        // Box handle instance
-        [SerializeField] private HandleTypes editingHandle;
+
 
         private WindowFocusEnum windowFocus;
         public PropertyFocusEnum PropertyFocus{get; set;}
@@ -123,7 +122,6 @@ namespace binc.PixelAnimator.Editor.Window{
             //Load textures
             LoadInitResources();
 
-            editingHandle = HandleTypes.None;
             canvasWindow = new CanvasWindow(this);
             SetLayerMenu();
             SetGroupMenu();
@@ -169,8 +167,10 @@ namespace binc.PixelAnimator.Editor.Window{
         
         private void OnGUI(){
             if(!loadedResources) LoadInitResources();
+
             RightClicked = Event.current.type == EventType.MouseDown && Event.current.button == 1;
             LeftClicked = Event.current.type == EventType.MouseDown && Event.current.button == 0;
+
 
             EditorGUI.DrawRect(new Rect(Vector2.zero, maxSize), new Color(0.13f, 0.13f, 0.15f));
             SelectedObject();
@@ -181,7 +181,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
 
             if (isPlaying) PropertyFocus = PropertyFocusEnum.Sprite;
-            editingHandle = SelectedAnim.Groups.Count > 0 ? editingHandle : HandleTypes.None;
+            //editingHandle = SelectedAnim.Groups.Count > 0 ? editingHandle : HandleTypes.None;
             SetFrameCopyPaste();
             EditorGUI.LabelField(new Rect(600, 300, 300, 200), ActiveGroupIndex + "   " + ActiveLayerIndex + "   " + ActiveFrameIndex);
 
@@ -241,287 +241,6 @@ namespace binc.PixelAnimator.Editor.Window{
             SetPlayKeys();
         }
 
-
-        #region SpriteWindow
-
-        //private void DrawCanvas(Event evtCurrent){
-        //    if(SelectedAnim == null) return;
-
-        //    var spriteList = SelectedAnim.GetSpriteList();
-
-        //    spritePreview = AssetPreview.GetAssetPreview(spriteList[ActiveFrameIndex]); // Get active frame texture.
-        //    if (spritePreview == null) return;
-            
-        //    SetZoom(evtCurrent);
-
-           
-
-        //    GUI.Window(1, canvasRect, CanvasWindow, GUIContent.none, GUIStyle.none);
-        //    UpdateScale();
-
-        //    //Drawing outline
-        //    const float outLineWidth = 3f;
-        //    var outLinePos = canvasRect.position - Vector2.one * outLineWidth;
-        //    var outLineSize = new Vector2(canvasRect.width + outLineWidth * 2, canvasRect.size.y + outLineWidth * 2); 
-        //    EditorGUI.DrawRect( new Rect(outLinePos, outLineSize), new Color(0f, 0f, 0f));
-        //    if (canvasRect.Contains(evtCurrent.mousePosition) && evtCurrent.type == EventType.MouseDown)
-        //                    windowFocus = WindowFocusEnum.SpriteWindow;
-
-        //}
-
-        //private void CanvasWindow(int windowID){
-        //    var spriteRect = new Rect(0, 0, spritePreview.width * spriteScale, spritePreview.height * spriteScale);
-
-        //    PixelAnimatorUtility.DrawGrid(spriteRect, spritePreview, spriteScale);
-        //    GUI.DrawTexture(spriteRect, spritePreview, ScaleMode.ScaleToFit); //our sprite
-        //    spritePreview.filterMode = FilterMode.Point;
-
-        //    if (SelectedAnim.Groups.Count > 0)
-        //        foreach (var group in SelectedAnim.Groups) {
-        //            DrawBox(group, Preferences.GetBoxData(group.BoxDataGuid), spriteScale, 
-        //               new Vector2(spritePreview.width, spritePreview.height),
-        //                editingHandle);
-        //        }
-
-            
-        //    SetPlayKeys();
-        //    SetBox();
-
-        //}
-        
-        //private void SetZoom(Event eventCurr){
-        //    if (eventCurr.button == 2) viewOffset += eventCurr.delta * 0.5f;
-        //    if (eventCurr.type == EventType.ScrollWheel) {
-        //        var inversedDelta = Mathf.Sign(eventCurr.delta.y) < 0 ? 1 : -1;
-        //        spriteScale += inversedDelta;
-        //    }
-
-        //    spriteScale = Mathf.Clamp(spriteScale, 1, (int)(position.height / spritePreview.height));
-
-        //    canvasRect.position = new Vector2(viewOffset.x + spriteOrigin.x, viewOffset.y + spriteOrigin.y);
-        //    canvasRect.size = new Vector2(spritePreview.width * spriteScale, spritePreview.height * spriteScale);
-        //}
-
-
-        //private void UpdateScale(){
-        //    if (spritePreview == null) return;
-
-        //    var adjustedSpriteWidth = spritePreview.width * spriteScale;
-        //    var adjustedSpriteHeight = spritePreview.height * spriteScale;
-        //    var adjustedPosition = new Rect(Vector2.zero, position.size);
-        //    adjustedPosition.width += 10;
-        //    adjustedPosition.height -= adjustedPosition.yMax - timelineRect.y;
-        //    spriteOrigin.x = adjustedPosition.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
-        //    spriteOrigin.y = adjustedPosition.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
-
-        //    //handle the canvas view bounds X
-        //    // viewOffset.x = Mathf.Clamp(viewOffset.x, adjustedSpriteWidth * 0.5f, adjustedSpriteWidth * -0.5f);
-        //    if (viewOffset.x > adjustedSpriteWidth * 0.5f)
-        //        viewOffset.x = adjustedSpriteWidth * 0.5f;
-        //    if (viewOffset.x < -adjustedSpriteWidth * 0.5f)
-        //        viewOffset.x = -adjustedSpriteWidth * 0.5f;
-
-
-        //    //handle the canvas view bounds Y
-        //    // viewOffset.y = Mathf.Clamp(viewOffset.y, adjustedSpriteHeight * 0.5f, adjustedSpriteHeight * -0.5f);
-        //    if (viewOffset.y > adjustedSpriteHeight * 0.5f)
-        //        viewOffset.y = adjustedSpriteHeight * 0.5f;
-        //    if (viewOffset.y < -adjustedSpriteHeight * 0.5f)
-        //        viewOffset.y = -adjustedSpriteHeight * 0.5f;
-        //}
-        
-
-        //private void SetBox(){
-        //    var groups = SelectedAnim.Groups;
-        //    if (SelectedAnim == null || groups.Count == 0 || groups[ActiveGroupIndex].layers.Count == 0) return;
-        //    var eventCurr = Event.current;
-
-        //    if (groups.Count > 0) {
-                
-        //        for (var g = 0; g < groups.Count; g++) {
-        //            var group = SelectedAnim.Groups[g];
-        //            if (group.layers.Count == 0) continue;
-        //            for (var l = 0; l < group.layers.Count; l++) {
-        //                var layer = group.layers[l];
-        //                var boxRect = layer.frames[ActiveFrameIndex].hitBoxRect;
-                        
-        //                var adjustedRect = new Rect(boxRect.position * spriteScale, boxRect.size * spriteScale);
-
-        //                boxRect.width = Mathf.Clamp(boxRect.width, 0, float.MaxValue);
-        //                boxRect.height = Mathf.Clamp(boxRect.height, 0, float.MaxValue);
-
-        //                var mousePos = eventCurr.mousePosition;
-        //                var changeActiveBox = LeftClicked && eventCurr.clickCount == 2 && group.isVisible &&
-        //                                      adjustedRect.Contains(mousePos);
-
-        //                if (!changeActiveBox) continue;
-        //                PropertyFocus = PropertyFocusEnum.HitBox;
-        //                ActiveGroupIndex = g;
-        //                ActiveLayerIndex = l;
-        //                group.isExpanded = true;
-
-
-        //            }
-        //        }
-        //    }
-
-
-        //}
-
-        //private void DrawBox(Group group, BoxData boxData, int scale, Vector2 spriteSize,
-        //    HandleTypes handleTypes){
-        //    if (!group.isVisible) return;
-        //    var eventCurrent = Event.current;
-        //    var rectColor = boxData.color;
-
-        //    for(var l  = 0; l < group.layers.Count; l++){
-                    
-        //        var isExistBox = SelectedAnim.Groups.IndexOf(group) == ActiveGroupIndex &&
-        //        ActiveLayerIndex == l &&
-        //        PropertyFocus == PropertyFocusEnum.HitBox && group.isExpanded;
-
-        //        var frame = group.layers[l].frames[ActiveFrameIndex];// Getting the active frame on all layers
-        //        if(frame.frameType == FrameType.EmptyFrame) continue;
-        //        var rect = frame.hitBoxRect; //Getting frame rect for the drawing.
-        //        rect.position *= scale; //Changing rect position and size for zoom.
-        //        rect.size *= scale;
-                
-
-        //        if (isExistBox) {
-
-        //            const float handleSize = 8.5f; // r = rect
-        //            var rTopLeft = new Rect(rect.xMin - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
-        //            var rTopCenter = new Rect(rect.xMin + rect.width / 2 - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
-        //            var rTopRight = new Rect(rect.xMax - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
-        //            var rRightCenter = new Rect(rect.xMax - handleSize / 2, rect.yMin + (rect.yMax - rect.yMin) / 2 - handleSize / 2,
-        //                handleSize, handleSize);
-        //            var rBottomRight = new Rect(rect.xMax - handleSize / 2, rect.yMax - handleSize / 2, handleSize, handleSize);
-        //            var rBottomCenter = new Rect(rect.xMin + rect.width / 2 - handleSize / 2, rect.yMax - handleSize / 2, handleSize, handleSize);
-        //            var rBottomLeft = new Rect(rect.xMin - handleSize / 2, rect.yMax - handleSize / 2, handleSize, handleSize);
-        //            var rLeftCenter = new Rect(rect.xMin - handleSize / 2, rect.yMin + (rect.yMax - rect.yMin) / 2 - handleSize / 2,
-        //                handleSize, handleSize);
-        //            var rAdjustedMiddle = new Rect(rect.x + handleSize / 2, rect.y + handleSize / 2, rect.width - handleSize,
-        //                rect.height - handleSize);
-
-        //            if (eventCurrent.button == 0 && eventCurrent.type == EventType.MouseDown) {
-        //                if (rTopLeft.Contains(eventCurrent.mousePosition))
-        //                    editingHandle = HandleTypes.TopLeft;
-        //                else if (rTopCenter.Contains(eventCurrent.mousePosition))
-        //                    editingHandle = HandleTypes.TopCenter;
-        //                else if (rTopRight.Contains(eventCurrent.mousePosition))
-        //                    editingHandle = HandleTypes.TopRight;
-        //                else if (rRightCenter.Contains(eventCurrent.mousePosition))
-        //                    editingHandle = HandleTypes.RightCenter;
-        //                else if (rBottomRight.Contains(eventCurrent.mousePosition))
-        //                    editingHandle = HandleTypes.BottomRight;
-        //                else if (rBottomCenter.Contains(eventCurrent.mousePosition))
-        //                    editingHandle = HandleTypes.BottomCenter;
-        //                else if (rBottomLeft.Contains(eventCurrent.mousePosition))
-        //                    editingHandle = HandleTypes.BottomLeft;
-        //                else if (rLeftCenter.Contains(eventCurrent.mousePosition))
-        //                    editingHandle = HandleTypes.LeftCenter;
-        //                else if (rAdjustedMiddle.Contains(eventCurrent.mousePosition)) {
-        //                    editingHandle = HandleTypes.Middle;
-        //                    _clickedMousePos = eventCurrent.mousePosition;
-        //                }
-        //                else {
-        //                    editingHandle = HandleTypes.None;
-        //                }
-        //            }
-
-        //            if (eventCurrent.type == EventType.MouseDrag && eventCurrent.type != EventType.MouseUp) {
-        //                switch (editingHandle) {
-        //                    case HandleTypes.TopLeft:
-        //                        frame.hitBoxRect.xMin = (int)eventCurrent.mousePosition.x / scale;
-        //                        frame.hitBoxRect.yMin = (int)eventCurrent.mousePosition.y / scale;
-        //                        break;
-        //                    case HandleTypes.TopCenter:
-        //                        frame.hitBoxRect.yMin = (int)eventCurrent.mousePosition.y / scale;
-        //                        break;
-        //                    case HandleTypes.TopRight:
-        //                        frame.hitBoxRect.xMax = (int)eventCurrent.mousePosition.x / scale;
-        //                        frame.hitBoxRect.yMin = (int)eventCurrent.mousePosition.y / scale;
-        //                        break;
-        //                    case HandleTypes.RightCenter:
-        //                        frame.hitBoxRect.xMax = (int)eventCurrent.mousePosition.x / scale;
-        //                        break;
-        //                    case HandleTypes.BottomRight:
-        //                        frame.hitBoxRect.xMax = (int)eventCurrent.mousePosition.x / scale;
-        //                        frame.hitBoxRect.yMax = (int)eventCurrent.mousePosition.y / scale;
-        //                        break;
-        //                    case HandleTypes.BottomCenter:
-        //                        frame.hitBoxRect.yMax = (int)eventCurrent.mousePosition.y / scale;
-        //                        break;
-        //                    case HandleTypes.BottomLeft:
-        //                        frame.hitBoxRect.xMin = (int)eventCurrent.mousePosition.x / scale;
-        //                        frame.hitBoxRect.yMax = (int)eventCurrent.mousePosition.y / scale;
-        //                        break;
-        //                    case HandleTypes.LeftCenter:
-        //                        frame.hitBoxRect.xMin = (int)eventCurrent.mousePosition.x / scale;
-        //                        break;
-        //                    case HandleTypes.Middle:
-        //                        var deltaX = (_clickedMousePos.x - rect.xMin) / scale;
-        //                        var deltaY = (_clickedMousePos.y - rect.yMin) / scale;
-                                
-        //                        var posX = (int)eventCurrent.mousePosition.x / scale - (int)deltaX;
-        //                        var posY = (int)eventCurrent.mousePosition.y / scale - (int)deltaY;
-
-        //                        var sizeX = (int)rect.size.x / scale;
-        //                        var sizeY = (int)rect.size.y / scale;
-
-        //                        frame.hitBoxRect.position = new Vector2(posX, posY);
-        //                        frame.hitBoxRect.size = new Vector2(sizeX, sizeY);
-        //                        _clickedMousePos = eventCurrent.mousePosition;
-        //                        break;
-        //                    case HandleTypes.None:
-        //                        break;
-        //                    default:
-        //                        throw new ArgumentOutOfRangeException(nameof(handleTypes), handleTypes, null);
-        //                }
-        //            }
-
-        //            EditorGUI.DrawRect(rTopLeft, rectColor);
-        //            EditorGUI.DrawRect(rTopCenter, rectColor);
-        //            EditorGUI.DrawRect(rTopRight, rectColor);
-        //            EditorGUI.DrawRect(rRightCenter, rectColor);
-        //            EditorGUI.DrawRect(rBottomRight, rectColor);
-        //            EditorGUI.DrawRect(rBottomCenter, rectColor);
-        //            EditorGUI.DrawRect(rBottomLeft, rectColor);
-        //            EditorGUI.DrawRect(rLeftCenter, rectColor);
-
-
-        //            EditorGUIUtility.AddCursorRect(rTopLeft, MouseCursor.ResizeUpLeft);
-        //            EditorGUIUtility.AddCursorRect(rTopCenter, MouseCursor.ResizeVertical);
-        //            EditorGUIUtility.AddCursorRect(rTopRight, MouseCursor.ResizeUpRight);
-        //            EditorGUIUtility.AddCursorRect(rRightCenter, MouseCursor.ResizeHorizontal);
-        //            EditorGUIUtility.AddCursorRect(rBottomRight, MouseCursor.ResizeUpLeft);
-        //            EditorGUIUtility.AddCursorRect(rBottomCenter, MouseCursor.ResizeVertical);
-        //            EditorGUIUtility.AddCursorRect(rBottomLeft, MouseCursor.ResizeUpRight);
-        //            EditorGUIUtility.AddCursorRect(rLeftCenter, MouseCursor.ResizeHorizontal);
-        //            EditorGUIUtility.AddCursorRect(rAdjustedMiddle, MouseCursor.MoveArrow);
-
-        //            rect.width = Mathf.Clamp(rect.width, 0, int.MaxValue);
-        //            rect.height = Mathf.Clamp(rect.height, 0, int.MaxValue);
-
-        //            frame.hitBoxRect.x = Mathf.Clamp(frame.hitBoxRect.x, 0, spriteSize.x - frame.hitBoxRect.width);
-        //            frame.hitBoxRect.y = Mathf.Clamp(frame.hitBoxRect.y, 0, spriteSize.y - frame.hitBoxRect.height);
-        //            frame.hitBoxRect.width = Mathf.Clamp(frame.hitBoxRect.width, 0, spriteSize.x - frame.hitBoxRect.x);
-        //            frame.hitBoxRect.height = Mathf.Clamp(frame.hitBoxRect.height, 0, spriteSize.y - frame.hitBoxRect.y);
-
-        //            if (eventCurrent.type == EventType.MouseUp) {
-        //                editingHandle = HandleTypes.None;
-        //            }
-
-        //        } 
-        //        var color = isExistBox ? new Color(rectColor.r, rectColor.g, rectColor.b, 0.2f) : Color.clear;
-        //        Handles.DrawSolidRectangleWithOutline(rect, color, rectColor);
-                
-        //    }
-
-
-        //}
-
-        #endregion
 
         #region Property
 
@@ -744,7 +463,7 @@ namespace binc.PixelAnimator.Editor.Window{
         }
 
         private void CreateTimeline(Event eventCurrent){
-            if (dragTimeline && editingHandle == HandleTypes.None && eventCurrent.button == 0) {
+            if (dragTimeline && canvasWindow.EditingHandle ==  HandleTypes.None && eventCurrent.button == 0) {
                 switch (eventCurrent.type) {
                     case EventType.MouseDown:
                         timelineRect.yMin += 5;

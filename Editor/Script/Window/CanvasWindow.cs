@@ -3,14 +3,12 @@ using UnityEngine;
 using UnityEditor;
 using binc.PixelAnimator.Common;
 using binc.PixelAnimator.Preferences;
- 
+
 
 namespace binc.PixelAnimator.Editor.Window{
 
-    public class CanvasWindow{
+    public class CanvasWindow : CustomWindow{
         
-        private Rect canvasRect;
-        private Rect CanvasRect => canvasRect;
         private PixelAnimatorWindow window;
         
         private Sprite sprite;
@@ -19,43 +17,43 @@ namespace binc.PixelAnimator.Editor.Window{
         private int spriteScale;
         private Vector2 viewOffset;
 
-        private HandleTypes editingHandle;
+        public HandleTypes EditingHandle { get; private set; }
         private Vector2 _clickedMousePos;
         private Color blackColor = new Color(0.5f, 0.5f, 0.5f);
         private Color whiteColor = new Color(0.75f, 0.75f, 0.75f);
-        private Texture2D gridWhiteTex = new Texture2D(1,1);
-        private Texture2D gridBlackTex = new Texture2D(1,1);
+        private Texture2D whiteTex = new Texture2D(1,1);
+        private Texture2D blackTex = new Texture2D(1,1);
         
 
-        public CanvasWindow(PixelAnimatorWindow window){
-            this.window = window;
+        public CanvasWindow(PixelAnimatorWindow animatorWindow) : base(animatorWindow){
+            
+            whiteTex.SetPixel(0, 0, whiteColor);
+            whiteTex.Apply();
 
-            gridWhiteTex.SetPixel(0, 0, whiteColor);
-            gridWhiteTex.Apply();
-
-            gridBlackTex.SetPixel(0, 0, blackColor);
-            gridBlackTex.Apply();
+            blackTex.SetPixel(0, 0, blackColor);
+            blackTex.Apply();
         }
 
         public Rect SetCanvas(Event eventCurrent, Sprite sprite, Rect editorRect){ 
             spritePreview = AssetPreview.GetAssetPreview(sprite);
 
             SetZoom(eventCurrent, editorRect);
-            GUI.Window(1, canvasRect, _=>{DrawCanvas();}, GUIContent.none, GUIStyle.none);
+            GUI.Window(1, windowRect, _=>{DrawCanvas(eventCurrent);}, GUIContent.none, GUIStyle.none);
             UpdateScale(editorRect);
 
             const float outLineWidth = 3f;
-            var outLinePos = canvasRect.position - Vector2.one * outLineWidth;
-            var outLineSize = new Vector2(canvasRect.width + outLineWidth * 2, canvasRect.size.y + outLineWidth * 2);
+            var outLinePos = windowRect.position - Vector2.one * outLineWidth;
+            var outLineSize = new Vector2(windowRect.width + outLineWidth * 2, windowRect.size.y + outLineWidth * 2);
             EditorGUI.DrawRect(new Rect(outLinePos, outLineSize), new Color(0f, 0f, 0f));
            
             SetBox();
-            return canvasRect;
+            return windowRect;
         }
 
 
         private void SetZoom(Event eventCurrent, Rect editorRect){
-            if (eventCurrent.button == 2) viewOffset += eventCurrent.delta * 0.5f; // <== Middle Click Move.
+            if (eventCurrent.button == 2)
+                viewOffset += eventCurrent.delta * 0.5f; // <== Middle Click Move.
             if (eventCurrent.type == EventType.ScrollWheel) {
                 var inversedDelta = Mathf.Sign(eventCurrent.delta.y) < 0 ? 1 : -1;
                 spriteScale += inversedDelta;
@@ -63,8 +61,8 @@ namespace binc.PixelAnimator.Editor.Window{
 
             spriteScale = Mathf.Clamp(spriteScale, 1, (int)(editorRect.height / spritePreview.height));
 
-            canvasRect.position = new Vector2(viewOffset.x + spriteOrigin.x, viewOffset.y + spriteOrigin.y);
-            canvasRect.size = new Vector2(spritePreview.width * spriteScale, spritePreview.height * spriteScale);
+            windowRect.position = new Vector2(viewOffset.x + spriteOrigin.x, viewOffset.y + spriteOrigin.y);
+            windowRect.size = new Vector2(spritePreview.width * spriteScale, spritePreview.height * spriteScale);
             
         }
 
@@ -91,7 +89,7 @@ namespace binc.PixelAnimator.Editor.Window{
                 viewOffset.y = -adjustedSpriteHeight * 0.5f;
         }
 
-        private void DrawCanvas(){
+        private void DrawCanvas(Event eventCurrent){
             var spriteRect = new Rect(0, 0, spritePreview.width * spriteScale, spritePreview.height * spriteScale);
 
             DrawGrid(spriteRect, spritePreview, spriteScale);
@@ -102,7 +100,7 @@ namespace binc.PixelAnimator.Editor.Window{
                 foreach (var group in window.SelectedAnim.Groups) {
                     var boxData = window.Preferences.GetBoxData(group.BoxDataGuid);
                     var spriteSize = new Vector2(spritePreview.width, spritePreview.height);
-                    DrawBox(group, boxData, spriteScale, spriteSize, editingHandle);
+                    DrawBox(group, boxData, spriteScale, spriteSize, EditingHandle, eventCurrent);
                 }
         }
 
@@ -115,10 +113,10 @@ namespace binc.PixelAnimator.Editor.Window{
 
                 for (var j = 0; j < spritePreview.height / 16; j += 2) {
 
-                    var tex = i % 2 == 0 ? gridWhiteTex : gridBlackTex;
+                    var tex = i % 2 == 0 ? whiteTex : blackTex;
                     GUI.DrawTexture(grid, tex);
                     grid.y += grid.height; 
-                    var texTwo = tex == gridWhiteTex ? gridBlackTex : gridWhiteTex;
+                    var texTwo = tex == whiteTex ? blackTex : whiteTex;
                     GUI.DrawTexture(grid, texTwo);
                     grid.y += grid.height;
                 }
@@ -134,14 +132,14 @@ namespace binc.PixelAnimator.Editor.Window{
 
             for (var j = 0; j < spritePreview.height / 16; j += 2) {
                 //iterate over Y
-                GUI.DrawTexture(grid, gridBlackTex); 
+                GUI.DrawTexture(grid, blackTex); 
                 grid.y += grid.height;
-                GUI.DrawTexture(grid, gridWhiteTex);
+                GUI.DrawTexture(grid, whiteTex);
                 grid.y += grid.height;
             }
 
             grid.height = rect.y + rect.height - grid.y;
-            if (rect.y + rect.height - grid.y > 0) GUI.DrawTexture(grid, gridBlackTex); 
+            if (rect.y + rect.height - grid.y > 0) GUI.DrawTexture(grid, blackTex); 
         }
 
 
@@ -188,17 +186,17 @@ namespace binc.PixelAnimator.Editor.Window{
         }
 
         private void DrawBox(Group group, BoxData boxData, int scale, Vector2 spriteSize,
-            HandleTypes handleTypes){
+            HandleTypes handleTypes, Event eventCurrent){
             if (!group.isVisible) return;
-            if (window.PropertyFocus != Window.PropertyFocusEnum.HitBox) return;
-            var eventCurrent = Event.current;
+
             var rectColor = boxData.color;
             
             var isActiveGroup = window.SelectedAnim.Groups.IndexOf(group) == window.ActiveGroupIndex;
             for(var l  = 0; l < group.layers.Count; l++){
                 
                 var isActiveLayer = l == window.ActiveLayerIndex;
-                var isBoxActive = isActiveGroup && isActiveLayer && group.isExpanded;//TODO: get the active group/layer data
+                var isBoxActive = isActiveGroup && isActiveLayer && group.isExpanded
+                    && window.PropertyFocus == PropertyFocusEnum.HitBox;
                 
 
                 var frame = group.layers[l].frames[window.ActiveFrameIndex];// Getting the active frame on all layers
@@ -226,32 +224,32 @@ namespace binc.PixelAnimator.Editor.Window{
 
                     if (eventCurrent.button == 0 && eventCurrent.type == EventType.MouseDown) {
                         if (rTopLeft.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.TopLeft;
+                            EditingHandle = HandleTypes.TopLeft;
                         else if (rTopCenter.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.TopCenter;
+                            EditingHandle = HandleTypes.TopCenter;
                         else if (rTopRight.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.TopRight;
+                            EditingHandle = HandleTypes.TopRight;
                         else if (rRightCenter.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.RightCenter;
+                            EditingHandle = HandleTypes.RightCenter;
                         else if (rBottomRight.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.BottomRight;
+                            EditingHandle = HandleTypes.BottomRight;
                         else if (rBottomCenter.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.BottomCenter;
+                            EditingHandle = HandleTypes.BottomCenter;
                         else if (rBottomLeft.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.BottomLeft;
+                            EditingHandle = HandleTypes.BottomLeft;
                         else if (rLeftCenter.Contains(eventCurrent.mousePosition))
-                            editingHandle = HandleTypes.LeftCenter;
+                            EditingHandle = HandleTypes.LeftCenter;
                         else if (rAdjustedMiddle.Contains(eventCurrent.mousePosition)) {
-                            editingHandle = HandleTypes.Middle;
+                            EditingHandle = HandleTypes.Middle;
                             _clickedMousePos = eventCurrent.mousePosition;
                         }
                         else {
-                            editingHandle = HandleTypes.None;
+                            EditingHandle = HandleTypes.None;
                         }
                     }
 
                     if (eventCurrent.type == EventType.MouseDrag && eventCurrent.type != EventType.MouseUp) {
-                        switch (editingHandle) {
+                        switch (EditingHandle) {
                             case HandleTypes.TopLeft:
                                 frame.hitBoxRect.xMin = (int)eventCurrent.mousePosition.x / scale;
                                 frame.hitBoxRect.yMin = (int)eventCurrent.mousePosition.y / scale;
@@ -330,7 +328,7 @@ namespace binc.PixelAnimator.Editor.Window{
                     frame.hitBoxRect.height = Mathf.Clamp(frame.hitBoxRect.height, 0, spriteSize.y - frame.hitBoxRect.y);
 
                     if (eventCurrent.type == EventType.MouseUp) {
-                        editingHandle = HandleTypes.None;
+                        EditingHandle = HandleTypes.None;
                     }
                     
                 }   
@@ -344,7 +342,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
 
         private void SetHandle(HandleTypes handleType){
-            editingHandle = handleType;
+            EditingHandle = handleType;
         }
 
     

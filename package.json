@@ -1,6 +1,6 @@
 {
     "name" : "com.binc.pixel-animator",
-    "version" : "0.8.9",
+    "version" : "0.0.1",
     "displayName": "Pixel Animator",
     "description": "Custom Animator for 2D Sprites!",
     "unity" : "2021.3",
