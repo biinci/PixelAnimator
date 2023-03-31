@@ -17,7 +17,7 @@ https://github.com/biinci/PixelAnimator.git
 ```
 Belki ilerde Unity'nin Asset Store'unada koyabilirim.
 
-<img src="https://github.com/biinci/PixelAnimator/blob/main/GIFs/Create_PixelAnimation.gif" width="170" height="220" />
+<img src="https://github.com/biinci/PixelAnimator/blob/main/GIFs/Create_PixelAnimation.gif" width="270" height="370" />
 
 
 
