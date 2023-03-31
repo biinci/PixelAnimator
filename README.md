@@ -6,9 +6,9 @@
 
 Pixel Animator, **kare kare** animasyonu ile **Unity hitbox**'ları senkronize etmek için Unity dahilinde geliştirdiğim bir araç. Ve yanında bi kaç ek özellik daha var.
 
+------------------
 
 ## **Başlarken**
-------------------
 
 ### **Kurulum**
 Bu url'yi kullanarak [Unity Package olarak indirebilirsiniz](https://docs.unity3d.com/Manual/upm-ui-giturl.html):
@@ -18,7 +18,9 @@ https://github.com/biinci/PixelAnimator.git
 Belki ilerde Unity'nin Asset Store'unada koyabilirim.
 
 
+İlk *Pixel Animasyon* objenizi oluşturduktan sonra animatörü kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz.
 
+![](https://github.com/biinci/PixelAnimator/blob/main/GIFs/Add_Animator_Component.gif)
 
 
 
