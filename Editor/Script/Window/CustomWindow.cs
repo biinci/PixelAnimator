@@ -6,9 +6,8 @@ using binc.PixelAnimator.Editor.Window;
 namespace binc.PixelAnimator.Editor.Window
 {
 
-    public class CustomWindow
-    {
-
+    public abstract class CustomWindow{
+        
         protected Rect windowRect;
         public Rect WindowRect => windowRect;
         protected PixelAnimatorWindow animatorWindow;
@@ -16,6 +15,8 @@ namespace binc.PixelAnimator.Editor.Window
         public CustomWindow(PixelAnimatorWindow animatorWindow) {
             this.animatorWindow = animatorWindow;
         }
+
+        public abstract void SetWindow();
 
     }
 }

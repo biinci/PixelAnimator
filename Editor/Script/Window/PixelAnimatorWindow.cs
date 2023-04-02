@@ -99,6 +99,7 @@ namespace binc.PixelAnimator.Editor.Window{
         public PropertyFocusEnum PropertyFocus{get; set;}
 
         private CanvasWindow canvasWindow;
+        private TimelineWindow timelineWindow;
 
         #endregion
         
@@ -123,6 +124,7 @@ namespace binc.PixelAnimator.Editor.Window{
             LoadInitResources();
 
             canvasWindow = new CanvasWindow(this);
+            timelineWindow = new TimelineWindow(this);
             SetLayerMenu();
             SetGroupMenu();
 
@@ -200,7 +202,7 @@ namespace binc.PixelAnimator.Editor.Window{
                 if (SelectedAnim.GetSpriteList().Count > 0) {
 
                     if (!isPlaying) DrawPropertyWindow();
-                    canvasWindow.SetCanvas(Event.current, SelectedAnim.GetSpriteList()[ActiveFrameIndex], position);
+                    canvasWindow.SetWindow(Event.current, SelectedAnim.GetSpriteList()[ActiveFrameIndex], position);
                     //DrawCanvas(eventCurrent);
                 }
                 else {
@@ -211,11 +213,13 @@ namespace binc.PixelAnimator.Editor.Window{
                 NoAnimation();
             }
 
+            
             CreateTimeline(eventCurrent);
+            timelineWindow.SetWindow();
             EndWindows();
 
             SetFocus();
-            SetTimelineRect(eventCurrent);
+            DragTimeline(eventCurrent);
 
             //Window layout.            
             GUI.BringWindowToFront(4);
@@ -444,7 +448,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
         #region Timeline
 
-        private void SetTimelineRect(Event eventCurrent){
+        private void DragTimeline(Event eventCurrent){
             const float partitionHeight = 5;
             partitionHandleRect = new Rect(0, timelineRect.y - partitionHeight, timelineRect.width, partitionHeight);
 

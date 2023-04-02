@@ -34,7 +34,8 @@ namespace binc.PixelAnimator.Editor.Window{
             blackTex.Apply();
         }
 
-        public Rect SetCanvas(Event eventCurrent, Sprite sprite, Rect editorRect){ 
+
+        public override void SetWindow(Event eventCurrent, Sprite sprite, Rect editorRect){ 
             spritePreview = AssetPreview.GetAssetPreview(sprite);
 
             SetZoom(eventCurrent, editorRect);
@@ -47,7 +48,6 @@ namespace binc.PixelAnimator.Editor.Window{
             EditorGUI.DrawRect(new Rect(outLinePos, outLineSize), new Color(0f, 0f, 0f));
            
             SetBox();
-            return windowRect;
         }
 
 
