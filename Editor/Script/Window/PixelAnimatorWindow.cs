@@ -34,11 +34,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
         [SerializeField] private List<GroupEditorData> groupEditorData;
 
-        private static Vector2 _clickedMousePos;
 
-        [SerializeField] private Rect canvasRect;
-        [SerializeField] private Vector2 spriteOrigin;
-        private Vector2 viewOffset;
         public int ActiveFrameIndex{get; private set;}
         public int ActiveGroupIndex{get; private set;} 
         public int ActiveLayerIndex{get; private set;}
@@ -76,7 +72,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
         [SerializeField] private Texture2D spritePreview;
 
-        private SerializedObject targetAnimation;
+        public SerializedObject TargetAnimation{get; private set;}
 
 
         [SerializeField] private int spriteScale;
@@ -95,11 +91,11 @@ namespace binc.PixelAnimator.Editor.Window{
 
 
 
-        private WindowFocusEnum windowFocus;
+        public WindowFocusEnum WindowFocus{get; private set;}
         public PropertyFocusEnum PropertyFocus{get; set;}
 
-        private CanvasWindow canvasWindow;
-        private TimelineWindow timelineWindow;
+        public CanvasWindow CanvasWindow{get; private set;}
+        public TimelineWindow TimelineWindow{get; private set;}
 
         #endregion
         
@@ -123,8 +119,8 @@ namespace binc.PixelAnimator.Editor.Window{
             //Load textures
             LoadInitResources();
 
-            canvasWindow = new CanvasWindow(this);
-            timelineWindow = new TimelineWindow(this);
+            CanvasWindow = new CanvasWindow(this);
+            TimelineWindow = new TimelineWindow(this);
             SetLayerMenu();
             SetGroupMenu();
 
@@ -197,12 +193,12 @@ namespace binc.PixelAnimator.Editor.Window{
             var eventCurrent = Event.current;
 
             BeginWindows();
-            if (targetAnimation != null) {
+            if (TargetAnimation != null) {
 
                 if (SelectedAnim.GetSpriteList().Count > 0) {
 
                     if (!isPlaying) DrawPropertyWindow();
-                    canvasWindow.SetWindow(Event.current, SelectedAnim.GetSpriteList()[ActiveFrameIndex], position);
+                    CanvasWindow.SetWindow(Event.current, SelectedAnim.GetSpriteList()[ActiveFrameIndex], position);
                     //DrawCanvas(eventCurrent);
                 }
                 else {
@@ -214,12 +210,12 @@ namespace binc.PixelAnimator.Editor.Window{
             }
 
             
-            CreateTimeline(eventCurrent);
-            timelineWindow.SetWindow();
+            // CreateTimeline(eventCurrent);
+            TimelineWindow.SetWindow(eventCurrent);
             EndWindows();
 
             SetFocus();
-            DragTimeline(eventCurrent);
+            // DragTimeline(eventCurrent);
 
             //Window layout.            
             GUI.BringWindowToFront(4);
@@ -232,7 +228,7 @@ namespace binc.PixelAnimator.Editor.Window{
         }
 
         private void SetFocus(){
-            switch (windowFocus) {
+            switch (WindowFocus) {
                 case WindowFocusEnum.TimeLine or WindowFocusEnum.SpriteWindow:
                     if (Event.current.type == EventType.MouseDown) {
                         GUI.FocusControl(null);
@@ -285,8 +281,8 @@ namespace binc.PixelAnimator.Editor.Window{
         }
 
         private void DrawSpriteProp(){
-            targetAnimation.Update();
-            var propPixelSprite = targetAnimation.FindProperty("pixelSprites")
+            TargetAnimation.Update();
+            var propPixelSprite = TargetAnimation.FindProperty("pixelSprites")
                 .GetArrayElementAtIndex(ActiveFrameIndex);
 
             var propSpriteData = propPixelSprite.FindPropertyRelative("spriteData");
@@ -305,12 +301,12 @@ namespace binc.PixelAnimator.Editor.Window{
             }
 
             DrawEventField(propSpriteEventNames);
-            targetAnimation.ApplyModifiedProperties();
+            TargetAnimation.ApplyModifiedProperties();
         }
 
         private void DrawHitBoxProp(){
             if (SelectedAnim.Groups[ActiveGroupIndex].layers.Count <= 0) return;
-            var group = targetAnimation.FindProperty("groups").GetArrayElementAtIndex(ActiveGroupIndex);
+            var group = TargetAnimation.FindProperty("groups").GetArrayElementAtIndex(ActiveGroupIndex);
             var layer = group.FindPropertyRelative("layers").GetArrayElementAtIndex(ActiveLayerIndex);
             var frames = layer.FindPropertyRelative("frames");
             var frame = frames.GetArrayElementAtIndex(ActiveFrameIndex);
@@ -323,7 +319,7 @@ namespace binc.PixelAnimator.Editor.Window{
                     GUILayout.MaxHeight(60));
             }
             
-            targetAnimation.ApplyModifiedProperties();
+            TargetAnimation.ApplyModifiedProperties();
             
             var dataProps = frame.FindPropertyRelative("hitBoxData");
             var eventNamesProp = dataProps.FindPropertyRelative("eventNames");
@@ -369,7 +365,7 @@ namespace binc.PixelAnimator.Editor.Window{
             }
 
             if (propertyWindowRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown) {
-                windowFocus = WindowFocusEnum.Property;
+                WindowFocus = WindowFocusEnum.Property;
             }
 
             GUI.color = tempColor;
@@ -467,7 +463,7 @@ namespace binc.PixelAnimator.Editor.Window{
         }
 
         private void CreateTimeline(Event eventCurrent){
-            if (dragTimeline && canvasWindow.EditingHandle ==  HandleTypes.None && eventCurrent.button == 0) {
+            if (dragTimeline && CanvasWindow.EditingHandle ==  HandleTypes.None && eventCurrent.button == 0) {
                 switch (eventCurrent.type) {
                     case EventType.MouseDown:
                         timelineRect.yMin += 5;
@@ -494,15 +490,15 @@ namespace binc.PixelAnimator.Editor.Window{
                     break;
             }
 
-            timelineRect = GUILayout.Window(2, timelineRect, TimelineFunction, GUIContent.none, GUIStyle.none);
+            timelineRect = GUILayout.Window(2, timelineRect, DrawTimeline, GUIContent.none, GUIStyle.none);
             if (timelineRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown) {
-                windowFocus = WindowFocusEnum.TimeLine;
+                WindowFocus = WindowFocusEnum.TimeLine;
             }
 
 
         }
 
-        private void TimelineFunction(int windowID){
+        private void DrawTimeline(int windowID){
 
             columnLayout = new Rect(frontRect.xMax + 15, 0, 3, timelineRect.height);
 
@@ -520,7 +516,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
             DrawTimelineButtons();
             SetPlayKeys();
-            if (targetAnimation == null) return;
+            if (TargetAnimation == null) return;
             if (SelectedAnim.GetSpriteList().Count > 0) {
                 SetSpriteThumbnail();
                 DrawSelectedFrame();
@@ -1046,7 +1042,7 @@ namespace binc.PixelAnimator.Editor.Window{
         
 
         private void SetFrameCopyPaste(){
-            if (windowFocus != WindowFocusEnum.TimeLine || PropertyFocus != PropertyFocusEnum.HitBox) return;
+            if (WindowFocus != WindowFocusEnum.TimeLine || PropertyFocus != PropertyFocusEnum.HitBox) return;
             var eventCurrent = Event.current;
             if (eventCurrent.type == EventType.ValidateCommand && eventCurrent.commandName == "Copy")
                 eventCurrent.Use();
@@ -1065,7 +1061,7 @@ namespace binc.PixelAnimator.Editor.Window{
             if (eventCurrent.type == EventType.ExecuteCommand && eventCurrent.commandName == "Paste") {
                 var copiedFrame = JsonUtility.FromJson<Frame>(EditorGUIUtility.systemCopyBuffer);
                 
-                var frameProp = targetAnimation.FindProperty("layers").GetArrayElementAtIndex(ActiveGroupIndex)
+                var frameProp = TargetAnimation.FindProperty("layers").GetArrayElementAtIndex(ActiveGroupIndex)
                     .FindPropertyRelative("frames").GetArrayElementAtIndex(ActiveFrameIndex);
                 
                 var hitBoxRectProp = frameProp.FindPropertyRelative("hitBoxRect");
@@ -1073,7 +1069,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
                 // colliderType.enumValueIndex = (int)copiedFrame.colliderType;
                 hitBoxRectProp.rectValue = copiedFrame.hitBoxRect;
-                targetAnimation.ApplyModifiedProperties();
+                TargetAnimation.ApplyModifiedProperties();
 
             }
         }
@@ -1081,7 +1077,7 @@ namespace binc.PixelAnimator.Editor.Window{
         #region Popup Functions
         private void AddGroup(object userData){
             
-            targetAnimation.Update();
+            TargetAnimation.Update();
             var data = (BoxData)userData;
 
             if (SelectedAnim.Groups.Any(x => x.BoxDataGuid == data.Guid)) {
@@ -1139,24 +1135,24 @@ namespace binc.PixelAnimator.Editor.Window{
         
         
         private void DeleteGroup(){
-            targetAnimation.Update();
-            targetAnimation.FindProperty("groups").DeleteArrayElementAtIndex(ActiveGroupIndex);
-            targetAnimation.ApplyModifiedProperties();
+            TargetAnimation.Update();
+            TargetAnimation.FindProperty("groups").DeleteArrayElementAtIndex(ActiveGroupIndex);
+            TargetAnimation.ApplyModifiedProperties();
             CheckAndFixVariable();
         }
 
         private void DeleteLayer(){
-            var propGroups = targetAnimation.FindProperty("groups");
+            var propGroups = TargetAnimation.FindProperty("groups");
             var propLayers = propGroups.GetArrayElementAtIndex(ActiveGroupIndex).FindPropertyRelative("layers");
             propLayers.DeleteArrayElementAtIndex(ActiveLayerIndex);
-            targetAnimation.ApplyModifiedProperties();
+            TargetAnimation.ApplyModifiedProperties();
             CheckAndFixVariable();
         }
 
         private void AddBelowLayer(){
-            var groupsProp = targetAnimation.FindProperty("groups");
+            var groupsProp = TargetAnimation.FindProperty("groups");
             var layersProp = groupsProp.GetArrayElementAtIndex(ActiveGroupIndex).FindPropertyRelative("layers");
-            PixelAnimationEditor.AddLayer(layersProp, targetAnimation);
+            PixelAnimationEditor.AddLayer(layersProp, TargetAnimation);
             CheckAndFixVariable();
         }
         #endregion
@@ -1200,13 +1196,13 @@ namespace binc.PixelAnimator.Editor.Window{
         private void SelectedObject(){
             foreach(var obj in Selection.objects) {
                 if (obj is not PixelAnimation anim) continue;
-                targetAnimation = new SerializedObject(anim);
+                TargetAnimation = new SerializedObject(anim);
 
                 if (SelectedAnim == anim) continue;
                 var spriteList = anim.GetSpriteList();
                     
                 if(spriteList != null)
-                    columnRects = new Rect[spriteList.Count];
+                   TimelineWindow.ReloadVariable(spriteList.Count);
 
                 
 
@@ -1220,8 +1216,6 @@ namespace binc.PixelAnimator.Editor.Window{
                 CheckAndFixVariable();
                 if(spriteList?.Count == 0) return;
                 spritePreview = AssetPreview.GetAssetPreview(spriteList?[ActiveFrameIndex]);
-                if(spritePreview != null)
-                  spriteOrigin = new Vector2(position.width/2 - spritePreview.width * 0.5f, position.height/2);
             }
 
         }
@@ -1386,6 +1380,9 @@ namespace binc.PixelAnimator.Editor.Window{
             ActiveFrameIndex = index;
         }
 
+        public void SetWindowFocus(WindowFocusEnum windowFocus){
+            this.WindowFocus = windowFocus;
+        }
 
     }
 

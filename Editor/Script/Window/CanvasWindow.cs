@@ -9,8 +9,6 @@ namespace binc.PixelAnimator.Editor.Window{
 
     public class CanvasWindow : CustomWindow{
         
-        private PixelAnimatorWindow window;
-        
         private Sprite sprite;
         private Vector2 spriteOrigin;
         private Texture2D spritePreview;
@@ -34,8 +32,10 @@ namespace binc.PixelAnimator.Editor.Window{
             blackTex.Apply();
         }
 
+        
+        
 
-        public override void SetWindow(Event eventCurrent, Sprite sprite, Rect editorRect){ 
+        public void SetWindow(Event eventCurrent, Sprite sprite, Rect editorRect){ 
             spritePreview = AssetPreview.GetAssetPreview(sprite);
 
             SetZoom(eventCurrent, editorRect);
@@ -72,7 +72,7 @@ namespace binc.PixelAnimator.Editor.Window{
             var adjustedSpriteHeight = spritePreview.height * spriteScale;
             var adjustedPosition = new Rect(Vector2.zero, editorRect.size);
             adjustedPosition.width += 10;
-            adjustedPosition.height -= adjustedPosition.yMax - window.TimelineRect.y; //- timelineRect.y
+            adjustedPosition.height -= adjustedPosition.yMax - animatorWindow.TimelineRect.y; //- timelineRect.y
             spriteOrigin.x = adjustedPosition.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
             spriteOrigin.y = adjustedPosition.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
 
@@ -96,9 +96,9 @@ namespace binc.PixelAnimator.Editor.Window{
             GUI.DrawTexture(spriteRect, spritePreview, ScaleMode.ScaleToFit); //our sprite
             spritePreview.filterMode = FilterMode.Point;
 
-             if (window.SelectedAnim.Groups.Count > 0)
-                foreach (var group in window.SelectedAnim.Groups) {
-                    var boxData = window.Preferences.GetBoxData(group.BoxDataGuid);
+             if (animatorWindow.SelectedAnim.Groups.Count > 0)
+                foreach (var group in animatorWindow.SelectedAnim.Groups) {
+                    var boxData = animatorWindow.Preferences.GetBoxData(group.BoxDataGuid);
                     var spriteSize = new Vector2(spritePreview.width, spritePreview.height);
                     DrawBox(group, boxData, spriteScale, spriteSize, EditingHandle, eventCurrent);
                 }
@@ -145,9 +145,9 @@ namespace binc.PixelAnimator.Editor.Window{
 
         private void SetBox()
         {
-            var selectedAnim = window.SelectedAnim;
+            var selectedAnim = animatorWindow.SelectedAnim;
             var groups = selectedAnim.Groups;
-            if (selectedAnim == null || groups.Count == 0 || groups[window.ActiveGroupIndex].layers.Count == 0) return;
+            if (selectedAnim == null || groups.Count == 0 || groups[animatorWindow.ActiveGroupIndex].layers.Count == 0) return;
             var eventCurr = Event.current;
 
             if (groups.Count > 0)
@@ -160,7 +160,7 @@ namespace binc.PixelAnimator.Editor.Window{
                     for (var l = 0; l < group.layers.Count; l++)
                     {
                         var layer = group.layers[l];
-                        var boxRect = layer.frames[window.ActiveFrameIndex].hitBoxRect;
+                        var boxRect = layer.frames[animatorWindow.ActiveFrameIndex].hitBoxRect;
 
                         var adjustedRect = new Rect(boxRect.position * spriteScale, boxRect.size * spriteScale);
 
@@ -168,13 +168,13 @@ namespace binc.PixelAnimator.Editor.Window{
                         boxRect.height = Mathf.Clamp(boxRect.height, 0, float.MaxValue);
 
                         var mousePos = eventCurr.mousePosition;
-                        var changeActiveBox = window.LeftClicked && eventCurr.clickCount == 2 && group.isVisible &&
+                        var changeActiveBox = animatorWindow.LeftClicked && eventCurr.clickCount == 2 && group.isVisible &&
                                               adjustedRect.Contains(mousePos);
 
                         if (!changeActiveBox) continue;
-                        window.PropertyFocus = PropertyFocusEnum.HitBox;
-                        window.SetActiveGroup(g);
-                        window.SetActiveLayer(l);
+                        animatorWindow.PropertyFocus = PropertyFocusEnum.HitBox;
+                        animatorWindow.SetActiveGroup(g);
+                        animatorWindow.SetActiveLayer(l);
                         group.isExpanded = true;
 
 
@@ -191,15 +191,15 @@ namespace binc.PixelAnimator.Editor.Window{
 
             var rectColor = boxData.color;
             
-            var isActiveGroup = window.SelectedAnim.Groups.IndexOf(group) == window.ActiveGroupIndex;
+            var isActiveGroup = animatorWindow.SelectedAnim.Groups.IndexOf(group) == animatorWindow.ActiveGroupIndex;
             for(var l  = 0; l < group.layers.Count; l++){
                 
-                var isActiveLayer = l == window.ActiveLayerIndex;
+                var isActiveLayer = l == animatorWindow.ActiveLayerIndex;
                 var isBoxActive = isActiveGroup && isActiveLayer && group.isExpanded
-                    && window.PropertyFocus == PropertyFocusEnum.HitBox;
+                    && animatorWindow.PropertyFocus == PropertyFocusEnum.HitBox;
                 
 
-                var frame = group.layers[l].frames[window.ActiveFrameIndex];// Getting the active frame on all layers
+                var frame = group.layers[l].frames[animatorWindow.ActiveFrameIndex];// Getting the active frame on all layers
                 if(frame.frameType == FrameType.EmptyFrame) continue;
                 var rect = frame.hitBoxRect; //Getting frame rect for the drawing.
                 rect.position *= scale; //Changing rect position and size for zoom.
@@ -345,6 +345,6 @@ namespace binc.PixelAnimator.Editor.Window{
             EditingHandle = handleType;
         }
 
-    
+
     }
 }

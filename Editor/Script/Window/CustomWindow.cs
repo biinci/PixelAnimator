@@ -16,7 +16,6 @@ namespace binc.PixelAnimator.Editor.Window
             this.animatorWindow = animatorWindow;
         }
 
-        public abstract void SetWindow();
 
     }
 }
