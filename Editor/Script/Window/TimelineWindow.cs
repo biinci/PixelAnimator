@@ -14,7 +14,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
         private bool timelineDragging, isPlaying;
         public bool TimelineDragging => timelineDragging;
-        private Rect partitionHandleRect,
+        private Rect handleRect,
             burgerRect,
             backRect,
             playRect,
@@ -22,7 +22,7 @@ namespace binc.PixelAnimator.Editor.Window{
             columnLayout,
             rowLayout;
 
-        [SerializeField] private Texture2D backTex,
+        private Texture2D backTex,
             playTex,
             frontTex,
             timelineBurgerTex,
@@ -46,8 +46,9 @@ namespace binc.PixelAnimator.Editor.Window{
         private GenericMenu timelinePopup, settingsPopup, layerPopup;
 
         private Rect[] columnRects;
-        [SerializeField] private List<GroupEditorData> groupEditorData;
-        private readonly Vector2 frameBlank = new Vector2(48, 48); 
+        private List<GroupEditorData> groupEditorData;
+        private readonly Vector2 frameBlank = new Vector2(48, 48);
+        private const float HandleHeight = 5;
 
         public TimelineWindow(PixelAnimatorWindow animatorWindow) : base(animatorWindow) {
             LoadInitResources();
@@ -83,56 +84,21 @@ namespace binc.PixelAnimator.Editor.Window{
 
         public void SetWindow(Event eventCurrent){
             CreateTimeline(eventCurrent);
-            DragTimeline(eventCurrent);
+            DragTimelineWindow(eventCurrent);
         }
-        private void DragTimeline(Event eventCurrent){
-            const float partitionHeight = 5;
-            partitionHandleRect = new Rect(0, windowRect.y - partitionHeight, windowRect.width, partitionHeight);
 
-            EditorGUIUtility.AddCursorRect(partitionHandleRect, MouseCursor.ResizeVertical);
-            EditorGUI.DrawRect(partitionHandleRect, Color.black);
-            switch (eventCurrent.type) {
-                // drag timeline
-                case EventType.MouseDrag:
-                    if (partitionHandleRect.Contains(eventCurrent.mousePosition)) timelineDragging = true;
-                    animatorWindow.Repaint();
-                    break;
-                case EventType.MouseUp:
-                    timelineDragging = false;
-                    break;
-            }
-        }
 
         private void CreateTimeline(Event eventCurrent){
-            if (timelineDragging && animatorWindow.CanvasWindow.EditingHandle ==  HandleTypes.None && eventCurrent.button == 0) {
-                switch (eventCurrent.type) {
-                    case EventType.MouseDown:
-                        windowRect.yMin += 5;
-                        break;
-                    case EventType.MouseDrag:
-                        windowRect.yMin = eventCurrent.mousePosition.y;
-                        break;
-                }
-            }
+            
 
             var position = animatorWindow.position;
             windowRect.y = position.yMax - windowRect.height;
             windowRect.yMin = Mathf.Clamp(windowRect.y, 200, position.yMax - 150); //Clamped the timeline y position.
             windowRect.size = new Vector2(position.width + 10, windowRect.height);
 
-            switch (eventCurrent.type) {
-                // drag timeline
-                case EventType.MouseDrag:{
-                    if (partitionHandleRect.Contains(eventCurrent.mousePosition)) timelineDragging = true;
-                    animatorWindow.Repaint();
-                    break;
-                }
-                case EventType.MouseUp:
-                    timelineDragging = false;
-                    break;
-            }
 
-            windowRect = GUILayout.Window(2, windowRect, DrawTimeline, GUIContent.none, GUIStyle.none);
+
+            windowRect = GUILayout.Window(PixelAnimatorWindow.TimelineId, windowRect, _=>DrawTimeline(eventCurrent), GUIContent.none, GUIStyle.none);
             var clickedTimeline = windowRect.Contains(eventCurrent.mousePosition) && Event.current.type == EventType.MouseDown; 
             if (clickedTimeline) {
                 animatorWindow.SetWindowFocus(WindowFocusEnum.TimeLine);
@@ -141,7 +107,37 @@ namespace binc.PixelAnimator.Editor.Window{
 
         }
 
-        private void DrawTimeline(int windowID){
+        private void DragTimelineWindow(Event eventCurrent){
+
+            switch (eventCurrent.type)
+            {
+                case EventType.MouseDrag:
+                    if (handleRect.Contains(eventCurrent.mousePosition)) timelineDragging = true;
+                    break;
+
+                case EventType.MouseUp:
+                    timelineDragging = false;
+                    break;
+            }
+
+
+            var isTimelineDraggable = timelineDragging && animatorWindow.CanvasWindow.EditingHandle == HandleTypes.None && eventCurrent.button == 0;
+            if (isTimelineDraggable){
+                switch (eventCurrent.type)
+                {
+                    case EventType.MouseDown:
+                        windowRect.yMin += 5;
+                        break;
+                    case EventType.MouseDrag:
+
+                        windowRect.yMin = eventCurrent.mousePosition.y;
+                        break;
+                }
+            }
+
+        }
+
+        private void DrawTimeline(Event eventCurrent){
             var selectedAnim = animatorWindow.SelectedAnim;
 
             columnLayout = new Rect(frontRect.xMax + 15, 0, 3, windowRect.height);
@@ -172,7 +168,31 @@ namespace binc.PixelAnimator.Editor.Window{
                     }       
                 } 
             }
+            DrawTimelineHandle(eventCurrent);
             // SetGroupKeys();
+        }
+
+
+        private void DrawTimelineHandle(Event eventCurrent)
+        {
+            const float HandleHeight = 5;
+
+            handleRect = new Rect(0, 0, windowRect.width, HandleHeight);
+            
+
+            EditorGUIUtility.AddCursorRect(handleRect, MouseCursor.ResizeVertical);
+            EditorGUI.DrawRect(handleRect, Color.black);
+            switch (eventCurrent.type)
+            {
+                // drag timeline
+                case EventType.MouseDrag:
+                    if (handleRect.Contains(eventCurrent.mousePosition)) timelineDragging = true;
+                    animatorWindow.Repaint();
+                    break;
+                case EventType.MouseUp:
+                    timelineDragging = false;
+                    break;
+            }
         }
 
         private void DrawTimelineButtons(){
@@ -337,16 +357,16 @@ namespace binc.PixelAnimator.Editor.Window{
                     animatorWindow.PropertyFocus = PropertyFocusEnum.Sprite;
                 }
 
-                if (i != animatorWindow.ActiveFrameIndex) continue; 
-                
-                var transparentRect = new Rect(column.xMin - frameBlank.x, 0, frameBlank.x, windowRect.height); //Setting the transparent rect.
+                if (i != animatorWindow.ActiveFrameIndex) continue;
+                var height = windowRect.height +20;
+                var transparentRect = new Rect(column.xMin - frameBlank.x, 0, frameBlank.x, height); //Setting the transparent rect.
                 EditorGUI.DrawRect(transparentRect, new Color(1, 1, 1, 0.1f)); 
                 if(i > 0){
-                    columnRects[i].height = windowRect.height;
-                    columnRects[i-1].height = windowRect.height;
+                    columnRects[i].height = height;
+                    columnRects[i-1].height = height;
                 }
                 else
-                    columnRects[i].height = windowRect.height;
+                    columnRects[i].height = height;
 
 
             }

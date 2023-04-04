@@ -39,7 +39,8 @@ namespace binc.PixelAnimator.Editor.Window{
             spritePreview = AssetPreview.GetAssetPreview(sprite);
 
             SetZoom(eventCurrent, editorRect);
-            GUI.Window(1, windowRect, _=>{DrawCanvas(eventCurrent);}, GUIContent.none, GUIStyle.none);
+
+            GUI.Window(PixelAnimatorWindow.CanvasId, windowRect, _=>{DrawCanvas(eventCurrent);}, GUIContent.none, GUIStyle.none);
             UpdateScale(editorRect);
 
             const float outLineWidth = 3f;
@@ -48,6 +49,7 @@ namespace binc.PixelAnimator.Editor.Window{
             EditorGUI.DrawRect(new Rect(outLinePos, outLineSize), new Color(0f, 0f, 0f));
            
             SetBox();
+
         }
 
 
@@ -341,7 +343,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
 
 
-        private void SetHandle(HandleTypes handleType){
+        public void SetHandle(HandleTypes handleType){
             EditingHandle = handleType;
         }
 

@@ -97,8 +97,12 @@ namespace binc.PixelAnimator.Editor.Window{
         public CanvasWindow CanvasWindow{get; private set;}
         public TimelineWindow TimelineWindow{get; private set;}
 
+        public const int CanvasId = 1;
+        public const int TimelineId = 2;
+
+
         #endregion
-        
+
         #region Initialize
 
         [MenuItem("Window/Pixel Animator")]
@@ -119,8 +123,7 @@ namespace binc.PixelAnimator.Editor.Window{
             //Load textures
             LoadInitResources();
 
-            CanvasWindow = new CanvasWindow(this);
-            TimelineWindow = new TimelineWindow(this);
+
             SetLayerMenu();
             SetGroupMenu();
 
@@ -157,6 +160,8 @@ namespace binc.PixelAnimator.Editor.Window{
             triggerTex = Resources.Load<Texture2D>("Sprites/trigger");
             noTriggerTex = Resources.Load<Texture2D>("Sprites/notrigger");
             durationTex = playTex;
+            CanvasWindow = new CanvasWindow(this);
+            TimelineWindow = new TimelineWindow(this);
             loadedResources = true;
 
         }
@@ -180,6 +185,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
             if (isPlaying) PropertyFocus = PropertyFocusEnum.Sprite;
             //editingHandle = SelectedAnim.Groups.Count > 0 ? editingHandle : HandleTypes.None;
+            if (SelectedAnim.Groups.Count <= 0) CanvasWindow.SetHandle(HandleTypes.None);
             SetFrameCopyPaste();
             EditorGUI.LabelField(new Rect(600, 300, 300, 200), ActiveGroupIndex + "   " + ActiveLayerIndex + "   " + ActiveFrameIndex);
 
@@ -198,7 +204,7 @@ namespace binc.PixelAnimator.Editor.Window{
                 if (SelectedAnim.GetSpriteList().Count > 0) {
 
                     if (!isPlaying) DrawPropertyWindow();
-                    CanvasWindow.SetWindow(Event.current, SelectedAnim.GetSpriteList()[ActiveFrameIndex], position);
+                    CanvasWindow.SetWindow(eventCurrent, SelectedAnim.GetSpriteList()[ActiveFrameIndex], position);
                     //DrawCanvas(eventCurrent);
                 }
                 else {
@@ -209,20 +215,21 @@ namespace binc.PixelAnimator.Editor.Window{
                 NoAnimation();
             }
 
-            
+
             // CreateTimeline(eventCurrent);
             TimelineWindow.SetWindow(eventCurrent);
             EndWindows();
-
+            
             SetFocus();
             // DragTimeline(eventCurrent);
 
             //Window layout.            
             GUI.BringWindowToFront(4);
             GUI.BringWindowToFront(5);
-            GUI.BringWindowToFront(2);
+            
             GUI.BringWindowToBack(7);
-            GUI.BringWindowToBack(1);
+            GUI.BringWindowToBack(CanvasId);
+            GUI.BringWindowToFront(TimelineId);
 
 
         }
@@ -1202,7 +1209,7 @@ namespace binc.PixelAnimator.Editor.Window{
                 var spriteList = anim.GetSpriteList();
                     
                 if(spriteList != null)
-                   TimelineWindow.ReloadVariable(spriteList.Count);
+                TimelineWindow.ReloadVariable(spriteList.Count);
 
                 
 
