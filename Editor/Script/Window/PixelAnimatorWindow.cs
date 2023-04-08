@@ -15,7 +15,7 @@ namespace binc.PixelAnimator.Editor.Window{
     public class PixelAnimatorWindow : EditorWindow{
 
         #region Variable
-
+        
         private const string PixelAnimatorPath = "Assets/binc/PixelAnimator/";
 
         public Rect TimelineRect => timelineRect;
@@ -86,20 +86,23 @@ namespace binc.PixelAnimator.Editor.Window{
         private bool eventFoldout;
         public bool RightClicked { get; private set; }
         public bool LeftClicked { get; private set; }
+        public bool MiddleClicked { get; private set; }
         [SerializeField] private bool loadedResources;
 
+        public Event EventCurrent => Event.current;
 
 
-
-        public WindowFocusEnum WindowFocus{get; private set;}
+        public WindowEnum WindowFocus{get; set;}
         public PropertyFocusEnum PropertyFocus{get; set;}
 
         public CanvasWindow CanvasWindow{get; private set;}
         public TimelineWindow TimelineWindow{get; private set;}
+        public CustomWindow FocusedWindow { get; private set; }
 
         public const int CanvasId = 1;
         public const int TimelineId = 2;
 
+        
 
         #endregion
 
@@ -160,8 +163,11 @@ namespace binc.PixelAnimator.Editor.Window{
             triggerTex = Resources.Load<Texture2D>("Sprites/trigger");
             noTriggerTex = Resources.Load<Texture2D>("Sprites/notrigger");
             durationTex = playTex;
-            CanvasWindow = new CanvasWindow(this);
-            TimelineWindow = new TimelineWindow(this);
+
+            CanvasWindow = new CanvasWindow(this, WindowEnum.Canvas);
+            TimelineWindow = new TimelineWindow(this, WindowEnum.Timeline);
+            FocusedWindow = TimelineWindow;
+            WindowFocus = WindowEnum.Timeline;
             loadedResources = true;
 
         }
@@ -171,8 +177,10 @@ namespace binc.PixelAnimator.Editor.Window{
         private void OnGUI(){
             if(!loadedResources) LoadInitResources();
 
-            RightClicked = Event.current.type == EventType.MouseDown && Event.current.button == 1;
-            LeftClicked = Event.current.type == EventType.MouseDown && Event.current.button == 0;
+            LeftClicked = PixelAnimatorUtility.GetClicked(Event.current, 0);
+            RightClicked = PixelAnimatorUtility.GetClicked(Event.current, 1);
+            MiddleClicked = PixelAnimatorUtility.GetClicked(Event.current, 2);
+
 
 
             EditorGUI.DrawRect(new Rect(Vector2.zero, maxSize), new Color(0.13f, 0.13f, 0.15f));
@@ -180,16 +188,26 @@ namespace binc.PixelAnimator.Editor.Window{
             SetWindows();
             SetBurgerMenu();
 
+            
             if (SelectedAnim == null || SelectedAnim.Groups == null) return;
 
 
             if (isPlaying) PropertyFocus = PropertyFocusEnum.Sprite;
-            //editingHandle = SelectedAnim.Groups.Count > 0 ? editingHandle : HandleTypes.None;
             if (SelectedAnim.Groups.Count <= 0) CanvasWindow.SetHandle(HandleTypes.None);
             SetFrameCopyPaste();
             EditorGUI.LabelField(new Rect(600, 300, 300, 200), ActiveGroupIndex + "   " + ActiveLayerIndex + "   " + ActiveFrameIndex);
+            EditorGUI.LabelField(new Rect(50, 50, 300, 200), WindowFocus.ToString());
 
+            SetWindowFocus(CanvasWindow.WindowRect, WindowEnum.Canvas);
+            //SetWindowFocus(TimelineWindow.WindowRect, WindowEnum.Canvas, false);
+            //SetWindowFocus(propertyWindowRect, WindowEnum.Canvas, false);
+            TimelineWindow.IsFocusChangeable = true;
 
+            SetWindowFocus(TimelineWindow.WindowRect, WindowEnum.Timeline);
+
+            //Debug.Log(Event.current.type);
+            //Debug.Log("Timeline: " + IsMouseOnWindow(WindowEnum.Timeline));
+            //Debug.Log("Canvas: " + IsMouseOnWindow(WindowEnum.Canvas));
             SetEditorDeltaTime();
             if(isPlaying) Play();
 
@@ -204,7 +222,7 @@ namespace binc.PixelAnimator.Editor.Window{
                 if (SelectedAnim.GetSpriteList().Count > 0) {
 
                     if (!isPlaying) DrawPropertyWindow();
-                    CanvasWindow.SetWindow(eventCurrent, SelectedAnim.GetSpriteList()[ActiveFrameIndex], position);
+                    CanvasWindow.SetWindow(eventCurrent);
                     //DrawCanvas(eventCurrent);
                 }
                 else {
@@ -221,6 +239,10 @@ namespace binc.PixelAnimator.Editor.Window{
             EndWindows();
             
             SetFocus();
+
+
+            
+
             // DragTimeline(eventCurrent);
 
             //Window layout.            
@@ -236,7 +258,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
         private void SetFocus(){
             switch (WindowFocus) {
-                case WindowFocusEnum.TimeLine or WindowFocusEnum.SpriteWindow:
+                case WindowEnum.Timeline or WindowEnum.Canvas:
                     if (Event.current.type == EventType.MouseDown) {
                         GUI.FocusControl(null);
                     }
@@ -372,7 +394,7 @@ namespace binc.PixelAnimator.Editor.Window{
             }
 
             if (propertyWindowRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown) {
-                WindowFocus = WindowFocusEnum.Property;
+                WindowFocus = WindowEnum.Property;
             }
 
             GUI.color = tempColor;
@@ -451,59 +473,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
         #region Timeline
 
-        private void DragTimeline(Event eventCurrent){
-            const float partitionHeight = 5;
-            partitionHandleRect = new Rect(0, timelineRect.y - partitionHeight, timelineRect.width, partitionHeight);
-
-            EditorGUIUtility.AddCursorRect(partitionHandleRect, MouseCursor.ResizeVertical);
-            EditorGUI.DrawRect(partitionHandleRect, Color.black);
-            switch (eventCurrent.type) {
-                // drag timeline
-                case EventType.MouseDrag:
-                    if (partitionHandleRect.Contains(eventCurrent.mousePosition)) dragTimeline = true;
-                    Repaint();
-                    break;
-                case EventType.MouseUp:
-                    dragTimeline = false;
-                    break;
-            }
-        }
-
-        private void CreateTimeline(Event eventCurrent){
-            if (dragTimeline && CanvasWindow.EditingHandle ==  HandleTypes.None && eventCurrent.button == 0) {
-                switch (eventCurrent.type) {
-                    case EventType.MouseDown:
-                        timelineRect.yMin += 5;
-                        break;
-                    case EventType.MouseDrag:
-                        timelineRect.yMin = eventCurrent.mousePosition.y;
-                        break;
-                }
-            }
-
-            timelineRect.y = position.yMax - timelineRect.height;
-            timelineRect.yMin = Mathf.Clamp(timelineRect.y, 200, position.yMax - 150); //Clamped the timeline y position.
-            timelineRect.size = new Vector2(position.width + 10, timelineRect.height);
-
-            switch (eventCurrent.type) {
-                // drag timeline
-                case EventType.MouseDrag:{
-                    if (partitionHandleRect.Contains(eventCurrent.mousePosition)) dragTimeline = true;
-                    Repaint();
-                    break;
-                }
-                case EventType.MouseUp:
-                    dragTimeline = false;
-                    break;
-            }
-
-            timelineRect = GUILayout.Window(2, timelineRect, DrawTimeline, GUIContent.none, GUIStyle.none);
-            if (timelineRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown) {
-                WindowFocus = WindowFocusEnum.TimeLine;
-            }
-
-
-        }
+      
 
         private void DrawTimeline(int windowID){
 
@@ -1049,7 +1019,7 @@ namespace binc.PixelAnimator.Editor.Window{
         
 
         private void SetFrameCopyPaste(){
-            if (WindowFocus != WindowFocusEnum.TimeLine || PropertyFocus != PropertyFocusEnum.HitBox) return;
+            if (WindowFocus != WindowEnum.Timeline || PropertyFocus != PropertyFocusEnum.HitBox) return;
             var eventCurrent = Event.current;
             if (eventCurrent.type == EventType.ValidateCommand && eventCurrent.commandName == "Copy")
                 eventCurrent.Use();
@@ -1207,9 +1177,8 @@ namespace binc.PixelAnimator.Editor.Window{
 
                 if (SelectedAnim == anim) continue;
                 var spriteList = anim.GetSpriteList();
-                    
                 if(spriteList != null)
-                TimelineWindow.ReloadVariable(spriteList.Count);
+                TimelineWindow?.ReloadVariable(spriteList.Count);
 
                 
 
@@ -1387,9 +1356,57 @@ namespace binc.PixelAnimator.Editor.Window{
             ActiveFrameIndex = index;
         }
 
-        public void SetWindowFocus(WindowFocusEnum windowFocus){
-            this.WindowFocus = windowFocus;
+
+
+        public void SetWindowFocus(Rect rect, WindowEnum windowFocus, bool include = true){
+            if (windowFocus == WindowFocus) return;
+            var focusedWindow = GetWindowForEnum(WindowFocus);
+            if (focusedWindow == null || !focusedWindow.IsFocusChangeable) return; 
+
+            var anyMouseOperations = LeftClicked || RightClicked || MiddleClicked;
+            if (!anyMouseOperations) return;
+
+            var isFocusable = include ? rect.Contains(Event.current.mousePosition) : !rect.Contains(Event.current.mousePosition);
+            if (isFocusable) {
+                Debug.Log("Focused the " + windowFocus.ToString());
+                focusedWindow.IsFocusChangeable = false;
+                WindowFocus = windowFocus;
+            }
+
+
+
         }
+
+        public CustomWindow GetWindowForEnum(WindowEnum window) {
+            switch (window) {
+                case WindowEnum.Property:
+                    return null;
+                    
+                case WindowEnum.Timeline:
+                    return TimelineWindow;
+
+                case WindowEnum.Canvas:
+                    return CanvasWindow;
+                    
+            }
+            return null;
+        }
+
+        public bool IsMouseOnWindow(WindowEnum windowEnum) {
+            var mousePos = Event.current.mousePosition;
+            var window = GetWindowForEnum(windowEnum);
+            var onWindow = window.WindowRect.Contains(mousePos);
+            switch (windowEnum) {
+                case WindowEnum.Property or WindowEnum.Timeline:
+                    return onWindow;
+                case WindowEnum.Canvas:
+                    return onWindow || !(TimelineWindow.WindowRect.Contains(mousePos) || propertyWindowRect.Contains(mousePos));
+            }
+
+            return false;
+        }
+
+
 
     }
 

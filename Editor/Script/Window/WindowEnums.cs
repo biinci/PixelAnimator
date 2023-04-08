@@ -8,10 +8,10 @@ namespace binc.PixelAnimator.Editor.Window{
         Sprite
     }
 
-    public enum WindowFocusEnum{
+    public enum WindowEnum{
         Property,
-        TimeLine,
-        SpriteWindow
+        Timeline,
+        Canvas
     }
 
     //Box handles.

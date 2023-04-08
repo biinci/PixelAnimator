@@ -23,7 +23,7 @@ namespace binc.PixelAnimator.Editor.Window{
         private Texture2D blackTex = new Texture2D(1,1);
         
 
-        public CanvasWindow(PixelAnimatorWindow animatorWindow) : base(animatorWindow){
+        public CanvasWindow(PixelAnimatorWindow animatorWindow, WindowEnum windowFocus) : base(animatorWindow, windowFocus){
             
             whiteTex.SetPixel(0, 0, whiteColor);
             whiteTex.Apply();
@@ -35,39 +35,63 @@ namespace binc.PixelAnimator.Editor.Window{
         
         
 
-        public void SetWindow(Event eventCurrent, Sprite sprite, Rect editorRect){ 
+        public override void SetWindow(Event eventCurrent){
+            base.SetWindow(eventCurrent);
+
+            var sprite = animatorWindow.SelectedAnim.GetSpriteList()[animatorWindow.ActiveFrameIndex];
             spritePreview = AssetPreview.GetAssetPreview(sprite);
 
-            SetZoom(eventCurrent, editorRect);
+            FocusFunctions();
 
+            var editorRect = animatorWindow.position;
             GUI.Window(PixelAnimatorWindow.CanvasId, windowRect, _=>{DrawCanvas(eventCurrent);}, GUIContent.none, GUIStyle.none);
             UpdateScale(editorRect);
+
 
             const float outLineWidth = 3f;
             var outLinePos = windowRect.position - Vector2.one * outLineWidth;
             var outLineSize = new Vector2(windowRect.width + outLineWidth * 2, windowRect.size.y + outLineWidth * 2);
             EditorGUI.DrawRect(new Rect(outLinePos, outLineSize), new Color(0f, 0f, 0f));
-           
+
+
+            spriteScale = Mathf.Clamp(spriteScale, 3, (int)(editorRect.height / spritePreview.height));
+            windowRect.position = new Vector2(viewOffset.x + spriteOrigin.x, viewOffset.y + spriteOrigin.y + 120);
+            windowRect.size = new Vector2(spritePreview.width * spriteScale, spritePreview.height * spriteScale);
+
+
             SetBox();
 
         }
 
+        public override void FocusFunctions() {
+            base.FocusFunctions();
+            if (animatorWindow.WindowFocus != WindowEnum.Canvas) return;
+            UIOperations();
+            //When focus is changeable?
 
-        private void SetZoom(Event eventCurrent, Rect editorRect){
-            if (eventCurrent.button == 2)
-                viewOffset += eventCurrent.delta * 0.5f; // <== Middle Click Move.
-            if (eventCurrent.type == EventType.ScrollWheel) {
-                var inversedDelta = Mathf.Sign(eventCurrent.delta.y) < 0 ? 1 : -1;
-                spriteScale += inversedDelta;
-            }
-
-            spriteScale = Mathf.Clamp(spriteScale, 1, (int)(editorRect.height / spritePreview.height));
-
-            windowRect.position = new Vector2(viewOffset.x + spriteOrigin.x, viewOffset.y + spriteOrigin.y);
-            windowRect.size = new Vector2(spritePreview.width * spriteScale, spritePreview.height * spriteScale);
+            IsFocusChangeable = true;
             
         }
 
+
+        private void MoveOperations(Event eventCurrent, Rect editorRect){
+            if (eventCurrent.button == 2) {
+                viewOffset += eventCurrent.delta * 0.5f; // <== Middle Click Move.
+                animatorWindow.Repaint();
+            }
+                
+            if (eventCurrent.type == EventType.ScrollWheel) {
+                var inversedDelta = Mathf.Sign(eventCurrent.delta.y) < 0 ? 1 : -1;
+                spriteScale += inversedDelta;
+                animatorWindow.Repaint();
+            }
+        }
+
+        public override void UIOperations() {
+            var eventCurrent = animatorWindow.EventCurrent;
+            MoveOperations(eventCurrent, animatorWindow.position);
+            
+        }
 
         private void UpdateScale(Rect editorRect){
             var adjustedSpriteWidth = spritePreview.width * spriteScale;
@@ -75,8 +99,11 @@ namespace binc.PixelAnimator.Editor.Window{
             var adjustedPosition = new Rect(Vector2.zero, editorRect.size);
             adjustedPosition.width += 10;
             adjustedPosition.height -= adjustedPosition.yMax - animatorWindow.TimelineRect.y; //- timelineRect.y
-            spriteOrigin.x = adjustedPosition.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
-            spriteOrigin.y = adjustedPosition.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
+            //spriteOrigin.x = adjustedPosition.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
+            //spriteOrigin.y = adjustedPosition.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
+
+            spriteOrigin.x = adjustedPosition.width * 0.5f - adjustedSpriteWidth * 0.5f;
+            spriteOrigin.y = adjustedPosition.height * 0.5f - adjustedSpriteHeight * 0.5f;
 
             //handle the canvas view bounds X
             if (viewOffset.x > adjustedSpriteWidth * 0.5f)
@@ -89,6 +116,7 @@ namespace binc.PixelAnimator.Editor.Window{
                 viewOffset.y = adjustedSpriteHeight * 0.5f;
             if (viewOffset.y < -adjustedSpriteHeight * 0.5f)
                 viewOffset.y = -adjustedSpriteHeight * 0.5f;
+            
         }
 
         private void DrawCanvas(Event eventCurrent){
@@ -104,6 +132,7 @@ namespace binc.PixelAnimator.Editor.Window{
                     var spriteSize = new Vector2(spritePreview.width, spritePreview.height);
                     DrawBox(group, boxData, spriteScale, spriteSize, EditingHandle, eventCurrent);
                 }
+            
         }
 
 

@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 
 using binc.PixelAnimator.DataProvider;
 using UnityEngine;
+using System.Runtime.InteropServices;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -146,7 +147,30 @@ namespace binc.PixelAnimator.Utility{
         }
         
         
-        
+
+        /// <param name="button"> 0: left, 1: right, 2: middle</param>
+        /// <returns></returns>
+        public static bool GetClicked(Event eventCurrent, int button) {
+            return Event.current.type == EventType.MouseDown && Event.current.button == button;
+        }
+
+        public static void ChangeCursor(Rect rect, MouseCursor mouseCursor, Vector2 mousePos, bool condition) {
+            if (rect.Contains(mousePos)) {
+                if (condition) {
+                    EditorGUIUtility.AddCursorRect(rect, mouseCursor);
+                }
+            }
+            else{
+                if (condition) {
+                    EditorGUIUtility.AddCursorRect(new Rect(0,0,800,800), mouseCursor);
+                }
+            }
+
+        }
+
+        public static Rect GetWorldRect(Rect rect, Vector2 parentPos) {
+            return new Rect(parentPos.x + rect.xMin, parentPos.y + rect.yMin, rect.width, rect.height);
+        }
 
 #endif
         private static object CreateObject(Type type){ //DELETE
@@ -238,56 +262,6 @@ namespace binc.PixelAnimator.Utility{
             };
         }
 
-        public static void DrawGrid(Rect rect, Texture2D spritePreview, int spriteScale){
-
-            var whiteColor = new Color(0.75f, 0.75f, 0.75f);
-            var blackColor = new Color(0.75f, 0.75f, 0.75f);
-
-            // Set grid texture.
-            var gridWhiteTex = new Texture2D(1, 1); //Set grid, black and white.
-            gridWhiteTex.SetPixel(0, 0, whiteColor);
-            gridWhiteTex.Apply();
-
-            var gridBlackTex = new Texture2D(1, 1);
-            gridBlackTex.SetPixel(0, 0, blackColor);
-            gridBlackTex.Apply();
-
-
-            var grid = new Rect(rect.x, rect.y, 16 * spriteScale, 16 * spriteScale); //define a single 16x16 tile
-
-            for (var i = 0; i < spritePreview.width / 16; i++) {
-
-
-                for (var j = 0; j < spritePreview.height / 16; j += 2) {
-
-                    var tex = i % 2 == 0 ? gridWhiteTex : gridBlackTex;
-                    GUI.DrawTexture(grid, tex);
-                    grid.y += grid.height; 
-                    var texTwo = tex == gridWhiteTex ? gridBlackTex : gridWhiteTex;
-                    GUI.DrawTexture(grid, texTwo);
-                    grid.y += grid.height;
-                }
-
-                grid.y = rect.y;
-                grid.x += grid.width;
-
-            }
-
-            if (!(rect.x + rect.width - grid.x > 0)) return;
-
-            grid.width = rect.x + rect.width - grid.x; 
-
-            for (var j = 0; j < spritePreview.height / 16; j += 2) {
-                //iterate over Y
-                GUI.DrawTexture(grid, gridBlackTex); 
-                grid.y += grid.height;
-                GUI.DrawTexture(grid, gridWhiteTex);
-                grid.y += grid.height;
-            }
-
-            grid.height = rect.y + rect.height - grid.y;
-            if (rect.y + rect.height - grid.y > 0) GUI.DrawTexture(grid, gridBlackTex); 
-        }
 
 
         
