@@ -10,6 +10,7 @@ using binc.PixelAnimator.Utility;
 
 
 namespace binc.PixelAnimator.Editor.Window{
+    public delegate void PixelAnimationListener(object userData);
 
     [Serializable]
     public class PixelAnimatorWindow : EditorWindow{
@@ -101,6 +102,13 @@ namespace binc.PixelAnimator.Editor.Window{
 
         public const int CanvasId = 1;
         public const int TimelineId = 2;
+
+        internal event PixelAnimationListener AddedGroup;
+        internal event PixelAnimationListener RemovedGroup;
+
+        internal event PixelAnimationListener AddedLayer;
+        internal event PixelAnimationListener RemovedLayer;
+
 
         
 
@@ -816,13 +824,13 @@ namespace binc.PixelAnimator.Editor.Window{
 
         private void SetGroupMenu(){
             settingsPopup = new GenericMenu{ allowDuplicateNames = true };
-            settingsPopup.AddItem(new GUIContent("Settings/Delete"), false, DeleteGroup);
+            settingsPopup.AddItem(new GUIContent("Settings/Delete"), false, RemoveGroup);
         }
 
         private void SetLayerMenu(){
             layerPopup = new GenericMenu{allowDuplicateNames = true};
             layerPopup.AddItem(new GUIContent("Add Layer Below"), false, AddBelowLayer);
-            layerPopup.AddItem(new GUIContent("Delete Layer"), false, DeleteLayer);
+            layerPopup.AddItem(new GUIContent("Delete Layer"), false, RemoveLayer);
         }
         
 
@@ -1052,21 +1060,27 @@ namespace binc.PixelAnimator.Editor.Window{
         }
 
         #region Popup Functions
-        private void AddGroup(object userData){
-            
-            TargetAnimation.Update();
-            var data = (BoxData)userData;
+        internal void AddGroup(object userData)
+        {
 
-            if (SelectedAnim.Groups.Any(x => x.BoxDataGuid == data.Guid)) {
-                Debug.LogError("This boxData has already been added! Please add another boxData.");
+            TargetAnimation.Update();
+            var boxData = (BoxData)userData;
+
+            var isGroupExist = SelectedAnim.Groups.Any(x => x.BoxDataGuid == boxData.Guid);
+            if (isGroupExist){
+                Debug.LogError("This group has already been added! Please add another group.");
                 return;
             }
 
-            SelectedAnim.AddGroup(data.Guid);
+            SelectedAnim.AddGroup(boxData.Guid);
             SelectedAnim.Groups[^1].AddLayer(SelectedAnim.PixelSprites);
-            CheckAndFixVariable();
+            //Maybe I do merge the add group and add layer. Least I when added group then add first layer.
+            //CheckAndFixVariable();//This method absolutely must be deleted.
+            //animatorWindow.AddedGroup?.Invoke();//Fix the add group/frame/layer, delete group/frame/layer etc.
+            AddedGroup.Invoke(userData);
 
         }
+
 
         private void TargetPreferences(){
             EditorGUIUtility.PingObject(Preferences);
@@ -1111,26 +1125,30 @@ namespace binc.PixelAnimator.Editor.Window{
         }
         
         
-        private void DeleteGroup(){
+        private void RemoveGroup(){
             TargetAnimation.Update();
             TargetAnimation.FindProperty("groups").DeleteArrayElementAtIndex(ActiveGroupIndex);
             TargetAnimation.ApplyModifiedProperties();
-            CheckAndFixVariable();
+            RemovedGroup.Invoke(ActiveGroupIndex);
+            if (ActiveGroupIndex != 0) ActiveGroupIndex--;
         }
 
-        private void DeleteLayer(){
+        private void RemoveLayer(){
             var propGroups = TargetAnimation.FindProperty("groups");
             var propLayers = propGroups.GetArrayElementAtIndex(ActiveGroupIndex).FindPropertyRelative("layers");
             propLayers.DeleteArrayElementAtIndex(ActiveLayerIndex);
             TargetAnimation.ApplyModifiedProperties();
-            CheckAndFixVariable();
+            RemovedLayer.Invoke(ActiveLayerIndex);
+            if (ActiveLayerIndex != 0) ActiveLayerIndex--;
         }
 
-        private void AddBelowLayer(){
+        private void AddBelowLayer() {
             var groupsProp = TargetAnimation.FindProperty("groups");
             var layersProp = groupsProp.GetArrayElementAtIndex(ActiveGroupIndex).FindPropertyRelative("layers");
             PixelAnimationEditor.AddLayer(layersProp, TargetAnimation);
-            CheckAndFixVariable();
+            TargetAnimation.Update();
+            AddedLayer.Invoke(SelectedAnim.Groups[ActiveGroupIndex].layers[^1]);
+            
         }
         #endregion
         
@@ -1404,6 +1422,16 @@ namespace binc.PixelAnimator.Editor.Window{
             }
 
             return false;
+        }
+
+        public bool IsAnimSelected(){
+            return SelectedAnim != null;
+        }
+
+        public bool IsGroupExist(){
+            if (!IsAnimSelected()) return false;
+            return SelectedAnim.Groups.Count > 0;
+
         }
 
 

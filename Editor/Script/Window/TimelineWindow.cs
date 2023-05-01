@@ -53,6 +53,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
         private const float HandleHeight = 9;
         private const float GroupPanelWidth = 200;
+        private Vector2 groupScrollView;
 
         public TimelineWindow(PixelAnimatorWindow animatorWindow, WindowEnum windowFocus) : base(animatorWindow, windowFocus) {
             var position = animatorWindow.position;
@@ -60,7 +61,10 @@ namespace binc.PixelAnimator.Editor.Window{
             windowRect.height = 150;
             windowRect.size = new Vector2(position.width - 100, windowRect.height);
             windowRect.y = position.yMax - windowRect.height;
-            
+
+
+            animatorWindow.AddedGroup += _ => { groupEditorData.Add(new GroupEditorData()); };
+            animatorWindow.RemovedGroup += i => { groupEditorData.RemoveAt( (int)i ); };
             LoadInitResources();
             Debug.Log("Timeline Window is created!" + "    " + windowRect);
 
@@ -95,7 +99,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
         public override void SetWindow(Event eventCurrent){
             base.SetWindow(eventCurrent);
-            
+
             CreateTimeline(eventCurrent);
             //FocusFunctions();
         }
@@ -172,25 +176,26 @@ namespace binc.PixelAnimator.Editor.Window{
 
 
         }
-        Vector2 test;
         private void DrawGroupPanel() {
+
             var groupPanelRect = new Rect(0, rowLayout.yMax, GroupPanelWidth, windowRect.height - rowLayout.yMax );
-            EditorGUI.DrawRect(groupPanelRect, Color.green);
+            //EditorGUI.DrawRect(groupPanelRect, Color.green);
             using (new GUILayout.AreaScope(groupPanelRect)) {
                 // Sadece belirlediğimiz bölgenin içinde olacak şekilde yatay hizalama yapıyoruz
                 using (new EditorGUILayout.VerticalScope()) {
-                    using(var scrollView = new EditorGUILayout.ScrollViewScope(test, GUIStyle.none)) {
-                        test = scrollView.scrollPosition;
-                        GUILayout.Button("Button 1");
-                        GUILayout.Button("Button 2");
-                        GUILayout.Button("Button 3");
-                        GUILayout.Button("Button 3");
-                        GUILayout.Button("Button 3");
-                        GUILayout.Button("Button 3");
+                    using(var scrollView = new EditorGUILayout.ScrollViewScope(groupScrollView, GUIStyle.none)) {
+                        groupScrollView = scrollView.scrollPosition;
+                        if (animatorWindow.IsGroupExist()){
+                            const int height = 35;
+                            const int bottomLineHeight = 3;
+                            //TODO: Group editor data??
+
+                        }
                     }
 
                 }
             }
+
         }
 
         public override void UIOperations(){
@@ -293,26 +298,11 @@ namespace binc.PixelAnimator.Editor.Window{
             if (animatorWindow.SelectedAnim == null) return;
 
             for (var i = 0; i < animatorWindow.Preferences.BoxData.Count; i++) {
-                timelinePopup.AddItem(new GUIContent(boxData[i].boxType), false, AddGroup, boxData[i]);
+                timelinePopup.AddItem(new GUIContent(boxData[i].boxType), false, animatorWindow.AddGroup, boxData[i]);
             }
 
         }
 
-        private void AddGroup(object userData){
-            
-            animatorWindow.TargetAnimation.Update();
-            var data = (BoxData)userData;
-
-            if (animatorWindow.SelectedAnim.Groups.Any(x => x.BoxDataGuid == data.Guid)) {
-                Debug.LogError("This boxData has already been added! Please add another boxData.");
-                return;
-            }
-
-            animatorWindow.SelectedAnim.AddGroup(data.Guid);
-            animatorWindow.SelectedAnim.Groups[^1].AddLayer(animatorWindow.SelectedAnim.PixelSprites);
-            CheckAndFixVariable();
-
-        }
 
         private void TargetPreferences(){
             EditorGUIUtility.PingObject(animatorWindow.Preferences);

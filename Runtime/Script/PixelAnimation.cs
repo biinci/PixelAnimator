@@ -24,6 +24,15 @@ namespace binc.PixelAnimator{
         
         public void AddGroup(string boxDataGuid){
             groups.Add(new Group(boxDataGuid));
+        }
+
+        public void RemoveGroup(string boxDataGuid){
+            var group = Groups.Find(x => x.BoxDataGuid == boxDataGuid);
+            if (group == null){
+                Debug.LogWarning("The group you want to delete is not already on the list.");
+                return;
+            }
+            Groups.Remove(group);
 
         }
         
