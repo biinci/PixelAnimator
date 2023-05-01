@@ -52,20 +52,21 @@ namespace binc.PixelAnimator.Editor.Window{
         private readonly Vector2 frameBlank = new Vector2(48, 48);
 
         private const float HandleHeight = 9;
-        private const float GroupPanelWidth = 200;
+        private const float GroupPanelWidth = 255;
         private Vector2 groupScrollView;
 
         public TimelineWindow(PixelAnimatorWindow animatorWindow, WindowEnum windowFocus) : base(animatorWindow, windowFocus) {
             var position = animatorWindow.position;
-            windowRect.x = 50;
+            windowRect.x = 0;
             windowRect.height = 150;
-            windowRect.size = new Vector2(position.width - 100, windowRect.height);
+            windowRect.size = new Vector2(position.width, windowRect.height);
             windowRect.y = position.yMax - windowRect.height;
 
 
             animatorWindow.AddedGroup += _ => { groupEditorData.Add(new GroupEditorData()); };
             animatorWindow.RemovedGroup += i => { groupEditorData.RemoveAt( (int)i ); };
             LoadInitResources();
+            InitRect();
             Debug.Log("Timeline Window is created!" + "    " + windowRect);
 
         }
@@ -95,13 +96,20 @@ namespace binc.PixelAnimator.Editor.Window{
 
         }
 
+        private void InitRect() { //okey
+            const float buttonSize = 24; // set button rect
+            burgerRect = new Rect(10, 15, 32, 32);
+            backRect = new Rect(160, 20, buttonSize, buttonSize);
+            playRect = new Rect(backRect.width + backRect.xMin + 2, backRect.yMin, buttonSize, buttonSize);
+            frontRect = new Rect(playRect.width + playRect.xMin + 2, backRect.yMin, buttonSize, buttonSize);
 
+            groupEditorData ??= new List<GroupEditorData>();
+        }
 
         public override void SetWindow(Event eventCurrent){
             base.SetWindow(eventCurrent);
-
+            groupEditorData ??= new List<GroupEditorData> ();
             CreateTimeline(eventCurrent);
-            //FocusFunctions();
         }
 
 
@@ -109,9 +117,9 @@ namespace binc.PixelAnimator.Editor.Window{
             var position = animatorWindow.position;
             windowRect.y = position.height - windowRect.height;
             windowRect.yMin = Mathf.Clamp(windowRect.y, 200, position.yMax - 150); //Clamped the timeline y position.
-            windowRect.size = new Vector2(position.width - 100, windowRect.height);
+            windowRect.size = new Vector2(position.width, windowRect.height);
+            
 
-            //FocusFunctions();
             windowRect = GUI.Window(PixelAnimatorWindow.TimelineId, windowRect, _=>SetTimeline(eventCurrent), GUIContent.none, GUIStyle.none);
             FocusFunctions();
 
@@ -139,7 +147,8 @@ namespace binc.PixelAnimator.Editor.Window{
             EditorGUI.DrawRect(columnLayout, Color.black);
 
 
-            //DrawTimelineButtons();
+            DrawTimelineButtons();
+            SetBurgerMenu();
             //// SetPlayKeys();
             //if (animatorWindow.TargetAnimation == null) return;
             //if (selectedAnim.GetSpriteList().Count > 0) {
@@ -166,19 +175,13 @@ namespace binc.PixelAnimator.Editor.Window{
             UIOperations();
             var eventCurrent = animatorWindow.EventCurrent;
             IsFocusChangeable = true;
-            //if (!(eventCurrent.type == EventType.MouseDown || eventCurrent.type == EventType.MouseDrag)) {
-            //    IsFocusChangeable = true;
-            //}
-            //else {
-            //    IsFocusChangeable = false;
-            //}
-            //TODO: Set focus
+
 
 
         }
         private void DrawGroupPanel() {
-
-            var groupPanelRect = new Rect(0, rowLayout.yMax, GroupPanelWidth, windowRect.height - rowLayout.yMax );
+            
+            var groupPanelRect = new Rect(0, rowLayout.yMax, GroupPanelWidth, 300 );
             //EditorGUI.DrawRect(groupPanelRect, Color.green);
             using (new GUILayout.AreaScope(groupPanelRect)) {
                 // Sadece belirlediğimiz bölgenin içinde olacak şekilde yatay hizalama yapıyoruz
@@ -188,6 +191,20 @@ namespace binc.PixelAnimator.Editor.Window{
                         if (animatorWindow.IsGroupExist()){
                             const int height = 35;
                             const int bottomLineHeight = 3;
+
+                            var darkColor = new Color(0.13f, 0.13f, 0.15f);
+
+                            var groups = animatorWindow.SelectedAnim.Groups;
+                            var groupStyle = animatorWindow.MySkin.GetStyle("Group");
+                            for (var i = 0; i < groups.Count; i ++) {
+
+                                using (new GUILayout.HorizontalScope( groupStyle )) {
+
+                                }
+
+                            }
+                            
+
                             //TODO: Group editor data??
 
                         }
@@ -250,7 +267,7 @@ namespace binc.PixelAnimator.Editor.Window{
 
                     if (PixelAnimatorUtility.Button(backTex, backRect))
                     {
-                        if (selectedAnim == null) return;
+                        
                         switch (animatorWindow.ActiveFrameIndex)
                         {
                             case 0:
@@ -266,14 +283,12 @@ namespace binc.PixelAnimator.Editor.Window{
 
                     else if (PixelAnimatorUtility.Button(durationTex, playRect))
                     {
-                        if (selectedAnim == null) return;
                         isPlaying = !isPlaying;
                         if (isPlaying && animatorWindow.SelectedAnim.fps == 0) Debug.Log("Frame rate is zero");
                         animatorWindow.Repaint();
                     }
                     else if (PixelAnimatorUtility.Button(frontTex, frontRect))
                     {
-                        if (selectedAnim == null) return;
                         animatorWindow.SetActiveFrame((animatorWindow.ActiveFrameIndex + 1) % animatorWindow.SelectedAnim.GetSpriteList().Count);
                         animatorWindow.Repaint();
                     }
@@ -591,30 +606,16 @@ namespace binc.PixelAnimator.Editor.Window{
 
         private void SetGroupMenu(){
             settingsPopup = new GenericMenu{ allowDuplicateNames = true };
-            settingsPopup.AddItem(new GUIContent("Settings/Delete"), false, DeleteGroup);
+            settingsPopup.AddItem(new GUIContent("Settings/Delete"), false, animatorWindow.OnRemoveGroup);
         }
 
         private void SetLayerMenu(){
             layerPopup = new GenericMenu{allowDuplicateNames = true};
             layerPopup.AddItem(new GUIContent("Add Layer Below"), false, AddBelowLayer);
-            layerPopup.AddItem(new GUIContent("Delete Layer"), false, DeleteLayer);
+            layerPopup.AddItem(new GUIContent("Delete Layer"), false, animatorWindow.OnRemoveLayer);
         }
 
-        private void DeleteGroup(){
-            
-            animatorWindow.TargetAnimation.Update();
-            animatorWindow.TargetAnimation.FindProperty("groups").DeleteArrayElementAtIndex(animatorWindow.ActiveGroupIndex);
-            animatorWindow.TargetAnimation.ApplyModifiedProperties();
-            CheckAndFixVariable();
-        }
 
-        private void DeleteLayer(){
-            var propGroups = animatorWindow.TargetAnimation.FindProperty("groups");
-            var propLayers = propGroups.GetArrayElementAtIndex(animatorWindow.ActiveGroupIndex).FindPropertyRelative("layers");
-            propLayers.DeleteArrayElementAtIndex(animatorWindow.ActiveLayerIndex);
-            animatorWindow.TargetAnimation.ApplyModifiedProperties();
-            CheckAndFixVariable();
-        }
 
         private void AddBelowLayer(){
             var groupsProp = animatorWindow.TargetAnimation.FindProperty("groups");
@@ -622,6 +623,7 @@ namespace binc.PixelAnimator.Editor.Window{
             PixelAnimationEditor.AddLayer(layersProp, animatorWindow.TargetAnimation);
             CheckAndFixVariable();
         }
+
         private void CheckAndFixVariable(){
             var selectedAnim = animatorWindow.SelectedAnim;
             if(selectedAnim == null || selectedAnim.Groups == null) return;
@@ -641,6 +643,7 @@ namespace binc.PixelAnimator.Editor.Window{
             }
         }
 
+        #region Frame
         private void SetFrameRect(){
             var selectedAnim = animatorWindow.SelectedAnim;
 
@@ -871,6 +874,9 @@ namespace binc.PixelAnimator.Editor.Window{
 
             }
         }
+
+        #endregion
+
 
         public void ReloadVariable(int columnCount){
             columnRects = new Rect[columnCount];

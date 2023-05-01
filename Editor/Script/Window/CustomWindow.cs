@@ -14,20 +14,20 @@ namespace binc.PixelAnimator.Editor.Window
         
         protected PixelAnimatorWindow animatorWindow;
 
-        private WindowEnum windowFocus;
+        private WindowEnum windowType;
         public bool IsFocusChangeable { get; internal set; }
         public bool IsCursorOnWindow { get; internal set; }
         
 
         public CustomWindow(PixelAnimatorWindow animatorWindow, WindowEnum windowFocusType) {
             this.animatorWindow = animatorWindow;
-            windowFocus = windowFocusType;
+            windowType = windowFocusType;
 
         }
 
         public abstract void UIOperations();
         public virtual void FocusFunctions() {
-            if (animatorWindow.WindowFocus != windowFocus) return;
+            if (animatorWindow.WindowFocus != windowType) return;
             
         }
 

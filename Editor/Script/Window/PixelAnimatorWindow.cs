@@ -32,7 +32,7 @@ namespace binc.PixelAnimator.Editor.Window{
         private Rect propertyWindowRect = new(10, 6, 120, 20);
         private Rect[] columnRects;
 
-
+        public GUISkin MySkin { get; private set; }
         [SerializeField] private List<GroupEditorData> groupEditorData;
 
 
@@ -170,6 +170,7 @@ namespace binc.PixelAnimator.Editor.Window{
             unvisibleTex = Resources.Load<Texture2D>("Sprites/unvisible");
             triggerTex = Resources.Load<Texture2D>("Sprites/trigger");
             noTriggerTex = Resources.Load<Texture2D>("Sprites/notrigger");
+            MySkin = Resources.Load<GUISkin>("PixelAnimationSkin");
             durationTex = playTex;
 
             CanvasWindow = new CanvasWindow(this, WindowEnum.Canvas);
@@ -185,6 +186,7 @@ namespace binc.PixelAnimator.Editor.Window{
         private void OnGUI(){
             if(!loadedResources) LoadInitResources();
 
+
             LeftClicked = PixelAnimatorUtility.GetClicked(Event.current, 0);
             RightClicked = PixelAnimatorUtility.GetClicked(Event.current, 1);
             MiddleClicked = PixelAnimatorUtility.GetClicked(Event.current, 2);
@@ -199,19 +201,14 @@ namespace binc.PixelAnimator.Editor.Window{
             
             if (SelectedAnim == null || SelectedAnim.Groups == null) return;
 
-
+            SetWindowFocus();
             if (isPlaying) PropertyFocus = PropertyFocusEnum.Sprite;
             if (SelectedAnim.Groups.Count <= 0) CanvasWindow.SetHandle(HandleTypes.None);
-            SetFrameCopyPaste();
+            //SetFrameCopyPaste();
             EditorGUI.LabelField(new Rect(600, 300, 300, 200), ActiveGroupIndex + "   " + ActiveLayerIndex + "   " + ActiveFrameIndex);
-            EditorGUI.LabelField(new Rect(50, 50, 300, 200), WindowFocus.ToString());
+            EditorGUI.LabelField(new Rect(300, 50, 300, 200), WindowFocus.ToString());
 
-            SetWindowFocus(CanvasWindow.WindowRect, WindowEnum.Canvas);
-            //SetWindowFocus(TimelineWindow.WindowRect, WindowEnum.Canvas, false);
-            //SetWindowFocus(propertyWindowRect, WindowEnum.Canvas, false);
-            TimelineWindow.IsFocusChangeable = true;
 
-            SetWindowFocus(TimelineWindow.WindowRect, WindowEnum.Timeline);
 
             //Debug.Log(Event.current.type);
             //Debug.Log("Timeline: " + IsMouseOnWindow(WindowEnum.Timeline));
@@ -276,6 +273,20 @@ namespace binc.PixelAnimator.Editor.Window{
             if (GUI.GetNameOfFocusedControl() != "") return;
             SetGroupKeys();
             SetPlayKeys();
+        }
+
+        private void SetWindowFocus() {
+            var timelineRect = TimelineWindow.WindowRect;
+            var canvasRect = CanvasWindow.WindowRect;
+            //var propertyRect = PropertyWindow.WindowRect;
+            
+            if(timelineRect.Contains(EventCurrent.mousePosition) && LeftClicked) {
+                WindowFocus = WindowEnum.Timeline;
+                CanvasWindow.SetHandle( HandleTypes.None);
+            }
+            else if(!timelineRect.Contains(EventCurrent.mousePosition) && LeftClicked) {
+                WindowFocus = WindowEnum.Canvas;
+            }
         }
 
 
@@ -1062,7 +1073,7 @@ namespace binc.PixelAnimator.Editor.Window{
         #region Popup Functions
         internal void AddGroup(object userData)
         {
-
+            
             TargetAnimation.Update();
             var boxData = (BoxData)userData;
 
@@ -1080,7 +1091,24 @@ namespace binc.PixelAnimator.Editor.Window{
             AddedGroup.Invoke(userData);
 
         }
+        public void OnRemoveGroup() {
+            
+            TargetAnimation.Update();
+            TargetAnimation.FindProperty("groups").DeleteArrayElementAtIndex(ActiveGroupIndex);
+            TargetAnimation.ApplyModifiedProperties();
+            RemovedGroup.Invoke(ActiveGroupIndex);
+            
 
+        }
+
+        public void OnRemoveLayer() {
+            var propGroups = TargetAnimation.FindProperty("groups");
+            var propLayers = propGroups.GetArrayElementAtIndex(ActiveGroupIndex).FindPropertyRelative("layers");
+            propLayers.DeleteArrayElementAtIndex(ActiveLayerIndex);
+            TargetAnimation.ApplyModifiedProperties();
+            RemovedLayer.Invoke(ActiveLayerIndex);
+
+        }
 
         private void TargetPreferences(){
             EditorGUIUtility.PingObject(Preferences);
@@ -1362,38 +1390,45 @@ namespace binc.PixelAnimator.Editor.Window{
             );
         }
 
+
+
+
+
         public void SetActiveGroup(int index) {
+            if (index < 0) return;
             ActiveGroupIndex = index;
         }
 
         public void SetActiveLayer(int index) {
+            if (index < 0) return;
             ActiveLayerIndex = index;
         }
 
         public void SetActiveFrame(int index) {
+            if (index < 0) return;
             ActiveFrameIndex = index;
         }
 
 
 
-        public void SetWindowFocus(Rect rect, WindowEnum windowFocus, bool include = true){
-            if (windowFocus == WindowFocus) return;
-            var focusedWindow = GetWindowForEnum(WindowFocus);
-            if (focusedWindow == null || !focusedWindow.IsFocusChangeable) return; 
+        //public void SetWindowFocus(Rect rect, WindowEnum windowFocus, bool include = true){
+        //    if (windowFocus == WindowFocus) return;
+        //    var focusedWindow = GetWindowForEnum(WindowFocus);
+        //    if (focusedWindow == null || !focusedWindow.IsFocusChangeable) return; 
 
-            var anyMouseOperations = LeftClicked || RightClicked || MiddleClicked;
-            if (!anyMouseOperations) return;
+        //    var anyMouseOperations = LeftClicked || RightClicked || MiddleClicked;
+        //    if (!anyMouseOperations) return;
 
-            var isFocusable = include ? rect.Contains(Event.current.mousePosition) : !rect.Contains(Event.current.mousePosition);
-            if (isFocusable) {
-                Debug.Log("Focused the " + windowFocus.ToString());
-                focusedWindow.IsFocusChangeable = false;
-                WindowFocus = windowFocus;
-            }
+        //    var isFocusable = include ? rect.Contains(Event.current.mousePosition) : !rect.Contains(Event.current.mousePosition);
+        //    if (isFocusable) {
+        //        Debug.Log("Focused the " + windowFocus.ToString());
+        //        focusedWindow.IsFocusChangeable = false;
+        //        WindowFocus = windowFocus;
+        //    }
 
 
 
-        }
+        //}
 
         public CustomWindow GetWindowForEnum(WindowEnum window) {
             switch (window) {
