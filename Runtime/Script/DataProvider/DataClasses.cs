@@ -1,5 +1,4 @@
-using UnityEngine;
-using System;
+using UnityEngine;using System;
 
 namespace  binc.PixelAnimator.DataProvider{
 
@@ -49,7 +48,7 @@ namespace  binc.PixelAnimator.DataProvider{
         }
 
         public void OnAfterDeserialize(){
-
+            // data = (T)InheritData;
         }
     }
     

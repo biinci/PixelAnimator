@@ -5,6 +5,10 @@ using System.Runtime.Serialization;
 using binc.PixelAnimator.DataProvider;
 using UnityEngine;
 using System.Runtime.InteropServices;
+using UnityEditorInternal;
+using binc.PixelAnimator.Common;
+
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -150,8 +154,9 @@ namespace binc.PixelAnimator.Utility{
 
         /// <param name="button"> 0: left, 1: right, 2: middle</param>
         /// <returns></returns>
-        public static bool GetClicked(Event eventCurrent, int button) {
-            return Event.current.type == EventType.MouseDown && Event.current.button == button;
+        public static bool IsClicked(int button) {
+            var @event = Event.current;
+            return @event.type == EventType.MouseDown && @event.button == button;
         }
 
         public static void ChangeCursor(Rect rect, MouseCursor mouseCursor, Vector2 mousePos, bool condition) {
@@ -172,7 +177,46 @@ namespace binc.PixelAnimator.Utility{
             return new Rect(parentPos.x + rect.xMin, parentPos.y + rect.yMin, rect.width, rect.height);
         }
 
+
+        public static void DropAreaGUI (Rect rect, ReorderableList list, PixelAnimationListener listener){ 
+            var evt = Event.current;
+            var dropArea = rect;
+        
+            switch (evt.type) {
+            case EventType.DragUpdated:
+            case EventType.DragPerform:
+                if (dropArea.Contains(evt.mousePosition)) {
+                    
+                    DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+                    
+                    if (evt.type == EventType.DragPerform) {
+                        DragAndDrop.AcceptDrag ();
+                    
+                        foreach (var draggedObject in DragAndDrop.objectReferences) {
+                            list.index = list.count-1;
+                            if(draggedObject is object obj){
+                                list.onAddCallback.Invoke(list);
+                                listener(obj);
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+
+
+
 #endif
+
+        public static void Swap<T>(this IList<T> list, int indexA, int indexB)
+        {
+            T tmp = list[indexA];
+            list[indexA] = list[indexB];
+            list[indexB] = tmp;
+        }
+        public delegate void PixelAnimationListener(object userData);
         private static object CreateObject(Type type){ //DELETE
             object obj;
             if (type.IsValueType) {

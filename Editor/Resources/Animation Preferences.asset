@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c6c1fde151efb845a5b0117c7d54b23, type: 3}
+  m_Name: Animation Preferences
+  m_EditorClassIdentifier: 
+  spriteProperties:
+  - name: Curve
+    dataType: 9
+    guid: 420e88d2e56ca43fda92e95465f18a11
+  - name: 
+    dataType: 0
+    guid: d71bd90aab37a77458e3830b62f92ae3
+  - name: 
+    dataType: 0
+    guid: 1b53d09302a7c794f8a14a752101e614
+  hitBoxProperties: []
+  boxData:
+  - color:
+      r: 0.18729973
+      g: 0.6509434
+      b: 0.28305224
+      a: 1
+    boxType: Hit
+    activeLayer: 2
+    physicMaterial: {fileID: 0}
+    rounded: 0
+    guid: 7bcc150ff54fb0b4f9c8b2a7e75b4c89
+  - color:
+      r: 0.13519046
+      g: 0.9245283
+      b: 0.14363804
+      a: 1
+    boxType: Alo
+    activeLayer: 3
+    physicMaterial: {fileID: 0}
+    rounded: 0
+    guid: 3456af45ad874d148a48ccd1c9f42d23
+  - color:
+      r: 0.6792453
+      g: 0.10504502
+      b: 0.05446779
+      a: 1
+    boxType: Heyt
+    activeLayer: 3
+    physicMaterial: {fileID: 0}
+    rounded: 0
+    guid: 314fe6b8e887c7e44b84800705206a86
+  - color:
+      r: 0.20128982
+      g: 0.5283019
+      b: 0.027411893
+      a: 1
+    boxType: godel
+    activeLayer: 3
+    physicMaterial: {fileID: 0}
+    rounded: 0
+    guid: d564c7dd52058814a977d36453d681b3
+  - color:
+      r: 0.6320754
+      g: 0.2236116
+      b: 0.3154869
+      a: 1
+    boxType: godel
+    activeLayer: 3
+    physicMaterial: {fileID: 0}
+    rounded: 0
+    guid: eddf9a7637638194c929ae8713bccd06

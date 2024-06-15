@@ -2,6 +2,7 @@ using binc.PixelAnimator.Editor.DataProvider;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
+using binc.PixelAnimator.Utility;
 
 
 namespace binc.PixelAnimator.Editor{
@@ -10,15 +11,12 @@ namespace binc.PixelAnimator.Editor{
     public class PixelAnimationEditor : UnityEditor.Editor{
 
         private PixelAnimation pixelAnimation;
-
-        private int spriteIndex;
         private ReorderableList pixelSpriteList;
         [SerializeField] private bool pixelSpriteFoldout;
         private Rect lastRect;
         private SerializedProperty groupProps;
         private float lineHeight;
         private float lineHeightSpace;
-
         [SerializeField] private bool showDetails;
 
         private void OnEnable(){
@@ -216,39 +214,15 @@ namespace binc.PixelAnimator.Editor{
             if(pixelSpriteFoldout) pixelSpriteList.DoLayoutList();
             EditorGUILayout.EndFoldoutHeaderGroup();
             
-            DropAreaGUI();
+            PixelAnimatorUtility.DropAreaGUI(lastRect, pixelSpriteList, obj => {
+                pixelSpriteList.serializedProperty
+                    .GetArrayElementAtIndex(pixelSpriteList.serializedProperty.arraySize-1)
+                    .FindPropertyRelative("sprite").objectReferenceValue = obj as Object;
+            });
             serializedObject.ApplyModifiedProperties();
             
         }
 
-        private void DropAreaGUI (){ 
-            var evt = Event.current;
-            var dropArea = lastRect;
-        
-            switch (evt.type) {
-            case EventType.DragUpdated:
-            case EventType.DragPerform:
-                if (dropArea.Contains(evt.mousePosition)) {
-                    
-                    DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-                    
-                    if (evt.type == EventType.DragPerform) {
-                        DragAndDrop.AcceptDrag ();
-                    
-                        foreach (var draggedObject in DragAndDrop.objectReferences) {
-                            pixelSpriteList.index = pixelSpriteList.count-1;
-                            if(draggedObject is Sprite sprite){
-                                pixelSpriteList.onAddCallback.Invoke(pixelSpriteList);
-                                pixelSpriteList.serializedProperty
-                                    .GetArrayElementAtIndex(pixelSpriteList.serializedProperty.arraySize-1)
-                                    .FindPropertyRelative("sprite").objectReferenceValue = sprite;
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-        }
 
 
         
@@ -341,9 +315,35 @@ namespace binc.PixelAnimator.Editor{
 
             }
             layersProp.serializedObject.ApplyModifiedProperties();
-            
+            layersProp.serializedObject.Update();
         }
         
         
+        public static void RemoveLayer(SerializedProperty layersProp, int deletedIndex){
+            layersProp.DeleteArrayElementAtIndex(deletedIndex);
+            layersProp.serializedObject.ApplyModifiedProperties();
+            layersProp.serializedObject.Update();
+        }
+        
+        public static void AddGroup(SerializedProperty groupsProp, string Guid){
+            groupsProp.InsertArrayElementAtIndex(groupsProp.arraySize);
+            groupsProp.serializedObject.ApplyModifiedProperties();
+            groupsProp.serializedObject.Update();
+
+            var groupProp = groupsProp.GetArrayElementAtIndex(groupsProp.arraySize-1);
+            groupProp.FindPropertyRelative("boxDataGuid").stringValue = Guid;
+
+            groupProp.serializedObject.ApplyModifiedProperties();
+            groupProp.serializedObject.Update();
+        }
+
+
+        public static void RemoveGroup(SerializedProperty groupsProp, int deletedIndex){
+            groupsProp.DeleteArrayElementAtIndex(deletedIndex);
+            groupsProp.serializedObject.ApplyModifiedProperties();
+            groupsProp.serializedObject.Update();
+        }
+
+
     }
 }

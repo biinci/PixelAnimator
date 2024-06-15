@@ -51,7 +51,7 @@ namespace binc.PixelAnimator{
             pixelSprites.Add(new PixelSprite(sprite, GUID.Generate().ToString()));
         }
 
-        public List<string> GetGroupsName(PixelAnimatorPreferences preferences){
+        public List<string> GetGroupsName(PixelAnimationPreferences preferences){
             var names = new List<string>();
             foreach (var group in groups) {
                 names.Add(preferences.GetBoxData(group.BoxDataGuid).boxType);

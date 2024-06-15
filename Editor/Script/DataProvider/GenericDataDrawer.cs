@@ -1,3 +1,4 @@
+using System;
 using binc.PixelAnimator.DataProvider;
 using binc.PixelAnimator.Utility;
 using UnityEditor;
@@ -14,8 +15,8 @@ namespace binc.PixelAnimator.Editor.DataProvider{
         
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label){
-            mType = property.FindPropertyRelative("dataType");
             mData = property.FindPropertyRelative("baseData");
+            mType = property.FindPropertyRelative("dataType");
 
             property.serializedObject.Update();
 
@@ -27,6 +28,10 @@ namespace binc.PixelAnimator.Editor.DataProvider{
             EditorGUI.PropertyField(typePos, mType, GUIContent.none);
             if (EditorGUI.EndChangeCheck()) {
                 mData.managedReferenceValue = PixelAnimatorUtility.CreateBlankBaseData((DataType)mType.intValue);
+                Debug.Log(Type.GetType(mData.FindPropertyRelative("data").type));
+                // mData.type
+                
+                // mData.managedReferenceValue = Activator.CreateInstance() 
             }
 
             if (mData.managedReferenceValue != null) {
