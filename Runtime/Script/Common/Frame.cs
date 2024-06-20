@@ -7,9 +7,6 @@ namespace binc.PixelAnimator.Common{
     
     public enum FrameType{ KeyFrame, CopyFrame, EmptyFrame }
     
-    
-
-    
     [Serializable]
     public class Frame{
         
@@ -33,8 +30,6 @@ namespace binc.PixelAnimator.Common{
 
     }
 
-    
-    
     [Serializable]
     public class PixelSprite{
         [ReadOnly] [SerializeField]

@@ -5,11 +5,10 @@ using binc.PixelAnimator.Common;
 using binc.PixelAnimator.Preferences;
 
 
-namespace binc.PixelAnimator.Editor.Window{
+namespace binc.PixelAnimator.Editor.Windows{
 
-    public class CanvasWindow : CustomWindow{
+    public class CanvasWindow : Window{
         
-        private Sprite sprite;
         private Vector2 spriteOrigin;
         private Texture2D spritePreview;
         private int spriteScale;
@@ -17,34 +16,39 @@ namespace binc.PixelAnimator.Editor.Window{
 
         public HandleTypes EditingHandle { get; private set; }
         private Vector2 _clickedMousePos;
-        private Color blackColor = new Color(0.5f, 0.5f, 0.5f);
-        private Color whiteColor = new Color(0.75f, 0.75f, 0.75f);
-        private Texture2D whiteTex = new Texture2D(1,1);
-        private Texture2D blackTex = new Texture2D(1,1);
+        private Color blackColor = new (0.5f, 0.5f, 0.5f);
+        private Color whiteColor = new (0.75f, 0.75f, 0.75f);
+        private Texture2D whiteTex = new (1,1);
+        private Texture2D blackTex = new (1,1);
         
 
-        public CanvasWindow(PixelAnimatorWindow animatorWindow, WindowEnum windowFocus) : base(animatorWindow, windowFocus){
+        // public CanvasWindow(WindowEnum windowFocus) : base(windowFocus){
             
-            whiteTex.SetPixel(0, 0, whiteColor);
-            whiteTex.Apply();
+        //     whiteTex.SetPixel(0, 0, whiteColor);
+        //     whiteTex.Apply();
 
-            blackTex.SetPixel(0, 0, blackColor);
-            blackTex.Apply();
+        //     blackTex.SetPixel(0, 0, blackColor);
+        //     blackTex.Apply();
+        // }
+
+        public override void FocusFunctions() {
+            UIOperations();
+            //When focus is changeable?
+
+            IsFocusChangeable = true;
+            
         }
-
-        
         
 
         public override void SetWindow(Event eventCurrent){
             base.SetWindow(eventCurrent);
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
 
-            var sprite = animatorWindow.SelectedAnim.GetSpriteList()[animatorWindow.ActiveFrameIndex];
+            var sprite = animatorWindow.SelectedAnimation.GetSpriteList()[animatorWindow.ActiveFrameIndex];
             spritePreview = AssetPreview.GetAssetPreview(sprite);
 
-            FocusFunctions();
-
             var editorRect = animatorWindow.position;
-            GUI.Window(PixelAnimatorWindow.CanvasId, windowRect, _=>{DrawCanvas(eventCurrent);}, GUIContent.none, GUIStyle.none);
+            GUI.Window(2, windowRect, _=>{DrawCanvas(eventCurrent);}, GUIContent.none, GUIStyle.none);
             UpdateScale(editorRect);
 
 
@@ -63,18 +67,11 @@ namespace binc.PixelAnimator.Editor.Window{
 
         }
 
-        public override void FocusFunctions() {
-            base.FocusFunctions();
-            if (animatorWindow.WindowFocus != WindowEnum.Canvas) return;
-            UIOperations();
-            //When focus is changeable?
 
-            IsFocusChangeable = true;
-            
-        }
 
 
         private void MoveOperations(Event eventCurrent, Rect editorRect){
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             if (eventCurrent.button == 2) {
                 viewOffset += eventCurrent.delta * 0.5f; // <== Middle Click Move.
                 animatorWindow.Repaint();
@@ -88,6 +85,7 @@ namespace binc.PixelAnimator.Editor.Window{
         }
 
         public override void UIOperations() {
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var eventCurrent = animatorWindow.EventCurrent;
             MoveOperations(eventCurrent, animatorWindow.position);
             
@@ -98,9 +96,7 @@ namespace binc.PixelAnimator.Editor.Window{
             var adjustedSpriteHeight = spritePreview.height * spriteScale;
             var adjustedPosition = new Rect(Vector2.zero, editorRect.size);
             adjustedPosition.width += 10;
-            adjustedPosition.height -= adjustedPosition.yMax - animatorWindow.TimelineRect.y; //- timelineRect.y
-            //spriteOrigin.x = adjustedPosition.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
-            //spriteOrigin.y = adjustedPosition.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
+            adjustedPosition.height -= adjustedPosition.yMax - 50;
 
             spriteOrigin.x = adjustedPosition.width * 0.5f - adjustedSpriteWidth * 0.5f;
             spriteOrigin.y = adjustedPosition.height * 0.5f - adjustedSpriteHeight * 0.5f;
@@ -121,14 +117,14 @@ namespace binc.PixelAnimator.Editor.Window{
 
         private void DrawCanvas(Event eventCurrent){
             var spriteRect = new Rect(0, 0, spritePreview.width * spriteScale, spritePreview.height * spriteScale);
-
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             DrawGrid(spriteRect, spritePreview, spriteScale);
             GUI.DrawTexture(spriteRect, spritePreview, ScaleMode.ScaleToFit); //our sprite
             spritePreview.filterMode = FilterMode.Point;
 
-             if (animatorWindow.SelectedAnim.Groups.Count > 0)
-                foreach (var group in animatorWindow.SelectedAnim.Groups) {
-                    var boxData = animatorWindow.Preferences.GetBoxData(group.BoxDataGuid);
+             if (animatorWindow.SelectedAnimation.Groups.Count > 0)
+                foreach (var group in animatorWindow.SelectedAnimation.Groups) {
+                    var boxData = animatorWindow.AnimationPreferences.GetBoxData(group.BoxDataGuid);
                     var spriteSize = new Vector2(spritePreview.width, spritePreview.height);
                     DrawBox(group, boxData, spriteScale, spriteSize, EditingHandle, eventCurrent);
                 }
@@ -176,7 +172,8 @@ namespace binc.PixelAnimator.Editor.Window{
 
         private void SetBox()
         {
-            var selectedAnim = animatorWindow.SelectedAnim;
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
+            var selectedAnim = animatorWindow.SelectedAnimation;
             var groups = selectedAnim.Groups;
             if (selectedAnim == null || groups.Count == 0 || groups[animatorWindow.ActiveGroupIndex].layers.Count == 0) return;
             var eventCurr = Event.current;
@@ -199,13 +196,13 @@ namespace binc.PixelAnimator.Editor.Window{
                         boxRect.height = Mathf.Clamp(boxRect.height, 0, float.MaxValue);
 
                         var mousePos = eventCurr.mousePosition;
-                        var changeActiveBox = animatorWindow.LeftClicked && eventCurr.clickCount == 2 && group.isVisible &&
+                        var changeActiveBox = animatorWindow.EventCurrent.button == 0 && eventCurr.clickCount == 2 && group.isVisible &&
                                               adjustedRect.Contains(mousePos);
 
                         if (!changeActiveBox) continue;
-                        animatorWindow.PropertyFocus = PropertyFocusEnum.HitBox;
-                        animatorWindow.SetActiveGroup(g);
-                        animatorWindow.SetActiveLayer(l);
+                        // animatorWindow.SetPropertyFocus(PropertyFocusEnum.HitBox);
+                        // animatorWindow.SetActiveGroup(g);
+                        // animatorWindow.SetActiveLayer(l);
                         group.isExpanded = true;
 
 
@@ -219,10 +216,10 @@ namespace binc.PixelAnimator.Editor.Window{
         private void DrawBox(Group group, BoxData boxData, int scale, Vector2 spriteSize,
             HandleTypes handleTypes, Event eventCurrent){
             if (!group.isVisible) return;
-
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var rectColor = boxData.color;
             
-            var isActiveGroup = animatorWindow.SelectedAnim.Groups.IndexOf(group) == animatorWindow.ActiveGroupIndex;
+            var isActiveGroup = animatorWindow.SelectedAnimation.Groups.IndexOf(group) == animatorWindow.ActiveGroupIndex;
             for(var l  = 0; l < group.layers.Count; l++){
                 
                 var isActiveLayer = l == animatorWindow.ActiveLayerIndex;
@@ -368,9 +365,6 @@ namespace binc.PixelAnimator.Editor.Window{
                 
             }
         }
-
-
-
 
         public void SetHandle(HandleTypes handleType){
             EditingHandle = handleType;

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-namespace binc.PixelAnimator.Editor.Window{
+namespace binc.PixelAnimator.Editor.Windows{
 
     public enum PropertyFocusEnum{
         HitBox,
@@ -11,7 +11,8 @@ namespace binc.PixelAnimator.Editor.Window{
     public enum WindowEnum{
         Property,
         Timeline,
-        Canvas
+        Canvas,
+        none
     }
 
     //Box handles.

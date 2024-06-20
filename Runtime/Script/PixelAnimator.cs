@@ -11,8 +11,8 @@ namespace binc.PixelAnimator{
 
     public delegate void CollisionEvent(ColliderInfo colInfo, Collider2D col);
     public class PixelAnimator : MonoBehaviour{
-        private PixelAnimatorPreferences preferences;
-        public PixelAnimatorPreferences Preferences => preferences;
+        private PixelAnimationPreferences preferences;
+        public PixelAnimationPreferences Preferences => preferences;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField, Tooltip("Automatically determines the animation direction according to the flipX in the SpriteRenderer component.")] private bool autoFlip;
         
@@ -43,7 +43,7 @@ namespace binc.PixelAnimator{
         public int Direction => spriteRenderer.flipX && autoFlip ? -1 : 1; 
 
         private void Awake(){
-            preferences = Resources.Load<PixelAnimatorPreferences>("PixelAnimatorPreferences");
+            preferences = Resources.Load<PixelAnimationPreferences>("PixelAnimatorPreferences");
             parting = new GameObject("---PixelAnimator Colliders---"){ transform ={
                     parent = transform,
                     localPosition = Vector3.zero

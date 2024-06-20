@@ -9,10 +9,11 @@ using UnityEngine;
 namespace binc.PixelAnimator.Preferences{
     
     
-    public class PixelAnimatorPreferences : ScriptableObject{
+    public class PixelAnimationPreferences : ScriptableObject{
         [SerializeField] private List<BasicPropertyData> spriteProperties;
         [SerializeField] private List<BasicPropertyData> hitBoxProperties;
         [SerializeField] private List<BoxData> boxData;
+        
         
         public List<BasicPropertyData> SpriteProperties => spriteProperties;
         public List<BasicPropertyData> HitBoxProperties => hitBoxProperties;
