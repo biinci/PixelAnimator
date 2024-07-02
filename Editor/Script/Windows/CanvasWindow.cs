@@ -15,6 +15,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         private Vector2 viewOffset;
 
         public HandleTypes EditingHandle { get; private set; }
+
         private Vector2 _clickedMousePos;
         private Color blackColor = new (0.5f, 0.5f, 0.5f);
         private Color whiteColor = new (0.75f, 0.75f, 0.75f);
@@ -31,17 +32,8 @@ namespace binc.PixelAnimator.Editor.Windows{
         //     blackTex.Apply();
         // }
 
-        public override void FocusFunctions() {
-            UIOperations();
-            //When focus is changeable?
 
-            IsFocusChangeable = true;
-            
-        }
-        
-
-        public override void SetWindow(Event eventCurrent){
-            base.SetWindow(eventCurrent);
+        public override void DrawWindow(Event eventCurrent){
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
 
             var sprite = animatorWindow.SelectedAnimation.GetSpriteList()[animatorWindow.ActiveFrameIndex];
@@ -84,12 +76,12 @@ namespace binc.PixelAnimator.Editor.Windows{
             }
         }
 
-        public override void UIOperations() {
-            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            var eventCurrent = animatorWindow.EventCurrent;
-            MoveOperations(eventCurrent, animatorWindow.position);
+        // public override void UIOperations() {
+        //     var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
+        //     var eventCurrent = animatorWindow.EventCurrent;
+        //     MoveOperations(eventCurrent, animatorWindow.position);
             
-        }
+        // }
 
         private void UpdateScale(Rect editorRect){
             var adjustedSpriteWidth = spritePreview.width * spriteScale;
@@ -370,6 +362,9 @@ namespace binc.PixelAnimator.Editor.Windows{
             EditingHandle = handleType;
         }
 
-
+        public override void FocusFunctions()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

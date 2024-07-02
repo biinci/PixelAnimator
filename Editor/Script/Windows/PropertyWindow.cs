@@ -14,29 +14,18 @@ public class PropertyWindow : Window{
     private Rect propertyWindowRect = new(10, 6, 120, 20);
     private bool eventFoldout;
 
+   
+
     // public PropertyWindow(WindowEnum windowFocusType) : 
     // base(windowFocusType){
-    
-    
+
+
     // }
 
-    public override void SetWindow(Event eventCurrent){
-        base.SetWindow(eventCurrent);
+    public override void DrawWindow(Event eventCurrent){
 
         DrawPropertyWindow();
     }
-
-    public override void UIOperations(){
-        
-    }
-
-    public override void FocusFunctions(){
-    }
-
-
-
-
-
 
     private void DrawProperties(PropertyType propertyType, string header){
         var scrollScope = new EditorGUILayout.ScrollViewScope(propertyScrollPos);
@@ -65,6 +54,10 @@ public class PropertyWindow : Window{
 
 
     }
+
+    public override void FocusFunctions(){
+    }
+
 
     private void DrawSpriteProp(){
         var targetAnimation = PixelAnimatorWindow.AnimatorWindow.TargetAnimation;
@@ -236,8 +229,6 @@ public class PropertyWindow : Window{
         }
 
     }
-
-
 
 
 }

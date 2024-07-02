@@ -1,13 +1,7 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
-using System.Linq;
-using binc.PixelAnimator.DataProvider;
-using binc.PixelAnimator.Common;
 using binc.PixelAnimator.Preferences;
-using static binc.PixelAnimator.Utility.PixelAnimatorUtility;
-using UnityEditor.Search;
 using binc.PixelAnimator.Editor.Preferences;
 
 namespace binc.PixelAnimator.Editor.Windows{
@@ -31,10 +25,10 @@ namespace binc.PixelAnimator.Editor.Windows{
         public float editorDeltaTime{get; private set;}
         private float lifeTime;
         public PixelAnimationPreferences AnimationPreferences{get; private set;}
-        public PixelAnimatorPreferences AnimatorPeferences{get; private set;}
+        public PixelAnimatorPreferences AnimatorPreferences{get; private set;}
         public SerializedObject TargetAnimation{get; private set;}
         
-        [SerializeField] private bool initialized;
+        private bool initialized = false;
         public Event EventCurrent => Event.current;
         public WindowEnum WindowFocus{get; set;}
         public PropertyFocusEnum PropertyFocus{get; private set;}
@@ -55,11 +49,9 @@ namespace binc.PixelAnimator.Editor.Windows{
             var icon = Resources.Load<Texture2D>("Sprites/PixelAnimatorIcon");
             AnimatorWindow.titleContent = new GUIContent("Pixel Animator", icon);
         }
-        private PixelAnimatorWindow() { }
 
         private void OnEnable(){
             AnimatorWindow = this;
-            initialized = false;
             SelectedObject();
             Init();
         }
@@ -67,7 +59,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void Init(){ 
             AnimationPreferences = Resources.Load<PixelAnimationPreferences>("Animation Preferences"); 
-            AnimatorPeferences = Resources.Load<PixelAnimatorPreferences>("Animator Preferences"); 
+            AnimatorPreferences = Resources.Load<PixelAnimatorPreferences>("Animator Preferences"); 
             PixelAnimatorSkin = Resources.Load<GUISkin>("PixelAnimationSkin");
             FocusedWindow = null;
             WindowFocus = WindowEnum.none;
@@ -79,88 +71,48 @@ namespace binc.PixelAnimator.Editor.Windows{
         #endregion
 
 
-
-
         private void OnGUI(){
             if(!initialized) Init();
             SetEditorDeltaTime();
+            DrawWindows();
+            FocusedWindowFunction();
+        }
+
+        private void DrawWindows(){
             BeginWindows();
-            foreach (var window in AnimatorPeferences.windows){
+            foreach (var window in AnimatorPreferences.windows){
                 var isValidWindow = window != null && window.GetType() != typeof(Window);
-                if(isValidWindow){
-                    window.SetWindow(EventCurrent); 
-                } 
+                if(isValidWindow) window.DrawWindow(EventCurrent); 
+                 
             }
             EndWindows();
         }
+        private void FocusedWindowFunction(){
+            var isLeftClicked = EventCurrent.type == EventType.MouseDown && EventCurrent.button == 0;
 
+            if (isLeftClicked){
+                var foundFocusedWindow = false;
 
+                foreach (var window in AnimatorPreferences.windows){
+                    var isInRect = window.WindowRect.Contains(EventCurrent.mousePosition);
 
-
-
-        #region Popup Functions
-        // public void AddGroup(object userData)
-        // {
+                    if (isInRect){
+                        if (FocusedWindow == null || FocusedWindow.FocusChangeable){
+                            FocusedWindow = window;
+                            foundFocusedWindow = true;
+                            break; 
+                        }
+                    }
+                }
+                if (!foundFocusedWindow) FocusedWindow = null;
             
-        //     TargetAnimation.Update();
-        //     var boxData = (BoxData)userData;
-
-        //     var isGroupExist = SelectedAnimation.Groups.Any(x => x.BoxDataGuid == boxData.Guid);
-        //     if (isGroupExist){
-        //         Debug.LogError("This group has already been added! Please add another group.");
-        //         return;
-        //     }
-
-        //     var groups = TargetAnimation.FindProperty("groups");
-
-        //     PixelAnimationEditor.AddGroup(groups, boxData.Guid);
-        //     AddLayer(SelectedAnimation.Groups.Count-1);
-
-        //     GroupAdded?.Invoke(userData);
-        // }
-
-        // /// <summary>
-        // /// This function allows you to legally delete group.
-        // /// </summary>
-        // /// <param name="groupIndex"> </param>
-        // /// 
-        // public void OnRemoveGroup(object groupIndex) {
-        //     var index = (int)groupIndex;
-        //     TargetAnimation.Update();
-        //     var groups = TargetAnimation.FindProperty("groups");
-        //     TargetAnimation.ApplyModifiedProperties();  
+            }
             
-        //     PixelAnimationEditor.RemoveGroup(groups, (int)groupIndex);
-            
-        //     GroupRemoved?.Invoke(groupIndex);
-        // }
+            FocusedWindow?.FocusFunctions();
+        }
 
 
-        // /// <summary>
-        // /// This function allows you to legally delete layer.
-        // /// </summary>
-        // /// <param name="array">array[0] = groupIndex and array[1] = layerIndex</param>
-        // /// 
-        // public void OnRemoveLayer(object array) {
-        //     var indexs = array as int[];
-        //     var group = TargetAnimation.FindProperty("groups");
-        //     var layers = group.GetArrayElementAtIndex(indexs[0]).FindPropertyRelative("layers");
-        //     PixelAnimationEditor.RemoveLayer(layers, indexs[1]);
-        //     LayerRemoved?.Invoke(array);
-        // }
-
-
-        // public void AddLayer(object groupIndex) {
-        //     var groupsProp = TargetAnimation.FindProperty("groups");
-        //     var layersProp = groupsProp.GetArrayElementAtIndex((int)groupIndex).FindPropertyRelative("layers");
-        //     PixelAnimationEditor.AddLayer(layersProp, TargetAnimation);
-
-        //     LayerAdded?.Invoke((int)groupIndex);
-        // }
-
-        #endregion
         
-
         #region Common
         private void SetEditorDeltaTime(){
 
@@ -172,20 +124,12 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void SelectedObject(){
             foreach(var obj in Selection.objects) {
-                if (obj is not PixelAnimation anim) continue;
+                if (obj is not PixelAnimation anim || SelectedAnimation == anim) continue;
                 TargetAnimation = new SerializedObject(anim);
-
-                if (SelectedAnimation == anim) continue;
                 var spriteList = anim.GetSpriteList();
                 if(spriteList != null)
-                // TimelineWindow?.ReloadVariable(spriteList.Count);
-
                 SelectedAnimation = anim;
                 lifeTime = 0;
-                ActiveFrameIndex = 0;
-                ActiveGroupIndex = 0; 
-                ActiveLayerIndex = 0;
-
             }
 
         }
