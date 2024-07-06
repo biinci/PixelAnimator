@@ -50,6 +50,7 @@ namespace binc.PixelAnimator.Editor.Preferences{
                 drawElementCallback = DrawGroups,
                 elementHeight = EditorGUIUtility.singleLineHeight,
                 drawHeaderCallback = rect => { EditorGUI.LabelField(rect, "Box Data");},
+          
                 onAddCallback = _ => AddGroupElement() 
             };
             

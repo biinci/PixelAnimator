@@ -74,15 +74,15 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void OnGUI(){
             if(!initialized) Init();
             SetEditorDeltaTime();
-            DrawWindows();
+            ProcessingWindows();
             FocusedWindowFunction();
         }
 
-        private void DrawWindows(){
+        private void ProcessingWindows(){
             BeginWindows();
             foreach (var window in AnimatorPreferences.windows){
                 var isValidWindow = window != null && window.GetType() != typeof(Window);
-                if(isValidWindow) window.DrawWindow(EventCurrent); 
+                if(isValidWindow) window.ProcessWindow(EventCurrent); 
                  
             }
             EndWindows();
@@ -95,14 +95,13 @@ namespace binc.PixelAnimator.Editor.Windows{
 
                 foreach (var window in AnimatorPreferences.windows){
                     var isInRect = window.WindowRect.Contains(EventCurrent.mousePosition);
-
-                    if (isInRect){
-                        if (FocusedWindow == null || FocusedWindow.FocusChangeable){
-                            FocusedWindow = window;
-                            foundFocusedWindow = true;
-                            break; 
-                        }
-                    }
+                    var isValid = FocusedWindow == null || FocusedWindow.FocusChangeable;
+                    if (!isInRect || !isValid) continue;
+                    FocusedWindow = window;
+                    foundFocusedWindow = true;
+                    break; 
+                    
+                    
                 }
                 if (!foundFocusedWindow) FocusedWindow = null;
             

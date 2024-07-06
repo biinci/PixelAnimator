@@ -111,23 +111,25 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
         #endregion
 
-        public override void DrawWindow(Event eventCurrent){
-            var animatorRect = PixelAnimatorWindow.AnimatorWindow.position;
-            windowRect.size = new Vector2(animatorRect.width, windowRect.height);
-            
-            windowRect = GUI.Window(1, windowRect, _=>WindowFunction(), GUIContent.none, GUIStyle.none);
+        public override void ProcessWindow(Event eventCurrent){
+            DrawWindow();
+
         }
 
 
 
-
+        private void DrawWindow(){
+            var animatorRect = PixelAnimatorWindow.AnimatorWindow.position;
+            windowRect.size = animatorRect.size;
+            
+            windowRect = GUI.Window(1, windowRect, _=>WindowFunction(), GUIContent.none, GUIStyle.none);
+        }
         private void WindowFunction(){
 
             
 
 
         }
-
 
 
 
@@ -153,6 +155,8 @@ namespace binc.PixelAnimator.Editor.Windows{
 
 
         public override void FocusFunctions(){
+
+            
         }
 
 

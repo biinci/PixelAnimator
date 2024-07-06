@@ -33,7 +33,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         // }
 
 
-        public override void DrawWindow(Event eventCurrent){
+        public override void ProcessWindow(Event eventCurrent){
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
 
             var sprite = animatorWindow.SelectedAnimation.GetSpriteList()[animatorWindow.ActiveFrameIndex];

@@ -22,7 +22,7 @@ public class PropertyWindow : Window{
 
     // }
 
-    public override void DrawWindow(Event eventCurrent){
+    public override void ProcessWindow(Event eventCurrent){
 
         DrawPropertyWindow();
     }

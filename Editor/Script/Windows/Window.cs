@@ -22,7 +22,7 @@ namespace binc.PixelAnimator.Editor.Windows
         public abstract void FocusFunctions();  
                     
     
-        public abstract void DrawWindow(Event eventCurrent);
+        public abstract void ProcessWindow(Event eventCurrent);
 
 
     }
