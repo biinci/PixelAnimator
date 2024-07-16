@@ -230,6 +230,9 @@ public class PropertyWindow : Window{
 
     }
 
-
+    public override void Initialize()
+    {
+        throw new NotImplementedException();
+    }
 }
 

@@ -52,8 +52,9 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void OnEnable(){
             AnimatorWindow = this;
-            SelectedObject();
+            
             Init();
+
         }
 
 
@@ -65,17 +66,35 @@ namespace binc.PixelAnimator.Editor.Windows{
             WindowFocus = WindowEnum.none;
             initialized = true;
             SerializedAnimator = new SerializedObject(this);
+            InitWindows();
+        }
+
+        private void InitWindows(){
+            foreach(var item in AnimatorPreferences.windows){
+                item.Initialize();
+            }
         }
 
 
         #endregion
 
+        private void OnInspectorUpdate(){
+            SetWindowsData();
+        }
+
+        private void SetWindowsData(){
+            foreach (var window in AnimatorPreferences.windows){
+                if(window is not IUpdate update) return;
+                update.InspectorUpdate();
+            }
+        }
 
         private void OnGUI(){
             if(!initialized) Init();
             SetEditorDeltaTime();
             ProcessingWindows();
             FocusedWindowFunction();
+            SelectedObject();
         }
 
         private void ProcessingWindows(){
@@ -100,8 +119,6 @@ namespace binc.PixelAnimator.Editor.Windows{
                     FocusedWindow = window;
                     foundFocusedWindow = true;
                     break; 
-                    
-                    
                 }
                 if (!foundFocusedWindow) FocusedWindow = null;
             
@@ -109,7 +126,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             
             FocusedWindow?.FocusFunctions();
         }
-
 
         
         #region Common
@@ -123,15 +139,31 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void SelectedObject(){
             foreach(var obj in Selection.objects) {
-                if (obj is not PixelAnimation anim || SelectedAnimation == anim) continue;
+                if (obj is not PixelAnimation anim){
+                    SelectedAnimation = null;
+                    continue;
+                } 
+                else if(SelectedAnimation == anim){
+                    continue;
+                }
                 TargetAnimation = new SerializedObject(anim);
                 var spriteList = anim.GetSpriteList();
-                if(spriteList != null)
                 SelectedAnimation = anim;
+                
+                if(spriteList != null)
                 lifeTime = 0;
             }
 
         }
+
+        public static void AddCursorBool(bool condition, MouseCursor icon){
+            
+            if(!condition) return;
+            var rect = new Rect(0,0, AnimatorWindow.position.size.x, AnimatorWindow.position.size.y);
+            EditorGUIUtility.AddCursorRect(rect, icon);
+
+        }
+
         #endregion
 
 

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecc76e2fa67af4dabbf0f32c4e82debf, type: 3}
+  m_Name: New Pixel Animation
+  m_EditorClassIdentifier: 
+  loop: 1
+  fps: 12
+  pixelSprites: []
+  groups:
+  - boxDataGuid: 
+    colliderTypes: 0
+    layers: []
+    isVisible: 0
+    isExpanded: 0
+  references:
+    version: 2
+    RefIds: []

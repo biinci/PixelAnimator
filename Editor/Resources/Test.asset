@@ -1,0 +1,360 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecc76e2fa67af4dabbf0f32c4e82debf, type: 3}
+  m_Name: Test
+  m_EditorClassIdentifier: 
+  loop: 1
+  fps: 12
+  pixelSprites:
+  - spriteId: 2fcb108ac1e8211399ac39636c012f31
+    sprite: {fileID: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
+  - spriteId: a6584783345b02c93acd36915d032c43
+    sprite: {fileID: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
+  - spriteId: e6752aaa0e7cfcad89c7026893ba5d08
+    sprite: {fileID: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
+  - spriteId: 560530b22488f5c82b388a8111cb31b9
+    sprite: {fileID: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
+  groups:
+  - boxDataGuid: 
+    colliderTypes: 0
+    layers: []
+    isVisible: 0
+    isExpanded: 0
+  - boxDataGuid: 
+    colliderTypes: 0
+    layers: []
+    isVisible: 0
+    isExpanded: 0
+  - boxDataGuid: 
+    colliderTypes: 0
+    layers: []
+    isVisible: 0
+    isExpanded: 0
+  - boxDataGuid: 
+    colliderTypes: 0
+    layers: []
+    isVisible: 0
+    isExpanded: 0
+  - boxDataGuid: 
+    colliderTypes: 0
+    layers: []
+    isVisible: 0
+    isExpanded: 0
+  - boxDataGuid: 
+    colliderTypes: 0
+    layers: []
+    isVisible: 0
+    isExpanded: 0
+  - boxDataGuid: 
+    colliderTypes: 0
+    layers:
+    - frames:
+      - guid: 2fcb108ac1e8211399ac39636c012f31
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: a6584783345b02c93acd36915d032c43
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: e6752aaa0e7cfcad89c7026893ba5d08
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 560530b22488f5c82b388a8111cb31b9
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        hitBoxData:
+          genericData: []
+          eventNames: []
+    isVisible: 0
+    isExpanded: 1
+  - boxDataGuid: 
+    colliderTypes: 1
+    layers:
+    - frames:
+      - guid: 2fcb108ac1e8211399ac39636c012f31
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: a6584783345b02c93acd36915d032c43
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: e6752aaa0e7cfcad89c7026893ba5d08
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: 560530b22488f5c82b388a8111cb31b9
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: 
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: 
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: 
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: 
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+    isVisible: 0
+    isExpanded: 0
+  - boxDataGuid: 
+    colliderTypes: 0
+    layers:
+    - frames:
+      - guid: 2fcb108ac1e8211399ac39636c012f31
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: a6584783345b02c93acd36915d032c43
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: e6752aaa0e7cfcad89c7026893ba5d08
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 560530b22488f5c82b388a8111cb31b9
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+    isVisible: 0
+    isExpanded: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 399278062105788422
+      type: {class: IntData, ns: binc.PixelAnimator.DataProvider, asm: com.binc.pixel-animator}
+      data:
+        guid: 
+        data: 0

@@ -16,9 +16,13 @@ namespace binc.PixelAnimator.Editor.Windows
         public Window() {
         }
 
+        public abstract void Initialize();
+
+
         /// <summary>
         /// This function works when the window focus is on the window from which you inherited this class.
         /// </summary>
+        /// 
         public abstract void FocusFunctions();  
                     
     
@@ -27,5 +31,12 @@ namespace binc.PixelAnimator.Editor.Windows
 
     }
 
+    interface IUpdate{
+        void InspectorUpdate();
+    }
+
 }
+
+
+
 
