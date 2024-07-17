@@ -4,9 +4,10 @@ using UnityEngine;
 using UnityEditor;
 using binc.PixelAnimator.Utility;
 using binc.PixelAnimator.Common;
-using UnityEngine.UIElements;
 using System.ComponentModel;
 using UnityEngine.TerrainUtils;
+using System.Linq.Expressions;
+using Codice.Client.BaseCommands;
 
 namespace binc.PixelAnimator.Editor.Windows{
 
@@ -61,7 +62,14 @@ namespace binc.PixelAnimator.Editor.Windows{
         private float ROW_HEIGHT => PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("TimelineLayout").fixedHeight;
 
 
-        private GUIStyle groupStyle, layerStyle, keyFrameStyle, emptyFrameStyle, copyFrameStyle, frameButtonStyle, spriteThumbnailStyle;
+        private GUIStyle groupStyle, 
+        layerStyle, 
+        keyFrameStyle, 
+        emptyFrameStyle, 
+        copyFrameStyle, 
+        frameButtonStyle, 
+        spriteThumbnailStyle,
+        burgerMenuStyle;
         private float timer;
         private Vector2 scrollPos;
         private bool reSizing = false;
@@ -78,6 +86,13 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
         
         private void LoadInitResources(){
+            LoadTextures();
+            LoadStyles();
+            
+            durationTex = playTex;
+        }
+
+        private void LoadTextures(){
             backTex = Resources.Load<Texture2D>("Sprites/Back");
             frontTex = Resources.Load<Texture2D>("Sprites/Front");
             timelineBurgerTex = Resources.Load<Texture2D>("Sprites/TimelineBurgerMenu");
@@ -96,11 +111,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             pingTexs[1] = Resources.Load<Texture2D>("Sprites/Ping T-R");
             pingTexs[2] = Resources.Load<Texture2D>("Sprites/Ping B-L");
             pingTexs[3] = Resources.Load<Texture2D>("Sprites/Ping B-R");
-            LoadStyles();
-            
-            durationTex = playTex;
         }
-
 
         private void LoadStyles(){
             var mySkin = PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin;
@@ -111,6 +122,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             copyFrameStyle = new GUIStyle(mySkin.GetStyle("CopyFrame"));
             frameButtonStyle = new GUIStyle(mySkin.GetStyle("FrameButton"));
             spriteThumbnailStyle = new GUIStyle(mySkin.GetStyle("SpriteThumbnail"));
+            burgerMenuStyle = new GUIStyle(mySkin.GetStyle("BurgerMenu"));
         }
         private void InitRect() {
             var position = PixelAnimatorWindow.AnimatorWindow.position;
@@ -135,7 +147,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         public override void ProcessWindow(Event eventCurrent){
             SetRect(); //TODO: OPTIMUM PLEASE
             if(windowRect.y < 200) windowRect.position = new Vector2(windowRect.x, 200);
-
+            if(windowRect.y > PixelAnimatorWindow.AnimatorWindow.position.height) windowRect.position = new Vector2(windowRect.x,400);
             SetMouseIconState();
             SetReSizingState();
             DrawWindow();
@@ -148,30 +160,59 @@ namespace binc.PixelAnimator.Editor.Windows{
             GUI.Window(1, windowRect, _=> WindowFunction(), GUIContent.none, GUIStyle.none);
         }
 
-        float value;
+
+        #region Timeline
+
+        Vector2 scrollPosition;
+
         private void WindowFunction(){
             LoadStyles();
-            EditorGUI.DrawRect(columnRect, Color.black);
-            EditorGUI.DrawRect(rowRect, Color.black);
-            // DrawGroups();
-            // DrawThumbnails();
-            GUILayout.Space(windowRect.height-20);
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(columnRect.xMax);
-            value = GUILayout.HorizontalScrollbar(value, 0.1f, 0, 10, GUILayout.Width(windowRect.width- columnRect.xMax));
-            GUILayout.EndHorizontal();
+
+            DrawPartitionLines();
+            DrawToolButtons();
+
+            DrawGroups();
+            DrawThumbnails();
 
         }
-        Vector2 scrollPosition;
+
+        private void DrawPartitionLines(){
+            EditorGUI.DrawRect(columnRect, Color.black);
+            EditorGUI.DrawRect(rowRect, Color.black);
+        }
+
+        private void DrawToolButtons(){
+            GUILayout.BeginArea(new Rect(0,0, columnRect.x, 48));
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Button("",burgerMenuStyle);
+            GUILayout.Space(20);
+
+            GUILayout.Button("Geri");
+            GUILayout.Button("Oynat");
+            GUILayout.Button("Ileri");
+
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+        }
+
         private void DrawThumbnails(){
 
-
-
-
-            // scrollPosition = GUI.BeginScrollView(new Rect(columnRect.xMax,windowRect.height-40,windowRect.width-columnRect.xMax,40 ), scrollPosition, new Rect(0, 0,48,48));
-            // GUILayout.HorizontalScrollbar
             GUILayout.BeginHorizontal();
-            GUILayout.Space(columnRect.xMax);
+            var space = columnRect.xMax;
+            GUILayout.Space(space);
+            
+            scrollPosition = GUILayout.BeginScrollView(
+                scrollPosition, 
+                GUI.skin.horizontalScrollbar,
+                GUIStyle.none,
+                GUILayout.Width(windowRect.width - space), 
+                GUILayout.Height(windowRect.height)
+
+                );
+
+            GUILayout.BeginHorizontal();
 
             var isValid = anim != null;
             if(isValid){
@@ -181,6 +222,12 @@ namespace binc.PixelAnimator.Editor.Windows{
                 }
             }
             GUILayout.EndHorizontal();
+
+            GUILayout.EndScrollView();
+            
+            GUILayout.EndHorizontal();
+
+            
 
         }
 
@@ -223,36 +270,54 @@ namespace binc.PixelAnimator.Editor.Windows{
             GUILayout.Label(label, groupStyle);
             if(!group.isExpanded) return;
             var layers = group.layers;
-            for(var i = 0; i < layers.Count; i++){
-                DrawLayer(layers[i], $"Layer {i+1}");
-            }
+            DrawLayers(layers);
                 
         }
 
+        private void DrawLayers(List<Layer> layers){
+            for(var i = 0; i < layers.Count; i++){
+                DrawLayer(layers[i], $"Layer {i+1}");
+            }
+        }
 
         Rect rect;
-        Vector2 pos;
         private void DrawLayer(Layer layer, string label){
+            GUILayout.BeginHorizontal();
             GUILayout.Label(label, layerStyle);
+            DrawFrames(layer.frames);
+            GUILayout.EndHorizontal();
+
+        }
+
+        float a;
+        private void DrawFrames(List<Frame> frames){
+
             var inRepaint = Event.current.type == EventType.Repaint;
             if(inRepaint) rect=GUILayoutUtility.GetLastRect();
-            var planeRect = new Rect(columnRect.xMax, rect.y, framePlaneRect.width,layerStyle.fixedHeight);
             
-            EditorGUILayout.BeginHorizontal();
-            
-            var frames = layer.frames;
+            var position = new Rect(columnRect.xMax, rect.y, thumbnailPlaneRect.width, frameButtonStyle.fixedHeight);
+            var viewRect = new Rect(columnRect.xMax, rect.y, a, frameButtonStyle.fixedHeight);
+            GUI.BeginScrollView(
+                position, 
+                scrollPosition,
+                viewRect,
+                GUIStyle.none, GUIStyle.none);
+            GUILayout.BeginHorizontal();
             for (var i = 0; i < frames.Count; i++){
-                // DrawFrame();
+                DrawFrame();
             }
-            EditorGUILayout.EndHorizontal();
+            if(inRepaint) a = GUILayoutUtility.GetLastRect().xMax;
+            GUILayout.EndHorizontal();
+            GUI.EndScrollView();
         }
 
         private void DrawFrame(){
-            GUILayout.Button("tests", GUILayout.Width(16),GUILayout.Height(16));
+            GUILayout.Button("", frameButtonStyle);
         }
 
+        #endregion
 
-
+        #region Rect
         private void SetRect(){
             var animatorWindowRect = PixelAnimatorWindow.AnimatorWindow.position;
             windowRect.size = new Vector2(animatorWindowRect.size.x, animatorWindowRect.height - windowRect.position.y);
@@ -265,7 +330,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             ReSizeWindowRect();
         }
         private void SetReSizingState(){
-            var eventCurrent = PixelAnimatorWindow.AnimatorWindow.EventCurrent;
+            var eventCurrent = Event.current;
             var eventType = eventCurrent.type;
             var leftCLicked = eventType == EventType.MouseDown && eventCurrent.button == 0;
             var inHandleRect = handleRect.Contains(eventCurrent.mousePosition);
@@ -275,40 +340,18 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
         private void ReSizeWindowRect(){
             if(!reSizing) return;
-            var eventCurrent = PixelAnimatorWindow.AnimatorWindow.EventCurrent;
-            windowRect.position = Vector2.up * eventCurrent.mousePosition.y;
+            windowRect.position = Vector2.up * Event.current.mousePosition.y;
         }
         private void SetMouseIconState(){
             EditorGUIUtility.AddCursorRect(handleRect, MouseCursor.ResizeVertical);
             PixelAnimatorWindow.AddCursorBool(reSizing, MouseCursor.ResizeVertical);
         }
-
-
-
-
+        #endregion
 
         public override void FocusFunctions(){
 
             
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         private void Play(){
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
