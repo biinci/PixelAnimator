@@ -95,6 +95,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             ProcessingWindows();
             FocusedWindowFunction();
             SelectedObject();
+
         }
 
         private void ProcessingWindows(){
@@ -164,10 +165,20 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         }
 
+
+
         #endregion
 
 
 
+    }
+
+    
+
+        
+    public struct ButtonData<T>{
+        public bool clicked;
+        public T data;
     }
 
 }

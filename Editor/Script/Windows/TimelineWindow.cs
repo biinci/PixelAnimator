@@ -1,13 +1,10 @@
-
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using binc.PixelAnimator.Utility;
 using binc.PixelAnimator.Common;
-using System.ComponentModel;
-using UnityEngine.TerrainUtils;
-using System.Linq.Expressions;
-using Codice.Client.BaseCommands;
+using UnityEngine.Playables;
+
 
 namespace binc.PixelAnimator.Editor.Windows{
 
@@ -28,7 +25,8 @@ namespace binc.PixelAnimator.Editor.Windows{
            rowRect,
            framePlaneRect,
            groupPlaneRect,
-           thumbnailPlaneRect;
+           thumbnailPlaneRect,
+           toolPanelRect;
 
         private Texture2D backTex,
             playTex,
@@ -69,10 +67,17 @@ namespace binc.PixelAnimator.Editor.Windows{
         copyFrameStyle, 
         frameButtonStyle, 
         spriteThumbnailStyle,
-        burgerMenuStyle;
+        animatorButtonStyle;
         private float timer;
         private Vector2 scrollPos;
         private bool reSizing = false;
+
+        
+        private ButtonData<int> thumbnailButton;
+
+
+
+
         #endregion
 
         #region Init
@@ -112,7 +117,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             pingTexs[2] = Resources.Load<Texture2D>("Sprites/Ping B-L");
             pingTexs[3] = Resources.Load<Texture2D>("Sprites/Ping B-R");
         }
-
         private void LoadStyles(){
             var mySkin = PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin;
             groupStyle = new GUIStyle(mySkin.GetStyle("Group"));
@@ -122,8 +126,14 @@ namespace binc.PixelAnimator.Editor.Windows{
             copyFrameStyle = new GUIStyle(mySkin.GetStyle("CopyFrame"));
             frameButtonStyle = new GUIStyle(mySkin.GetStyle("FrameButton"));
             spriteThumbnailStyle = new GUIStyle(mySkin.GetStyle("SpriteThumbnail"));
-            burgerMenuStyle = new GUIStyle(mySkin.GetStyle("BurgerMenu"));
+            animatorButtonStyle = new GUIStyle(mySkin.GetStyle("AnimatorButton"));
         }
+
+        private void InitButton(){
+            thumbnailButton = new ButtonData<int>(){clicked = false, data = 0}; 
+
+        }
+
         private void InitRect() {
             var position = PixelAnimatorWindow.AnimatorWindow.position;
             windowRect.x = 0;
@@ -151,7 +161,11 @@ namespace binc.PixelAnimator.Editor.Windows{
             SetMouseIconState();
             SetReSizingState();
             DrawWindow();
+            LinkWindowButtons();
+        }
 
+        private void LinkWindowButtons(){
+            
         }
 
         private void DrawWindow(){
@@ -173,6 +187,9 @@ namespace binc.PixelAnimator.Editor.Windows{
 
             DrawGroups();
             DrawThumbnails();
+            if(thumbnailButton.clicked){
+                Debug.Log(thumbnailButton.data);
+            }
 
         }
 
@@ -181,18 +198,19 @@ namespace binc.PixelAnimator.Editor.Windows{
             EditorGUI.DrawRect(rowRect, Color.black);
         }
 
+        float spaceTool = 110;
         private void DrawToolButtons(){
-            GUILayout.BeginArea(new Rect(0,0, columnRect.x, 48));
+            GUILayout.BeginArea(toolPanelRect);
             GUILayout.BeginHorizontal();
-
-            GUILayout.Button("",burgerMenuStyle);
-            GUILayout.Space(20);
-
-            GUILayout.Button("Geri");
-            GUILayout.Button("Oynat");
-            GUILayout.Button("Ileri");
-
-
+           
+            GUILayout.Button(timelineBurgerTex, animatorButtonStyle);
+           
+            GUILayout.Space(spaceTool);
+           
+            GUILayout.Button(backTex, animatorButtonStyle);
+            GUILayout.Button(durationTex, animatorButtonStyle);
+            GUILayout.Button(frontTex, animatorButtonStyle);
+           
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
@@ -217,9 +235,27 @@ namespace binc.PixelAnimator.Editor.Windows{
             var isValid = anim != null;
             if(isValid){
                 var sprite = anim.GetSpriteList();
-                for(var i = 0; i < sprite.Count; i++){
-                    DrawThumbnail($"{i+1}");
+                if(thumbnailButton.clicked){
+
+                    for(var i = 0; i < sprite.Count; i++){
+                        if(i == thumbnailButton.data){
+                            thumbnailButton.clicked = DrawThumbnail($"{i+1}");
+                            continue;
+                        }
+                        DrawThumbnail($"{i+1}");
+                    }
+                
+                }else{
+                    for(var i = 0; i < sprite.Count; i++){
+                        var clicked = DrawThumbnail($"{i+1}");
+                        if(!thumbnailButton.clicked && clicked){
+                            thumbnailButton.clicked =  clicked;
+                            thumbnailButton.data = i;
+                            break;
+                        }
+                    }
                 }
+                
             }
             GUILayout.EndHorizontal();
 
@@ -227,12 +263,12 @@ namespace binc.PixelAnimator.Editor.Windows{
             
             GUILayout.EndHorizontal();
 
-            
-
         }
 
-        private void DrawThumbnail(string label){
-            GUILayout.Button(label, spriteThumbnailStyle);
+        private bool DrawThumbnail(string label){
+            var clicked = GUILayout.Button(label, spriteThumbnailStyle);
+
+            return clicked;
         }
 
 
@@ -327,6 +363,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             groupPlaneRect = new Rect(0, rowRect.yMax, windowRect.width, windowRect.height - rowRect.yMax);
             framePlaneRect = new Rect(columnRect.xMax, rowRect.yMax, windowRect.width - columnRect.xMax, windowRect.height);
             thumbnailPlaneRect = new Rect(columnRect.xMax, 0, windowRect.width - columnRect.xMax,TOOL_PANEL_HEIGHT);
+            toolPanelRect = new Rect(10,8, columnRect.x, TOOL_PANEL_HEIGHT);
             ReSizeWindowRect();
         }
         private void SetReSizingState(){
