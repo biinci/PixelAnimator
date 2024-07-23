@@ -30,6 +30,46 @@ MonoBehaviour:
     spriteData:
       genericData: []
       eventNames: []
+  - spriteId: 6dd1d4155d0534b94b39073c8bf31f69
+    sprite: {fileID: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
+  - spriteId: 7ae5134c3cf214a8cae0de00df5eabef
+    sprite: {fileID: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
+  - spriteId: c3d5c6888681a451caf28d1bcfc0fd74
+    sprite: {fileID: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
+  - spriteId: 968e52c935ba8442f929ac04bbdb7dab
+    sprite: {fileID: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
+  - spriteId: 4b882131ab9c84402959dd5580f64cc2
+    sprite: {fileID: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
+  - spriteId: d4ebe6c1e65894813a2cb2caf62dedb8
+    sprite: {fileID: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
+  - spriteId: fc69c56118fdc4e4c89ee832da333f1e
+    sprite: {fileID: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
+  - spriteId: 6f50f834ee89c402a8b127be991fb152
+    sprite: {fileID: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
   - spriteId: 299406f0e5dd4721cac1b3486f2e4960
     sprite: {fileID: 0}
     spriteData:
@@ -103,6 +143,94 @@ MonoBehaviour:
         hitBoxData:
           genericData: []
           eventNames: []
+      - guid: 6dd1d4155d0534b94b39073c8bf31f69
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 7ae5134c3cf214a8cae0de00df5eabef
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: c3d5c6888681a451caf28d1bcfc0fd74
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 968e52c935ba8442f929ac04bbdb7dab
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 4b882131ab9c84402959dd5580f64cc2
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: d4ebe6c1e65894813a2cb2caf62dedb8
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: fc69c56118fdc4e4c89ee832da333f1e
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 6f50f834ee89c402a8b127be991fb152
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
       - guid: 299406f0e5dd4721cac1b3486f2e4960
         frameType: 0
         hitBoxRect:
@@ -162,6 +290,118 @@ MonoBehaviour:
               rid: 399278062105788422
             dataType: 0
           eventNames: []
+      - guid: 6dd1d4155d0534b94b39073c8bf31f69
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: 7ae5134c3cf214a8cae0de00df5eabef
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: c3d5c6888681a451caf28d1bcfc0fd74
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: 968e52c935ba8442f929ac04bbdb7dab
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: 4b882131ab9c84402959dd5580f64cc2
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: d4ebe6c1e65894813a2cb2caf62dedb8
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: fc69c56118fdc4e4c89ee832da333f1e
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
+      - guid: 6f50f834ee89c402a8b127be991fb152
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData:
+          - baseData:
+              rid: 399278062105788422
+            dataType: 0
+          eventNames: []
       - guid: 299406f0e5dd4721cac1b3486f2e4960
         frameType: 0
         hitBoxRect:
@@ -205,6 +445,94 @@ MonoBehaviour:
           genericData: []
           eventNames: []
       - guid: f6715bb0a65af9fb9861b13ee4bd9324
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 6dd1d4155d0534b94b39073c8bf31f69
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 7ae5134c3cf214a8cae0de00df5eabef
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: c3d5c6888681a451caf28d1bcfc0fd74
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 968e52c935ba8442f929ac04bbdb7dab
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 4b882131ab9c84402959dd5580f64cc2
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: d4ebe6c1e65894813a2cb2caf62dedb8
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: fc69c56118fdc4e4c89ee832da333f1e
+        frameType: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 16
+          y: 16
+          width: 16
+          height: 16
+        hitBoxData:
+          genericData: []
+          eventNames: []
+      - guid: 6f50f834ee89c402a8b127be991fb152
         frameType: 0
         hitBoxRect:
           serializedVersion: 2

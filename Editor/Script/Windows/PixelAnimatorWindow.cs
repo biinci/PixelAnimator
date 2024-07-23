@@ -18,6 +18,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         private static readonly Color BACKGROUND_COLOR = new(0.13f, 0.13f, 0.15f);
         public static readonly Vector2 MIN_SIZE =  new Vector2(150,450);
         public GUISkin PixelAnimatorSkin { get; private set; }
+        public int IndexOfSelectedFrame{get; private set;}
         public int ActiveFrameIndex{get; private set;}
         public int ActiveGroupIndex{get; private set;} 
         public int ActiveLayerIndex{get; private set;}
@@ -29,7 +30,6 @@ namespace binc.PixelAnimator.Editor.Windows{
         public SerializedObject TargetAnimation{get; private set;}
         
         private bool initialized = false;
-        public Event EventCurrent => Event.current;
         public WindowEnum WindowFocus{get; set;}
         public PropertyFocusEnum PropertyFocus{get; private set;}
         public Window FocusedWindow { get; private set; }
@@ -52,9 +52,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void OnEnable(){
             AnimatorWindow = this;
-            
             Init();
-
         }
 
 
@@ -102,19 +100,20 @@ namespace binc.PixelAnimator.Editor.Windows{
             BeginWindows();
             foreach (var window in AnimatorPreferences.windows){
                 var isValidWindow = window != null && window.GetType() != typeof(Window);
-                if(isValidWindow) window.ProcessWindow(EventCurrent); 
+                if(isValidWindow) window.ProcessWindow(); 
                  
             }
             EndWindows();
         }
         private void FocusedWindowFunction(){
-            var isLeftClicked = EventCurrent.type == EventType.MouseDown && EventCurrent.button == 0;
+            var eventCurr = Event.current;
+            var isLeftClicked = eventCurr.type == EventType.MouseDown && eventCurr.button == 0;
 
             if (isLeftClicked){
                 var foundFocusedWindow = false;
 
                 foreach (var window in AnimatorPreferences.windows){
-                    var isInRect = window.WindowRect.Contains(EventCurrent.mousePosition);
+                    var isInRect = window.WindowRect.Contains(eventCurr.mousePosition);
                     var isValid = FocusedWindow == null || FocusedWindow.FocusChangeable;
                     if (!isInRect || !isValid) continue;
                     FocusedWindow = window;
@@ -124,7 +123,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 if (!foundFocusedWindow) FocusedWindow = null;
             
             }
-            
+            Debug.Log(FocusedWindow);
             FocusedWindow?.FocusFunctions();
         }
 
@@ -166,14 +165,20 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
 
+        public void SelectFrame(int index){
+            var isValid = index < SelectedAnimation.GetSpriteList().Count && index >= 0;
+            if(!isValid) throw new IndexOutOfRangeException();
+            
+            IndexOfSelectedFrame = index;
+        }
+
+
 
         #endregion
 
 
 
     }
-
-    
 
         
     public struct ButtonData<T>{

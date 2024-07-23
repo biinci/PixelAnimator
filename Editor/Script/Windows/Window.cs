@@ -9,7 +9,7 @@ namespace binc.PixelAnimator.Editor.Windows
         
         protected Rect windowRect;
         public Rect WindowRect => windowRect;
-        public Vector2 GlobalMousePos => PixelAnimatorWindow.AnimatorWindow.EventCurrent.mousePosition + windowRect.position;
+        public Vector2 GlobalMousePos => Event.current.mousePosition + windowRect.position;
         public PixelAnimation SelectedAnim => PixelAnimatorWindow.AnimatorWindow.SelectedAnimation;
         public bool FocusChangeable { get; internal set; }
     
@@ -26,7 +26,7 @@ namespace binc.PixelAnimator.Editor.Windows
         public abstract void FocusFunctions();  
                     
     
-        public abstract void ProcessWindow(Event eventCurrent);
+        public abstract void ProcessWindow();
 
 
     }

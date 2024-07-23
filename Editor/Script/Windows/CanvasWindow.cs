@@ -33,14 +33,14 @@ namespace binc.PixelAnimator.Editor.Windows{
         // }
 
 
-        public override void ProcessWindow(Event eventCurrent){
+        public override void ProcessWindow(){
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
 
             var sprite = animatorWindow.SelectedAnimation.GetSpriteList()[animatorWindow.ActiveFrameIndex];
             spritePreview = AssetPreview.GetAssetPreview(sprite);
 
             var editorRect = animatorWindow.position;
-            GUI.Window(2, windowRect, _=>{DrawCanvas(eventCurrent);}, GUIContent.none, GUIStyle.none);
+            GUI.Window(2, windowRect, _=>{DrawCanvas();}, GUIContent.none, GUIStyle.none);
             UpdateScale(editorRect);
 
 
@@ -107,7 +107,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             
         }
 
-        private void DrawCanvas(Event eventCurrent){
+        private void DrawCanvas(){
             var spriteRect = new Rect(0, 0, spritePreview.width * spriteScale, spritePreview.height * spriteScale);
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             DrawGrid(spriteRect, spritePreview, spriteScale);
@@ -118,7 +118,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 foreach (var group in animatorWindow.SelectedAnimation.Groups) {
                     var boxData = animatorWindow.AnimationPreferences.GetBoxData(group.BoxDataGuid);
                     var spriteSize = new Vector2(spritePreview.width, spritePreview.height);
-                    DrawBox(group, boxData, spriteScale, spriteSize, EditingHandle, eventCurrent);
+                    DrawBox(group, boxData, spriteScale, spriteSize, EditingHandle);
                 }
             
         }
@@ -188,7 +188,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                         boxRect.height = Mathf.Clamp(boxRect.height, 0, float.MaxValue);
 
                         var mousePos = eventCurr.mousePosition;
-                        var changeActiveBox = animatorWindow.EventCurrent.button == 0 && eventCurr.clickCount == 2 && group.isVisible &&
+                        var changeActiveBox = Event.current.button == 0 && eventCurr.clickCount == 2 && group.isVisible &&
                                               adjustedRect.Contains(mousePos);
 
                         if (!changeActiveBox) continue;
@@ -206,7 +206,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
         private void DrawBox(Group group, BoxData boxData, int scale, Vector2 spriteSize,
-            HandleTypes handleTypes, Event eventCurrent){
+            HandleTypes handleTypes){
             if (!group.isVisible) return;
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var rectColor = boxData.color;
@@ -241,7 +241,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                         handleSize, handleSize);
                     var rAdjustedMiddle = new Rect(rect.x + handleSize / 2, rect.y + handleSize / 2, rect.width - handleSize,
                         rect.height - handleSize);
-
+                    var eventCurrent = Event.current;
                     if (eventCurrent.button == 0 && eventCurrent.type == EventType.MouseDown) {
                         if (rTopLeft.Contains(eventCurrent.mousePosition))
                             EditingHandle = HandleTypes.TopLeft;

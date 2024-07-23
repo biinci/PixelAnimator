@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEditor;
 using binc.PixelAnimator.Utility;
 using binc.PixelAnimator.Common;
-using UnityEngine.Playables;
 
 
 namespace binc.PixelAnimator.Editor.Windows{
@@ -28,13 +27,12 @@ namespace binc.PixelAnimator.Editor.Windows{
            thumbnailPlaneRect,
            toolPanelRect;
 
-        private Texture2D backTex,
+        private Texture2D previousFrameTex,
             playTex,
-            frontTex,
+            nextFrameTex,
             timelineBurgerTex,
-            onMouseTimelineBurgerTex,
-            stopTex,
-            durationTex,
+            pauseTex,
+            playPauseTex,
             closeTex,
             openTex,
             settingsTex,
@@ -74,35 +72,32 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         
         private ButtonData<int> thumbnailButton;
-
-
-
+        private bool burgerClick, previousSpriteClick, playPauseClick, nextSpriteClick;
 
         #endregion
 
         #region Init
 
-        PixelAnimation anim;
+        private PixelAnimation anim;
 
         public override void Initialize(){
             LoadInitResources();
             InitRect();
-            
+            InitButtons();
         }
-        
+ 
         private void LoadInitResources(){
             LoadTextures();
             LoadStyles();
             
-            durationTex = playTex;
+            playPauseTex = playTex;
         }
 
         private void LoadTextures(){
-            backTex = Resources.Load<Texture2D>("Sprites/Back");
-            frontTex = Resources.Load<Texture2D>("Sprites/Front");
+            previousFrameTex = Resources.Load<Texture2D>("Sprites/Back");
+            nextFrameTex = Resources.Load<Texture2D>("Sprites/Front");
             timelineBurgerTex = Resources.Load<Texture2D>("Sprites/TimelineBurgerMenu");
-            onMouseTimelineBurgerTex = Resources.Load<Texture2D>("Sprites/TimelineBurgerMenu2");
-            stopTex = Resources.Load<Texture2D>("Sprites/Stop");
+            pauseTex = Resources.Load<Texture2D>("Sprites/Pause");
             playTex = Resources.Load<Texture2D>("Sprites/Play");
             closeTex = Resources.Load<Texture2D>("Sprites/up");
             openTex = Resources.Load<Texture2D>("Sprites/down");
@@ -129,7 +124,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             animatorButtonStyle = new GUIStyle(mySkin.GetStyle("AnimatorButton"));
         }
 
-        private void InitButton(){
+        private void InitButtons(){
             thumbnailButton = new ButtonData<int>(){clicked = false, data = 0}; 
 
         }
@@ -154,30 +149,65 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
 
-        public override void ProcessWindow(Event eventCurrent){
+        public override void ProcessWindow(){
             SetRect(); //TODO: OPTIMUM PLEASE
             if(windowRect.y < 200) windowRect.position = new Vector2(windowRect.x, 200);
             if(windowRect.y > PixelAnimatorWindow.AnimatorWindow.position.height) windowRect.position = new Vector2(windowRect.x,400);
             SetMouseIconState();
             SetReSizingState();
             DrawWindow();
+            PixelAnimatorWindow.AnimatorWindow.Repaint();
+        }
+        public override void FocusFunctions(){
             LinkWindowButtons();
         }
 
+
+        #region Link Buttons
         private void LinkWindowButtons(){
+            // if(Event.current.keyCode == KeyCode.Return){
+            //     playPauseClick = !playPauseClick;
+            //     Event.current.Use();
+            // }
+            LinkThumbnailButton();
+            LinkPlayPauseButton();
+            LinkChangeSpriteButton();
+        }
+
+        private void LinkThumbnailButton(){
+           if(!thumbnailButton.clicked) return;
+            PixelAnimatorWindow.AnimatorWindow.SelectFrame(thumbnailButton.data);
             
         }
 
+        private void LinkPlayPauseButton(){
+            
+            if(!playPauseClick) return;
+            isPlaying = !isPlaying ;
+            playPauseTex = isPlaying ? pauseTex : playTex;
+            playPauseClick = false;
+        }
+
+        private void LinkChangeSpriteButton(){
+            if(!previousSpriteClick && !nextSpriteClick) return;
+            var factor = previousSpriteClick ? -1 : 1;
+            var animator = PixelAnimatorWindow.AnimatorWindow;
+            var mod = SelectedAnim.GetSpriteList().Count;
+            var index = (animator.IndexOfSelectedFrame + factor) % mod;
+            index = index == -1 ? SelectedAnim.GetSpriteList().Count-1 : index;
+            animator.SelectFrame(index); 
+        }
+
+        #endregion
+
+        #region Timeline
         private void DrawWindow(){
             EditorGUI.DrawRect(windowRect, WINDOW_PLANE_COLOR);
             EditorGUI.DrawRect(handleRect, Color.black);
             GUI.Window(1, windowRect, _=> WindowFunction(), GUIContent.none, GUIStyle.none);
         }
 
-
-        #region Timeline
-
-        Vector2 scrollPosition;
+        private Vector2 scrollPosition;
 
         private void WindowFunction(){
             LoadStyles();
@@ -185,12 +215,11 @@ namespace binc.PixelAnimator.Editor.Windows{
             DrawPartitionLines();
             DrawToolButtons();
 
-            DrawGroups();
-            DrawThumbnails();
-            if(thumbnailButton.clicked){
-                Debug.Log(thumbnailButton.data);
-            }
+            DrawGroupPanel();
+            DrawThumbnailPanel();
 
+            if(isPlaying) Play();
+        
         }
 
         private void DrawPartitionLines(){
@@ -198,25 +227,27 @@ namespace binc.PixelAnimator.Editor.Windows{
             EditorGUI.DrawRect(rowRect, Color.black);
         }
 
-        float spaceTool = 110;
+        private float spaceTool = 110;
         private void DrawToolButtons(){
             GUILayout.BeginArea(toolPanelRect);
             GUILayout.BeginHorizontal();
            
-            GUILayout.Button(timelineBurgerTex, animatorButtonStyle);
+            burgerClick = GUILayout.Button(timelineBurgerTex, animatorButtonStyle);
            
             GUILayout.Space(spaceTool);
            
-            GUILayout.Button(backTex, animatorButtonStyle);
-            GUILayout.Button(durationTex, animatorButtonStyle);
-            GUILayout.Button(frontTex, animatorButtonStyle);
+            if(GUILayout.Button(previousFrameTex, animatorButtonStyle))
+                previousSpriteClick = true;
+            if(GUILayout.Button(playPauseTex, animatorButtonStyle))
+                playPauseClick = true;
+             if(GUILayout.Button(nextFrameTex, animatorButtonStyle))
+                nextSpriteClick = true;
            
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
 
-        private void DrawThumbnails(){
-
+        private void DrawThumbnailPanel(){
             GUILayout.BeginHorizontal();
             var space = columnRect.xMax;
             GUILayout.Space(space);
@@ -230,50 +261,42 @@ namespace binc.PixelAnimator.Editor.Windows{
 
                 );
 
-            GUILayout.BeginHorizontal();
-
+            GUILayout.BeginHorizontal();           
             var isValid = anim != null;
-            if(isValid){
-                var sprite = anim.GetSpriteList();
-                if(thumbnailButton.clicked){
-
-                    for(var i = 0; i < sprite.Count; i++){
-                        if(i == thumbnailButton.data){
-                            thumbnailButton.clicked = DrawThumbnail($"{i+1}");
-                            continue;
-                        }
-                        DrawThumbnail($"{i+1}");
-                    }
-                
-                }else{
-                    for(var i = 0; i < sprite.Count; i++){
-                        var clicked = DrawThumbnail($"{i+1}");
-                        if(!thumbnailButton.clicked && clicked){
-                            thumbnailButton.clicked =  clicked;
-                            thumbnailButton.data = i;
-                            break;
-                        }
-                    }
-                }
-                
-            }
+            if(isValid) DrawThumbnails(anim.GetSpriteList());
+ 
+ 
             GUILayout.EndHorizontal();
-
             GUILayout.EndScrollView();
-            
             GUILayout.EndHorizontal();
-
         }
 
-        private bool DrawThumbnail(string label){
+        private void DrawThumbnails(List<Sprite> sprites){
+            for(var i = 0; i < sprites.Count; i++){
+                var clicked = DrawThumbnail($"{i+1}",i);
+                if(clicked && !thumbnailButton.clicked){
+                    thumbnailButton.clicked = true;
+                    thumbnailButton.data = i;
+                }
+                if(thumbnailButton.clicked && thumbnailButton.data == i){
+                    thumbnailButton.clicked = clicked;
+                }
+            }
+            
+        }
+
+        private bool DrawThumbnail(string label, int index){
+            if(index == PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedFrame){
+                var temp = new GUIStyle(spriteThumbnailStyle){normal = spriteThumbnailStyle.hover};
+                var clicked1 = GUILayout.Button(label, temp);
+                return clicked1;
+            }
             var clicked = GUILayout.Button(label, spriteThumbnailStyle);
 
             return clicked;
         }
 
-
-        private void DrawGroups(){
-            
+        private void DrawGroupPanel(){
             GUILayout.BeginArea(groupPlaneRect);
             EditorGUILayout.BeginVertical();
             var scrollPosition = EditorGUILayout.BeginScrollView(
@@ -284,22 +307,24 @@ namespace binc.PixelAnimator.Editor.Windows{
                 GUI.skin.verticalScrollbar,
                 GUIStyle.none
             );
-            
-            scrollPos = new Vector2(scrollPos.x, scrollPosition.y );
+
+            scrollPos = Vector2.right * scrollPos.x + Vector2.up * scrollPosition.y;
             var isValid = anim != null;
-            if(isValid){
-                var groups = anim.Groups;
-                for (var i = 0; i < groups.Count; i++){
-                    var group = groups[i];
-                    var name = $"Group {i+1}";
-                    // var name = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences.GetBoxData(group.BoxDataGuid).boxType;
-                    DrawGroup(group, name);
-                }
-            } 
-            
+            if(isValid) DrawGroups(anim.Groups);
+        
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
             GUILayout.EndArea();
+        }
+
+        private void DrawGroups(List<Group> groups){
+            for (var i = 0; i < groups.Count; i++){
+                var group = groups[i];
+                var name = $"Group {i+1}";
+                // var name = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences.GetBoxData(group.BoxDataGuid).boxType;
+                DrawGroup(group, name);
+            }        
+            
         }
 
         private void DrawGroup(Group group, string label){
@@ -316,7 +341,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             }
         }
 
-        Rect rect;
+        private Rect layerRect;
         private void DrawLayer(Layer layer, string label){
             GUILayout.BeginHorizontal();
             GUILayout.Label(label, layerStyle);
@@ -325,14 +350,14 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         }
 
-        float a;
+        private float framePanelWidth;
         private void DrawFrames(List<Frame> frames){
 
             var inRepaint = Event.current.type == EventType.Repaint;
-            if(inRepaint) rect=GUILayoutUtility.GetLastRect();
+            if(inRepaint) layerRect=GUILayoutUtility.GetLastRect();
             
-            var position = new Rect(columnRect.xMax, rect.y, thumbnailPlaneRect.width, frameButtonStyle.fixedHeight);
-            var viewRect = new Rect(columnRect.xMax, rect.y, a, frameButtonStyle.fixedHeight);
+            var position = new Rect(columnRect.xMax, layerRect.y, thumbnailPlaneRect.width, frameButtonStyle.fixedHeight);
+            var viewRect = new Rect(columnRect.xMax, layerRect.y, framePanelWidth, frameButtonStyle.fixedHeight);
             GUI.BeginScrollView(
                 position, 
                 scrollPosition,
@@ -342,7 +367,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             for (var i = 0; i < frames.Count; i++){
                 DrawFrame();
             }
-            if(inRepaint) a = GUILayoutUtility.GetLastRect().xMax;
+            if(inRepaint) framePanelWidth = GUILayoutUtility.GetLastRect().xMax;
             GUILayout.EndHorizontal();
             GUI.EndScrollView();
         }
@@ -385,10 +410,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
         #endregion
 
-        public override void FocusFunctions(){
 
-            
-        }
 
         private void Play(){
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
@@ -399,8 +421,8 @@ namespace binc.PixelAnimator.Editor.Windows{
                 timer += deltaTime;
                 if(timer >= 1f/fps){
                     timer -= 1f/fps;
-                    var mod = (  animatorWindow.ActiveFrameIndex +1 ) % SelectedAnim.GetSpriteList().Count;
-                    // animatorWindow.SetActiveFrame(mod);
+                    var mod = (  animatorWindow.IndexOfSelectedFrame +1 ) % SelectedAnim.GetSpriteList().Count;
+                    animatorWindow.SelectFrame(mod);
                     animatorWindow.Repaint();
                 }
             }else if(!isPlaying && timer != 0){
