@@ -3,6 +3,7 @@ using UnityEditor;
 using System;
 using binc.PixelAnimator.Preferences;
 using binc.PixelAnimator.Editor.Preferences;
+using UnityEditor.Graphs;
 
 namespace binc.PixelAnimator.Editor.Windows{
     
@@ -105,17 +106,21 @@ namespace binc.PixelAnimator.Editor.Windows{
             }
             EndWindows();
         }
+        private Vector2 mousePos;
         private void FocusedWindowFunction(){
             var eventCurr = Event.current;
-            var isLeftClicked = eventCurr.type == EventType.MouseDown && eventCurr.button == 0;
-
+            if(Event.current.type != EventType.Used){
+                mousePos = Event.current.mousePosition;
+            }
+            var isLeftClicked = eventCurr.button == 0 && (eventCurr.type == EventType.MouseDown || eventCurr.type == EventType.Used);
             if (isLeftClicked){
                 var foundFocusedWindow = false;
 
                 foreach (var window in AnimatorPreferences.windows){
-                    var isInRect = window.WindowRect.Contains(eventCurr.mousePosition);
-                    var isValid = FocusedWindow == null || FocusedWindow.FocusChangeable;
-                    if (!isInRect || !isValid) continue;
+                    var t = window as TimelineWindow;
+                    var isInRect = t.WindowRect.Contains(mousePos);
+                    
+                    if (!isInRect) continue;
                     FocusedWindow = window;
                     foundFocusedWindow = true;
                     break; 
@@ -123,7 +128,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 if (!foundFocusedWindow) FocusedWindow = null;
             
             }
-            Debug.Log(FocusedWindow);
+            // Debug.Log(FocusedWindow);
             FocusedWindow?.FocusFunctions();
         }
 
