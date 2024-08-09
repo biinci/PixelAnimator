@@ -222,10 +222,10 @@ namespace binc.PixelAnimator{
             foreach (var group in currAnim.Groups) {
                 foreach (var layer in group.layers) {
                     var frameIndex = frame;
-                    if (layer.frames[frame].frameType != FrameType.KeyFrame) {
+                    if (layer.frames[frame].GetFrameType() != FrameType.KeyFrame) {
                         for (var i = frame; i >= 0; i--) {
                             var frame = layer.frames[i];
-                            if (frame.frameType != FrameType.KeyFrame) continue;
+                            if (frame.GetFrameType() != FrameType.KeyFrame) continue;
                             frameIndex = i;
                             break;
                         }
@@ -255,7 +255,8 @@ namespace binc.PixelAnimator{
 
         private Rect GetAdjustedRect(Layer layer){
             var f = frame == -1 ? 0 : frame;
-            return MapBoxRectToTransform(layer.frames[f].hitBoxRect, currAnim.GetSpriteList()[f]);
+            // return MapBoxRectToTransform(layer.frames[f].hitBoxRect, currAnim.GetSpriteList()[f]);
+            return new Rect();
         }
         
         private static Rect MapBoxRectToTransform(Rect rect, Sprite sprite) {

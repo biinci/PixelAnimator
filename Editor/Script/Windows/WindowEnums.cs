@@ -16,7 +16,7 @@ namespace binc.PixelAnimator.Editor.Windows{
     }
 
     //Box handles.
-    public enum HandleTypes{
+    public enum HandleType{
         TopLeft,
         TopCenter,
         TopRight,

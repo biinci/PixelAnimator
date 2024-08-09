@@ -11,11 +11,13 @@ namespace binc.PixelAnimator.Editor.Windows
         public Rect WindowRect => windowRect;
         public PixelAnimation SelectedAnim => PixelAnimatorWindow.AnimatorWindow.SelectedAnimation;
         public bool FocusChangeable { get; internal set; }
+        public int Id{get; internal set;}
+
     
         public Window() {
         }
 
-        public abstract void Initialize();
+        public abstract void Initialize(int id);
 
 
         /// <summary>

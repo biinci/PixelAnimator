@@ -13,12 +13,17 @@ MonoBehaviour:
   m_Name: Animator Preferences
   m_EditorClassIdentifier: 
   windows:
-  - rid: 399278079337299968
+  - rid: 399278332396961793
+  - rid: 399278305797472256
   windowScripts:
   - {fileID: 11500000, guid: 9f915ddaac9934a3b9ba2bc25ee6054a, type: 3}
+  - {fileID: 11500000, guid: e9fcf5cf068f8954b9346d6adb50358d, type: 3}
   references:
     version: 2
     RefIds:
-    - rid: 399278079337299968
+    - rid: 399278305797472256
+      type: {class: CanvasWindow, ns: binc.PixelAnimator.Editor.Windows, asm: com.binc.pixel-animator.Editor}
+      data: 
+    - rid: 399278332396961793
       type: {class: TimelineWindow, ns: binc.PixelAnimator.Editor.Windows, asm: com.binc.pixel-animator.Editor}
       data: 

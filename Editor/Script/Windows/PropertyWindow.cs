@@ -62,7 +62,7 @@ public class PropertyWindow : Window{
     private void DrawSpriteProp(){
         var targetAnimation = PixelAnimatorWindow.AnimatorWindow.TargetAnimation;
         targetAnimation.Update();
-        var frameIndex = PixelAnimatorWindow.AnimatorWindow.ActiveFrameIndex;
+        var frameIndex = PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedFrame;
 
         var propPixelSprite = targetAnimation.FindProperty("pixelSprites")
             .GetArrayElementAtIndex(frameIndex);
@@ -87,9 +87,9 @@ public class PropertyWindow : Window{
     }
 
     private void DrawHitBoxProp(){
-        var groupIndex = PixelAnimatorWindow.AnimatorWindow.ActiveGroupIndex;
-        var layerIndex = PixelAnimatorWindow.AnimatorWindow.ActiveLayerIndex;
-        var frameIndex = PixelAnimatorWindow.AnimatorWindow.ActiveFrameIndex;
+        var groupIndex = PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedGroup;
+        var layerIndex = PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedLayer;
+        var frameIndex = PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedFrame;
         
         var targetAnimation = PixelAnimatorWindow.AnimatorWindow.TargetAnimation;
 
@@ -114,15 +114,15 @@ public class PropertyWindow : Window{
         var eventNamesProp = dataProps.FindPropertyRelative("eventNames");
         var dataValuesProp = dataProps.FindPropertyRelative("genericData");
 
-        var hitBoxDataValues = SelectedAnim.Groups[groupIndex].layers[layerIndex].frames[frameIndex].HitBoxData.genericData;
-        foreach (var dataWareHouse in PixelAnimatorWindow.AnimatorWindow.AnimationPreferences.HitBoxProperties) {
-            var single = hitBoxDataValues.FirstOrDefault(x => x.baseData.Guid == dataWareHouse.Guid) // is property  exist?
-                .baseData;
-            var selectedIndex = single == null
-                ? -1
-                : hitBoxDataValues.FindIndex(x => x.baseData == single);
-            SetPropertyField(dataWareHouse, dataValuesProp, single, selectedIndex);
-        }
+        // var hitBoxDataValues = SelectedAnim.Groups[groupIndex].layers[layerIndex].frames[frameIndex].HitBoxData.genericData;
+        // foreach (var dataWareHouse in PixelAnimatorWindow.AnimatorWindow.AnimationPreferences.HitBoxProperties) {
+        //     var single = hitBoxDataValues.FirstOrDefault(x => x.baseData.Guid == dataWareHouse.Guid) // is property  exist?
+        //         .baseData;
+        //     var selectedIndex = single == null
+        //         ? -1
+        //         : hitBoxDataValues.FindIndex(x => x.baseData == single);
+        //     SetPropertyField(dataWareHouse, dataValuesProp, single, selectedIndex);
+        // }
         
         DrawEventField(eventNamesProp);
     }
@@ -141,11 +141,11 @@ public class PropertyWindow : Window{
                     break;
                 }
                 // if(ActiveGroupIndex >= SelectedAnim.Groups.Count) CheckAndFixVariable();
-                var groupIndex = PixelAnimatorWindow.AnimatorWindow.ActiveGroupIndex;
-                var layerIndex = PixelAnimatorWindow.AnimatorWindow.ActiveLayerIndex;
-                var frameIndex = PixelAnimatorWindow.AnimatorWindow.ActiveFrameIndex;
+                var groupIndex = PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedGroup;
+                var layerIndex = PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedLayer;
+                var frameIndex = PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedFrame;
                 if (selectedAnim.Groups[groupIndex].layers[layerIndex].frames[frameIndex]
-                        .frameType != FrameType.KeyFrame) break;
+                        .GetFrameType() != FrameType.KeyFrame) break;
                 GUI.Window(4, windowRect,
                     _ => { DrawProperties(PropertyType.HitBox, "HitBox Properties"); }, GUIContent.none);
                 break;
@@ -230,9 +230,8 @@ public class PropertyWindow : Window{
 
     }
 
-    public override void Initialize()
-    {
-        throw new NotImplementedException();
+    public override void Initialize(int id){
+        Id = id;
     }
 }
 

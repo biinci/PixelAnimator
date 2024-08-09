@@ -42,7 +42,7 @@ MonoBehaviour:
     physicMaterial: {fileID: 0}
     rounded: 0
     guid: 314fe6b8e887c7e44b84800705206a86
-  - color: {r: 0.20128982, g: 0.5283019, b: 0.027411893, a: 1}
+  - color: {r: 0, g: 0.87080383, b: 1, a: 1}
     boxType: godel
     activeLayer: 3
     physicMaterial: {fileID: 0}

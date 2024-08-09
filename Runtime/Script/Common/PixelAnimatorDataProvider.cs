@@ -44,6 +44,15 @@ namespace binc.PixelAnimator{
             frames = new List<Frame>();
         }
 
+        public void link(){
+            for(var i = 1 ; i < frames.Count; i ++){
+                var frame = frames[i];
+                var isCopyFrame = frame.GetFrameType() == FrameType.CopyFrame;
+                if(!isCopyFrame) continue;
+                // frame.
+            }
+        }
+
 
     }
     

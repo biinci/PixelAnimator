@@ -14,15 +14,12 @@ namespace binc.PixelAnimator.Editor.Windows{
         #region Variables
 
         public static PixelAnimatorWindow AnimatorWindow{get; private set;}
-
-        private const string PixelAnimatorPath = "Assets/binc/PixelAnimator/";
-        private static readonly Color BACKGROUND_COLOR = new(0.13f, 0.13f, 0.15f);
-        public static readonly Vector2 MIN_SIZE =  new Vector2(150,450);
+        public static readonly Color BACKGROUND_COLOR = new(0.12f,0.12f,0.12f);
+        public static readonly Vector2 MIN_SIZE =  new (150,450);
         public GUISkin PixelAnimatorSkin { get; private set; }
         public int IndexOfSelectedFrame{get; private set;}
-        public int ActiveFrameIndex{get; private set;}
-        public int ActiveGroupIndex{get; private set;} 
-        public int ActiveLayerIndex{get; private set;}
+        public int IndexOfSelectedLayer{get; private set;}
+        public int IndexOfSelectedGroup{get; private set;}
         public PixelAnimation SelectedAnimation{get; private set;}
         public float editorDeltaTime{get; private set;}
         private float lifeTime;
@@ -36,6 +33,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         public Window FocusedWindow { get; private set; }
         public SerializedObject SerializedAnimator {get; private set;} 
 
+        public Rect AvailableSpace{get; private set;}
 
         #endregion
 
@@ -46,6 +44,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         private static void InitWindow(){ 
             AnimatorWindow = CreateInstance<PixelAnimatorWindow>();
             AnimatorWindow.minSize = MIN_SIZE;
+            
             AnimatorWindow.Show();
             var icon = Resources.Load<Texture2D>("Sprites/PixelAnimatorIcon");
             AnimatorWindow.titleContent = new GUIContent("Pixel Animator", icon);
@@ -69,8 +68,11 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
         private void InitWindows(){
-            foreach(var item in AnimatorPreferences.windows){
-                item.Initialize();
+            for (int i = 0; i < AnimatorPreferences.windows.Count; i++){
+                var window = AnimatorPreferences.windows[i];
+                if (window == null) continue;
+                var id = i;
+                window.Initialize(id);
             }
         }
 
@@ -83,56 +85,66 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void SetWindowsData(){
             foreach (var window in AnimatorPreferences.windows){
-                if(window is not IUpdate update) return;
+                if(window is not IUpdate update) continue;
                 update.InspectorUpdate();
             }
         }
 
+
         private void OnGUI(){
             if(!initialized) Init();
+            AvailableSpace = position;
+            DrawBackground();
             SetEditorDeltaTime();
-            ProcessingWindows();
+
             FocusedWindowFunction();
+            ProcessingWindows();
             SelectedObject();
 
         }
 
+        private void DrawBackground(){
+            var rect = new Rect(Vector2.zero, position.size);
+            EditorGUI.DrawRect(rect, BACKGROUND_COLOR);
+        }
+
         private void ProcessingWindows(){
             BeginWindows();
-            foreach (var window in AnimatorPreferences.windows){
-                var isValidWindow = window != null && window.GetType() != typeof(Window);
-                if(isValidWindow) window.ProcessWindow(); 
+            for (int i = 0; i < AnimatorPreferences.windows.Count; i++){
+                var window = AnimatorPreferences.windows[i];
+                var isValidWindow = window != null;
+                if(!isValidWindow) continue; 
+                window.ProcessWindow(); 
+                GUI.BringWindowToBack(i);
                  
             }
             EndWindows();
         }
         private Vector2 mousePos;
         private void FocusedWindowFunction(){
-            var eventCurr = Event.current;
-            if(Event.current.type != EventType.Used){
+            var eventCurrent = Event.current;
+            if(eventCurrent.type != EventType.Used){
                 mousePos = Event.current.mousePosition;
             }
-            var isLeftClicked = eventCurr.button == 0 && (eventCurr.type == EventType.MouseDown || eventCurr.type == EventType.Used);
+            var isLeftClicked = eventCurrent.button == 0 && (eventCurrent.type == EventType.MouseDown || eventCurrent.type == EventType.Used);
             if (isLeftClicked){
-                var foundFocusedWindow = false;
-
-                foreach (var window in AnimatorPreferences.windows){
-                    var t = window as TimelineWindow;
-                    var isInRect = t.WindowRect.Contains(mousePos);
-                    
-                    if (!isInRect) continue;
-                    FocusedWindow = window;
-                    foundFocusedWindow = true;
-                    break; 
-                }
+                var foundFocusedWindow = IsExistFocusedWindow();
                 if (!foundFocusedWindow) FocusedWindow = null;
             
             }
-            // Debug.Log(FocusedWindow);
             FocusedWindow?.FocusFunctions();
         }
 
-        
+        private bool IsExistFocusedWindow(){
+            foreach (var window in AnimatorPreferences.windows){
+                var isInRect = window.WindowRect.Contains(mousePos);
+                
+                if (!isInRect) continue;
+                FocusedWindow = window;
+                return true;
+            }
+            return false;
+        }
         #region Common
         private void SetEditorDeltaTime(){
 
@@ -170,6 +182,18 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
 
+        public void SelectGroup(int index){
+            var isValid = index < SelectedAnimation.Groups.Count && index >= 0;
+            if(!isValid) throw new IndexOutOfRangeException();
+            
+            IndexOfSelectedGroup = index;
+        }
+        public void SelectLayer(int layerIndex){
+            var isValid = layerIndex < SelectedAnimation.Groups[IndexOfSelectedGroup].layers.Count && layerIndex >= 0;
+            if(!isValid) throw new IndexOutOfRangeException();
+            
+            IndexOfSelectedLayer = layerIndex;
+        }
         public void SelectFrame(int index){
             var isValid = index < SelectedAnimation.GetSpriteList().Count && index >= 0;
             if(!isValid) throw new IndexOutOfRangeException();
@@ -177,6 +201,13 @@ namespace binc.PixelAnimator.Editor.Windows{
             IndexOfSelectedFrame = index;
         }
 
+        public void SetAvailableRect(Rect rect){
+            AvailableSpace = rect;
+        }
+
+        public void SelectFocusWindow(Window window){
+            FocusedWindow = window;
+        }
 
 
         #endregion

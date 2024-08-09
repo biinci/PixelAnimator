@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   loop: 1
   fps: 12
-  pixelSprites: []
-  groups:
-  - boxDataGuid: 
-    colliderTypes: 0
-    layers: []
-    isVisible: 0
-    isExpanded: 0
+  pixelSprites:
+  - spriteId: f22d0188cb7cc9583a13047480de7654
+    sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+    spriteData:
+      genericData: []
+      eventNames: []
+  groups: []
   references:
     version: 2
     RefIds: []

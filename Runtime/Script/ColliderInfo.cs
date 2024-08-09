@@ -24,7 +24,7 @@ namespace binc.PixelAnimator{
         private void Update(){
             
             if(col2D != null) //TODO fix the collider nullable
-                col2D.enabled = frame.frameType != FrameType.EmptyFrame;
+                col2D.enabled = frame.GetFrameType() != FrameType.EmptyFrame;
         }
 
         private void OnTriggerEnter2D(Collider2D col){
@@ -35,10 +35,10 @@ namespace binc.PixelAnimator{
             gameObject.SendMessageUpwards("OnBoxCollision", otherColInfo);
             otherAnim.gameObject.SendMessageUpwards("OnBoxCollision", this);
             
-            foreach (var hitBoxValue in frame.HitBoxData.genericData) {
-                var prop = preferences.GetProperty(PropertyType.HitBox, hitBoxValue.baseData.Guid); // Get HitBox Property
-                otherAnim.ColliderEvents[prop.Name]?.Invoke(hitBoxValue.GetInheritData());
-            }
+            //foreach (var hitBoxValue in frame.HitBoxData.genericData) {
+            //    var prop = preferences.GetProperty(PropertyType.HitBox, hitBoxValue.baseData.Guid); // Get HitBox Property
+            //    otherAnim.ColliderEvents[prop.Name]?.Invoke(hitBoxValue.GetInheritData());
+            //}
 
             // otherAnim.collisionEvent?.Invoke(this, col);
             // anim.collisionEvent?.Invoke(otherColInfo, col);
