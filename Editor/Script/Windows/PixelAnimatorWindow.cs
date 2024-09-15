@@ -21,7 +21,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         public int IndexOfSelectedLayer{get; private set;}
         public int IndexOfSelectedGroup{get; private set;}
         public PixelAnimation SelectedAnimation{get; private set;}
-        public float editorDeltaTime{get; private set;}
+        public float EditorDeltaTime{get; private set;}
         private float lifeTime;
         public PixelAnimationPreferences AnimationPreferences{get; private set;}
         public PixelAnimatorPreferences AnimatorPreferences{get; private set;}
@@ -149,7 +149,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void SetEditorDeltaTime(){
 
             if(lifeTime == 0f) lifeTime = (float)EditorApplication.timeSinceStartup;
-            editorDeltaTime = (float)(EditorApplication.timeSinceStartup - lifeTime);
+            EditorDeltaTime = (float)(EditorApplication.timeSinceStartup - lifeTime);
             lifeTime = (float)EditorApplication.timeSinceStartup;
         
         }
@@ -220,6 +220,17 @@ namespace binc.PixelAnimator.Editor.Windows{
     public struct ButtonData<T>{
         public bool clicked;
         public T data;
+        public void DownClick(T data){
+            clicked = true;
+            this.data = data;
+        }
+        public void UpClick(){
+            clicked = false;
+        }
+        public void UpClick(T data){
+            clicked = false;
+            this.data = data;
+        }
     }
 
 }

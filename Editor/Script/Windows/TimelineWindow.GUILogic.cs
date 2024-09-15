@@ -103,17 +103,19 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void LinkBurgerMenuButton(){
             if(!burgerClick) return;
             burgerMenu = new GenericMenu();
+            AddBurgeMenuItems();
+            burgerMenu.ShowAsContext();
+            burgerClick = true;
+        }
 
+        private void AddBurgeMenuItems(){
             var boxData = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences.BoxData;
             for(var i = 0 ; i < boxData.Count; i ++){
                 burgerMenu.AddItem(new GUIContent($"Add Group/{boxData[i].boxType}"), false, 
                 obj=>{SelectedAnim.AddGroup(boxData[(int)obj].Guid);},i);
  
             }   
-            burgerMenu.ShowAsContext();
-            burgerClick = true;
         }
-
 
         private void LinkThumbnailButton(){
             if(!thumbnailButton.clicked) return;
@@ -129,13 +131,14 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
         private void LinkChangeSpriteButton(){
-            if(!previousSpriteClick && !nextSpriteClick) return;
+            var isAnyClicked = previousSpriteClick || nextSpriteClick;
+            if(!isAnyClicked) return;
             var factor = previousSpriteClick ? -1 : 1;
-            var animator = PixelAnimatorWindow.AnimatorWindow;
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var mod = SelectedAnim.GetSpriteList().Count;
-            var index = (animator.IndexOfSelectedFrame + factor) % mod;
+            var index = (animatorWindow.IndexOfSelectedFrame + factor) % mod;
             index = index == -1 ? mod-1 : index;
-            animator.SelectFrame(index); 
+            animatorWindow.SelectFrame(index); 
             previousSpriteClick = false;
             nextSpriteClick = false;
         }
