@@ -145,7 +145,6 @@ namespace binc.PixelAnimator.Editor.Preferences{
             PixelAnimatorUtility.CreateTooltip(activeLayerRect, LayerMask.LayerToName(activeLayer.intValue),
                 eventCurrent.mousePosition);
             
-            
             PixelAnimatorUtility.CreateTooltip(roundedRect, "Rounded", eventCurrent.mousePosition);
             
             PixelAnimatorUtility.CreateTooltip(boxTypeRect, "Name", eventCurrent.mousePosition);

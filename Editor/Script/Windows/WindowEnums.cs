@@ -12,7 +12,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         Property,
         Timeline,
         Canvas,
-        none
+        None
     }
 
     //Box handles.

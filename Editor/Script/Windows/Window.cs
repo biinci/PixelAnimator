@@ -13,8 +13,8 @@ namespace binc.PixelAnimator.Editor.Windows
         public bool FocusChangeable { get; internal set; }
         public int Id{get; internal set;}
 
-    
-        public Window() {
+
+        protected Window() {
         }
 
         public abstract void Initialize(int id);
@@ -32,7 +32,7 @@ namespace binc.PixelAnimator.Editor.Windows
 
     }
 
-    interface IUpdate{
+    internal interface IUpdate{
         void InspectorUpdate();
     }
 

@@ -22,43 +22,7 @@ namespace binc.PixelAnimator.Utility{
     public static class PixelAnimatorUtility{
         
 #if UNITY_EDITOR
-
-        public static bool Button(Texture2D image, Rect rect){
-            var e = Event.current;
-            GUI.DrawTexture(rect, image);
-            if (!rect.Contains(e.mousePosition)) return false;
-            EditorGUI.DrawRect(rect, new Color(255, 255, 255, 0.2f)); 
-            return e.button == 0 && e.type == EventType.MouseDown;
-        }
-
-        public static bool Button(Rect rect, Color color){
-            var e = Event.current;
-            EditorGUI.DrawRect(rect, color);
-            if(rect.Contains(e.mousePosition)){
-                EditorGUI.DrawRect(rect, new Color(255, 255, 255, 0.2f)); 
-                if(e.button == 0 && e.type == EventType.MouseDown){
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static bool Button(Texture2D defaultImg, Texture2D onMouse, Rect rect){
-            var e = Event.current;
-            if(rect.Contains(e.mousePosition)){
-                GUI.DrawTexture(rect, onMouse);
-                EditorGUI.DrawRect(rect, new Color(255, 255, 255, 0.2f));
-
-                if(e.button == 0 && e.type == EventType.MouseDown){
-                    return true;
-                }
-            }else{
-                GUI.DrawTexture(rect, defaultImg);
-
-            }
-            return false;
-        }
-
+        
 
         public static void CreateTooltip(Rect rect, string tooltip, Vector2 containsPosition){
             if (rect.Contains(containsPosition)) {
@@ -152,32 +116,6 @@ namespace binc.PixelAnimator.Utility{
         
         
 
-        /// <param name="button"> 0: left, 1: right, 2: middle</param>
-        /// <returns></returns>
-        public static bool IsClicked(int button) {
-            var @event = Event.current;
-            return @event.type == EventType.MouseDown && @event.button == button;
-        }
-
-        public static void ChangeCursor(Rect rect, MouseCursor mouseCursor, Vector2 mousePos, bool condition) {
-            if (rect.Contains(mousePos)) {
-                if (condition) {
-                    EditorGUIUtility.AddCursorRect(rect, mouseCursor);
-                }
-            }
-            else{
-                if (condition) {
-                    EditorGUIUtility.AddCursorRect(new Rect(0,0,800,800), mouseCursor);
-                }
-            }
-
-        }
-
-        public static Rect GetWorldRect(Rect rect, Vector2 parentPos) {
-            return new Rect(parentPos.x + rect.xMin, parentPos.y + rect.yMin, rect.width, rect.height);
-        }
-
-
         public static void DropAreaGUI (Rect rect, ReorderableList list, PixelAnimationListener listener){ 
             var evt = Event.current;
             var dropArea = rect;
@@ -204,18 +142,10 @@ namespace binc.PixelAnimator.Utility{
                 break;
             }
         }
-
-
-
+        
 
 #endif
-
-        public static void Swap<T>(this IList<T> list, int indexA, int indexB)
-        {
-            T tmp = list[indexA];
-            list[indexA] = list[indexB];
-            list[indexB] = tmp;
-        }
+        
         public delegate void PixelAnimationListener(object userData);
         private static object CreateObject(Type type){ //DELETE
             object obj;

@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace binc.PixelAnimator{
 
-    public delegate void CollisionEvent(ColliderInfo colInfo, Collider2D col);
+    public delegate void CollisionEvent(Collider2D col);
     public class PixelAnimator : MonoBehaviour{
         private PixelAnimationPreferences preferences;
         public PixelAnimationPreferences Preferences => preferences;
@@ -31,8 +31,8 @@ namespace binc.PixelAnimator{
         public Dictionary<string, Action<object>> SpriteProperty{ get; private set; }
         public Dictionary<string, PixelAnimatorListener> SpriteEvents{ get; private set; }
 
-        public Dictionary<Layer, ColliderInfo> layerToColliderInfo;
-        public Dictionary<BoxCollider2D, ColliderInfo> colliderToInfo;
+        // public Dictionary<Layer, ColliderInfo> layerToColliderInfo;
+        // public Dictionary<BoxCollider2D, ColliderInfo> colliderToInfo;
         public readonly Dictionary<string, GameObject> groupObjects = new();
 
 
@@ -124,18 +124,18 @@ namespace binc.PixelAnimator{
         private void SetLayer(List<Group> groups){
             foreach (var group in groups) {
                 var groupObj = GetAddedGroupObject(group);
-                var colInfo = groupObj.AddComponent<ColliderInfo>();
+                // var colInfo = groupObj.AddComponent<ColliderInfo>();
                 foreach (var layer in group.layers) {
                     var col = groupObj.AddComponent<BoxCollider2D>();
-                    colliderToInfo.Add(col, colInfo);
+                    // colliderToInfo.Add(col, colInfo);
                     col.enabled = false;
                     var rect = GetAdjustedRect(layer);
                     col.isTrigger = group.colliderTypes == ColliderTypes.Trigger;
                     col.size = rect.size;
                     col.offset = new Vector2(rect.position.x * Direction, rect.position.y);
                     col.enabled = true;
-                    colInfo.Setup(this, col);
-                    layerToColliderInfo.Add(layer, colInfo);
+                    // colInfo.Setup(this, col);
+                    // layerToColliderInfo.Add(layer, colInfo);
                     
                     
                 }
@@ -197,8 +197,8 @@ namespace binc.PixelAnimator{
             
             SpriteEvents = new Dictionary<string, PixelAnimatorListener>();
             SpriteProperty = new Dictionary<string, Action<object>>();
-            layerToColliderInfo = new Dictionary<Layer, ColliderInfo>();
-            colliderToInfo = new Dictionary<BoxCollider2D, ColliderInfo>();
+            // layerToColliderInfo = new Dictionary<Layer, ColliderInfo>();
+            // colliderToInfo = new Dictionary<BoxCollider2D, ColliderInfo>();
             frame = -1;
             clock = 0;
             clock += (float)1/willChange.fps;
@@ -230,7 +230,7 @@ namespace binc.PixelAnimator{
                             break;
                         }
                     }
-                    layerToColliderInfo[layer].ChangeFrame(layer.frames[frameIndex]);
+                    // layerToColliderInfo[layer].ChangeFrame(layer.frames[frameIndex]);
                 }
             }
         }        

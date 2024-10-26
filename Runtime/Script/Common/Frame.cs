@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using binc.PixelAnimator.DataProvider;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 
 namespace binc.PixelAnimator.Common{
@@ -35,6 +34,7 @@ namespace binc.PixelAnimator.Common{
 
     }
 
+    [Serializable]
     public struct FrameData{
         public Rect hitBoxRect;
         [SerializeField] private PropertyData spriteData;

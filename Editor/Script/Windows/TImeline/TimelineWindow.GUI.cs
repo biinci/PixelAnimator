@@ -8,110 +8,12 @@ using System;
 namespace binc.PixelAnimator.Editor.Windows{
 
     [Serializable]
-    public partial class TimelineWindow : Window, IUpdate{
-        
-        #region Variables
-        private bool isPlaying;
-
-        private Rect handleRect,
-           columnRect,
-           rowRect,
-           groupPlaneRect,
-           thumbnailPlaneRect,
-           toolPanelRect;
-
-        private Texture2D previousFrameTex,
-            playTex,
-            nextFrameTex,
-            timelineBurgerTex,
-            pauseTex,
-            playPauseTex;
-
-        public static readonly Color WindowPlaneColor = new (0.1f, 0.1f, 0.1f, 1);
-
-        private GenericMenu burgerMenu, groupMenu, layerMenu;
-
-        private const float HANDLE_HEIGHT = 6;
-        private float GROUP_PANEL_WIDTH => PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("Group").fixedWidth;
-        private float TOOL_PANEL_HEIGHT => PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("Tool").fixedWidth;
-
-        private float COLUMN_WIDTH => PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("TimelineLayout").fixedWidth;
-        private float ROW_HEIGHT => PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("TimelineLayout").fixedHeight;
-
-        private GUIStyle groupStyle, 
-        layerStyle, 
-        keyFrameStyle, 
-        emptyFrameStyle, 
-        copyFrameStyle, 
-        frameButtonStyle, 
-        spriteThumbnailStyle,
-        animatorButtonStyle,
-        timelineStyle;
-
-        private float timer;
-        private Vector2 scrollPos;
-        private bool reSizing = false;
-
-        private int loopGroupIndex, loopLayerIndex, loopFrameIndex;
-        private ButtonData<int> thumbnailButton;
-        private ButtonData<Group> groupButton;
-        private ButtonData<ValueTuple<Group,Layer>> layerButton;
-        private ButtonData<ValueTuple<int,int,int>> frameButton;
-        private bool burgerClick, previousSpriteClick, playPauseClick, nextSpriteClick;
-
-        #endregion
-
-        #region Init
-
-        private PixelAnimation anim;
-
-        public override void Initialize(int id){
-            Id = id;
-            LoadInitResources();
-            InitRect();
-        }
- 
-        private void LoadInitResources(){
-            LoadTextures();
-            LoadStyles();
-            
-        }
-
-        private void LoadTextures(){
-            previousFrameTex = Resources.Load<Texture2D>("Sprites/Back");
-            nextFrameTex = Resources.Load<Texture2D>("Sprites/Front");
-            timelineBurgerTex = Resources.Load<Texture2D>("Sprites/TimelineBurgerMenu");
-            pauseTex = Resources.Load<Texture2D>("Sprites/Pause");
-            playTex = Resources.Load<Texture2D>("Sprites/Play");
-            playPauseTex = playTex;
-        }
-        private void LoadStyles(){
-            var mySkin = PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin;
-            groupStyle = new GUIStyle(mySkin.GetStyle("Group"));
-            layerStyle = new GUIStyle(mySkin.GetStyle("Layer"));
-            keyFrameStyle = new GUIStyle(mySkin.GetStyle("KeyFrame"));
-            emptyFrameStyle = new GUIStyle(mySkin.GetStyle("EmptyFrame"));
-            copyFrameStyle = new GUIStyle(mySkin.GetStyle("CopyFrame"));
-            frameButtonStyle = new GUIStyle(mySkin.GetStyle("FrameButton"));
-            spriteThumbnailStyle = new GUIStyle(mySkin.GetStyle("SpriteThumbnail"));
-            animatorButtonStyle = new GUIStyle(mySkin.GetStyle("AnimatorButton"));
-            timelineStyle = new GUIStyle(mySkin.GetStyle("Timeline"));
-        }
-
-
-        private void InitRect() {
-            var position = PixelAnimatorWindow.AnimatorWindow.position;
-            windowRect.x = 0;
-            windowRect.y = position.yMax - windowRect.height;
-        }
-        #endregion
-
+    public partial class TimelineWindow{
 
         public void InspectorUpdate(){
             anim = PixelAnimatorWindow.AnimatorWindow.SelectedAnimation;
         }
-
-
+        
         public override void ProcessWindow(){
             SetRect(); //TODO: OPTIMUM PLEASE
             ClampTimelinePosition();
@@ -127,18 +29,14 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
         public override void FocusFunctions(){
-            if(SelectedAnim == null) return;
+            if(!SelectedAnim) return;
             SetShortcuts();
-            LinkWindowButtons();
         }
 
 
         #region Timeline
-        private void RenderWindow(){
-            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            GUI.Window(Id, windowRect, _=> RenderWindowContent(), GUIContent.none, timelineStyle);
-            
-        }
+        private void RenderWindow() => GUI.Window(Id, windowRect, _ => RenderWindowContent(), GUIContent.none, timelineStyle);
+        
 
         private Vector2 scrollPosition;
 
@@ -170,16 +68,16 @@ namespace binc.PixelAnimator.Editor.Windows{
             GUILayout.BeginArea(toolPanelRect);
             GUILayout.BeginHorizontal();
            
-            burgerClick = GUILayout.Button(timelineBurgerTex, animatorButtonStyle);
+            GUILayout.Button(timelineBurgerTex, animatorButtonStyle);
            
             GUILayout.Space(spaceTool);
-           
-            if(GUILayout.Button(previousFrameTex, animatorButtonStyle))
-                previousSpriteClick = true;
-            if(GUILayout.Button(playPauseTex, animatorButtonStyle))
-                playPauseClick = true;
-            if(GUILayout.Button(nextFrameTex, animatorButtonStyle))
-                nextSpriteClick = true;
+
+            if (GUILayout.Button(previousFrameTex, animatorButtonStyle))
+                previousNextSpriteButton.DownClick(true);
+            if (GUILayout.Button(playPauseTex, animatorButtonStyle))
+                playPauseButton.DownClick();
+            if (GUILayout.Button(nextFrameTex, animatorButtonStyle))
+                previousNextSpriteButton.DownClick(false);
            
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
@@ -188,7 +86,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void DrawThumbnailPanel(){
             GUILayout.BeginVertical();
 
-            GUILayout.Space(HANDLE_HEIGHT);
+            GUILayout.Space(HandleHeight);
 
             GUILayout.BeginHorizontal();
 
@@ -200,14 +98,13 @@ namespace binc.PixelAnimator.Editor.Windows{
                 GUI.skin.horizontalScrollbar,
                 GUIStyle.none,
                 GUILayout.Width(windowRect.width - space), 
-                GUILayout.Height(windowRect.height-HANDLE_HEIGHT)
+                GUILayout.Height(windowRect.height-HandleHeight)
 
                 );
 
             GUILayout.BeginHorizontal();           
 
-            var isValid = anim != null;
-            if(isValid) DrawThumbnails(anim.GetSpriteList()); 
+            if(anim) DrawThumbnails(anim.GetSpriteList()); 
 
             GUILayout.EndHorizontal();
 
@@ -221,16 +118,13 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void DrawThumbnails(List<Sprite> sprites){
             for(var i = 0; i < sprites.Count; i++){
                 var clicked = DrawThumbnail($"{i+1}",i);
-                if(clicked && !thumbnailButton.clicked) thumbnailButton.DownClick(i);
-                if(thumbnailButton.clicked && thumbnailButton.data == i){
-                    thumbnailButton.clicked = clicked;
-                }
+                if (clicked) thumbnailButton.DownClick(i);
             }
             
         }
 
         private bool DrawThumbnail(string label, int index){
-            GUIStyle style = GetThumbnailStyle(index);
+            var style = GetThumbnailStyle(index);
             return GUILayout.Button(label,style);
         }
         private GUIStyle GetThumbnailStyle(int index){
@@ -252,8 +146,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
             scrollPos = Vector2.right * scrollPos.x + Vector2.up * scrollPosition.y;
             
-            var isValid = anim != null;
-            if(isValid) DrawGroups(anim.Groups);
+            if(anim) DrawGroups(anim.Groups);
         
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
@@ -345,12 +238,12 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void SetRect(){
             var animatorWindowRect = PixelAnimatorWindow.AnimatorWindow.position;
             windowRect.size = new Vector2(animatorWindowRect.size.x, animatorWindowRect.height - windowRect.position.y);
-            handleRect = new Rect(0, 0, windowRect.width, HANDLE_HEIGHT);
-            columnRect = new Rect(GROUP_PANEL_WIDTH, HANDLE_HEIGHT, COLUMN_WIDTH, windowRect.height);
-            rowRect = new Rect(0, TOOL_PANEL_HEIGHT + HANDLE_HEIGHT, windowRect.width, ROW_HEIGHT);
+            handleRect = new Rect(0, 0, windowRect.width, HandleHeight);
+            columnRect = new Rect(GroupPanelWidth, HandleHeight, ColumnWidth, windowRect.height);
+            rowRect = new Rect(0, ToolPanelHeight + HandleHeight, windowRect.width, RowHeight);
             groupPlaneRect = new Rect(0, rowRect.yMax, windowRect.width, windowRect.height - rowRect.yMax);
-            thumbnailPlaneRect = new Rect(columnRect.xMax, HANDLE_HEIGHT, windowRect.width - columnRect.xMax,TOOL_PANEL_HEIGHT);
-            toolPanelRect = new Rect(10,8+HANDLE_HEIGHT, columnRect.x, TOOL_PANEL_HEIGHT);
+            thumbnailPlaneRect = new Rect(columnRect.xMax, HandleHeight, windowRect.width - columnRect.xMax,ToolPanelHeight);
+            toolPanelRect = new Rect(10,8+HandleHeight, columnRect.x, ToolPanelHeight);
             var availableSpace = new Rect(0,0, animatorWindowRect.width, windowRect.y);
             PixelAnimatorWindow.AnimatorWindow.SetAvailableRect(availableSpace);
             
@@ -385,8 +278,8 @@ namespace binc.PixelAnimator.Editor.Windows{
                 timer += deltaTime;
                 if(timer >= 1f/fps){
                     timer -= 1f/fps;
-                    var mod = (  animatorWindow.IndexOfSelectedFrame +1 ) % SelectedAnim.GetSpriteList().Count;
-                    animatorWindow.SelectFrame(mod);
+                    var frame = (  animatorWindow.IndexOfSelectedFrame +1 ) % SelectedAnim.GetSpriteList().Count;
+                    animatorWindow.SelectFrame(frame);
                    
                 }
                 animatorWindow.Repaint();

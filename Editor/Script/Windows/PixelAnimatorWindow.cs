@@ -3,7 +3,6 @@ using UnityEditor;
 using System;
 using binc.PixelAnimator.Preferences;
 using binc.PixelAnimator.Editor.Preferences;
-using UnityEditor.Graphs;
 
 namespace binc.PixelAnimator.Editor.Windows{
     
@@ -14,8 +13,8 @@ namespace binc.PixelAnimator.Editor.Windows{
         #region Variables
 
         public static PixelAnimatorWindow AnimatorWindow{get; private set;}
-        public static readonly Color BACKGROUND_COLOR = new(0.12f,0.12f,0.12f);
-        public static readonly Vector2 MIN_SIZE =  new (150,450);
+        public static readonly Color BackgroundColor = new(0.12f,0.12f,0.12f);
+        public static readonly Vector2 MinSize =  new (150,450);
         public GUISkin PixelAnimatorSkin { get; private set; }
         public int IndexOfSelectedFrame{get; private set;}
         public int IndexOfSelectedLayer{get; private set;}
@@ -43,7 +42,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         [MenuItem("Window/Pixel Animator")]
         private static void InitWindow(){ 
             AnimatorWindow = CreateInstance<PixelAnimatorWindow>();
-            AnimatorWindow.minSize = MIN_SIZE;
+            AnimatorWindow.minSize = MinSize;
             
             AnimatorWindow.Show();
             var icon = Resources.Load<Texture2D>("Sprites/PixelAnimatorIcon");
@@ -61,18 +60,16 @@ namespace binc.PixelAnimator.Editor.Windows{
             AnimatorPreferences = Resources.Load<PixelAnimatorPreferences>("Animator Preferences"); 
             PixelAnimatorSkin = Resources.Load<GUISkin>("PixelAnimationSkin");
             FocusedWindow = null;
-            WindowFocus = WindowEnum.none;
+            WindowFocus = WindowEnum.None;
             initialized = true;
             SerializedAnimator = new SerializedObject(this);
             InitWindows();
         }
 
         private void InitWindows(){
-            for (int i = 0; i < AnimatorPreferences.windows.Count; i++){
+            for (var i = 0; i < AnimatorPreferences.windows.Count; i++){
                 var window = AnimatorPreferences.windows[i];
-                if (window == null) continue;
-                var id = i;
-                window.Initialize(id);
+                window?.Initialize(i);
             }
         }
 
@@ -105,12 +102,12 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void DrawBackground(){
             var rect = new Rect(Vector2.zero, position.size);
-            EditorGUI.DrawRect(rect, BACKGROUND_COLOR);
+            EditorGUI.DrawRect(rect, BackgroundColor);
         }
 
         private void ProcessingWindows(){
             BeginWindows();
-            for (int i = 0; i < AnimatorPreferences.windows.Count; i++){
+            for (var i = 0; i < AnimatorPreferences.windows.Count; i++){
                 var window = AnimatorPreferences.windows[i];
                 var isValidWindow = window != null;
                 if(!isValidWindow) continue; 
@@ -159,8 +156,9 @@ namespace binc.PixelAnimator.Editor.Windows{
                 if (obj is not PixelAnimation anim){
                     SelectedAnimation = null;
                     continue;
-                } 
-                else if(SelectedAnimation == anim){
+                }
+
+                if(SelectedAnimation == anim){
                     continue;
                 }
                 TargetAnimation = new SerializedObject(anim);
@@ -168,7 +166,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 SelectedAnimation = anim;
                 
                 if(spriteList != null)
-                lifeTime = 0;
+                    lifeTime = 0;
             }
 
         }
@@ -217,20 +215,17 @@ namespace binc.PixelAnimator.Editor.Windows{
     }
 
         
-    public struct ButtonData<T>{
-        public bool clicked;
-        public T data;
-        public void DownClick(T data){
-            clicked = true;
-            this.data = data;
-        }
-        public void UpClick(){
-            clicked = false;
-        }
-        public void UpClick(T data){
-            clicked = false;
-            this.data = data;
-        }
+    public struct ButtonData<T>
+    {
+        public Action<T> DownClick;
+        public Action<T> UpClick;
+
+    }
+
+    public struct ButtonData
+    {
+        public Action DownClick;
+        public Action UpClick;
     }
 
 }
