@@ -35,7 +35,11 @@ namespace binc.PixelAnimator.Editor.Windows
 
 
         }
-        
+
+        public override void Dispose()
+        {
+        }
+
         public override void ProcessWindow(){
 
             var anim = PixelAnimatorWindow.AnimatorWindow.SelectedAnimation;

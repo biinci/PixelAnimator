@@ -54,9 +54,10 @@ namespace binc.PixelAnimator.Editor.Windows
 
         private float timer;
         private Vector2 scrollPos;
-        private bool reSizing = false;
+        private bool reSizing;
 
         private int loopGroupIndex, loopLayerIndex, loopFrameIndex;
+        
         private ButtonData<int> thumbnailButton;
         private ButtonData<Group> groupButton;
         private ButtonData<ValueTuple<Group, Layer>> layerButton;
@@ -75,7 +76,10 @@ namespace binc.PixelAnimator.Editor.Windows
             Id = id;
             LoadInitResources();
             InitRect();
+            LoadStyles();
         }
+
+
 
         private void LoadInitResources()
         {
@@ -117,6 +121,7 @@ namespace binc.PixelAnimator.Editor.Windows
             spriteThumbnailStyle = new GUIStyle(mySkin.GetStyle("SpriteThumbnail"));
             animatorButtonStyle = new GUIStyle(mySkin.GetStyle("AnimatorButton"));
             timelineStyle = new GUIStyle(mySkin.GetStyle("Timeline"));
+            hoverSpriteThumbnailStyle = new GUIStyle(spriteThumbnailStyle) { normal = spriteThumbnailStyle.hover };
         }
 
 
@@ -128,5 +133,16 @@ namespace binc.PixelAnimator.Editor.Windows
         }
 
         #endregion
+        
+        public override void Dispose()
+        {
+            thumbnailButton.DownClick -= ThumbnailButton;
+            groupButton.DownClick -= GroupButton;
+            layerButton.DownClick -= LayerButton;
+            frameButton.DownClick -= FrameButton;
+            burgerButton.DownClick -= BurgerMenuButton;
+            playPauseButton.DownClick -= PlayPauseButton;
+            previousNextSpriteButton.DownClick -= ChangeSpriteButton;
+        }
     }
 }

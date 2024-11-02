@@ -75,25 +75,23 @@ namespace binc.PixelAnimator.Editor.Preferences{
         }
         private bool ApplyWindowScriptElement(int index, SerializedProperty serializedScript){
             var script =  serializedScript.objectReferenceValue as MonoScript;
-            if(script != null){
-                var classType = script.GetClass();
-                if(classType == null){
-                    serializedScript.objectReferenceValue = null;
-                    return false;
-                }else{
-                    var preferences = (PixelAnimatorPreferences)target;
-                    var isWindow = classType.BaseType == typeof(Window);
-                    var isExist = preferences.windowScripts.Contains(script);
-                    if(!isWindow || isExist){
-                        serializedScript.objectReferenceValue = null;
-                        return false;
-                    }  
-                    serializedWindows.GetArrayElementAtIndex(index).managedReferenceValue = Activator.CreateInstance(classType);
-                    
-                    serializedObject.ApplyModifiedProperties();
-                    return true;
-                }   
+            if (script == null) return false;
+            var classType = script.GetClass();
+            Debug.Log(script + "    " + classType);
+            if(classType == null){
+                serializedScript.objectReferenceValue = null;
+                return false;
             }
+            var preferences = (PixelAnimatorPreferences)target;
+            var isWindow = classType.BaseType == typeof(Window);
+                
+            var isExist = preferences.windowScripts.Contains(script);
+            if(!isWindow || isExist){
+                serializedScript.objectReferenceValue = null;
+                return false;
+            }  
+            serializedWindows.GetArrayElementAtIndex(index).managedReferenceValue = Activator.CreateInstance(classType);
+                    
             serializedObject.ApplyModifiedProperties();
             return true;
 

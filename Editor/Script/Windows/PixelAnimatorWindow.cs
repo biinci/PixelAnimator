@@ -19,20 +19,22 @@ namespace binc.PixelAnimator.Editor.Windows{
         public int IndexOfSelectedFrame{get; private set;}
         public int IndexOfSelectedLayer{get; private set;}
         public int IndexOfSelectedGroup{get; private set;}
-        public PixelAnimation SelectedAnimation{get; private set;}
+        [SerializeField] private PixelAnimation selectedAnimation;
+        public PixelAnimation SelectedAnimation => selectedAnimation;
+        
         public float EditorDeltaTime{get; private set;}
         private float lifeTime;
         public PixelAnimationPreferences AnimationPreferences{get; private set;}
         public PixelAnimatorPreferences AnimatorPreferences{get; private set;}
         public SerializedObject TargetAnimation{get; private set;}
         
-        private bool initialized = false;
-        public WindowEnum WindowFocus{get; set;}
+        private bool initialized;
         public PropertyFocusEnum PropertyFocus{get; private set;}
         public Window FocusedWindow { get; private set; }
         public SerializedObject SerializedAnimator {get; private set;} 
 
         public Rect AvailableSpace{get; private set;}
+        public bool FocusChangeable{get; private set;}
 
         #endregion
 
@@ -54,16 +56,30 @@ namespace binc.PixelAnimator.Editor.Windows{
             Init();
         }
 
+        private void OnDisable()
+        {
+            DisposeWindows();
+        }
 
+        private void DisposeWindows()
+        {
+            foreach (var window in AnimatorPreferences.windows)
+            {
+                window?.Dispose();
+            }
+        }
+        
         private void Init(){ 
             AnimationPreferences = Resources.Load<PixelAnimationPreferences>("Animation Preferences"); 
             AnimatorPreferences = Resources.Load<PixelAnimatorPreferences>("Animator Preferences"); 
             PixelAnimatorSkin = Resources.Load<GUISkin>("PixelAnimationSkin");
             FocusedWindow = null;
-            WindowFocus = WindowEnum.None;
             initialized = true;
             SerializedAnimator = new SerializedObject(this);
+            SelectedObject();
             InitWindows();
+
+            
         }
 
         private void InitWindows(){
@@ -93,11 +109,18 @@ namespace binc.PixelAnimator.Editor.Windows{
             AvailableSpace = position;
             DrawBackground();
             SetEditorDeltaTime();
+            SelectedObject();
 
             FocusedWindowFunction();
             ProcessingWindows();
-            SelectedObject();
 
+            
+            if (Event.current.type != EventType.Used && Event.current.isMouse)
+            {
+                GUI.FocusControl("");
+            }
+
+            // Repaint();
         }
 
         private void DrawBackground(){
@@ -115,7 +138,9 @@ namespace binc.PixelAnimator.Editor.Windows{
                 GUI.BringWindowToBack(i);
                  
             }
+            //Repaint();
             EndWindows();
+
         }
         private Vector2 mousePos;
         private void FocusedWindowFunction(){
@@ -123,7 +148,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             if(eventCurrent.type != EventType.Used){
                 mousePos = Event.current.mousePosition;
             }
-            var isLeftClicked = eventCurrent.button == 0 && (eventCurrent.type == EventType.MouseDown || eventCurrent.type == EventType.Used);
+            var isLeftClicked = eventCurrent.button == 0 && eventCurrent.type is EventType.MouseDown or EventType.Used;
             if (isLeftClicked){
                 var foundFocusedWindow = IsExistFocusedWindow();
                 if (!foundFocusedWindow) FocusedWindow = null;
@@ -135,11 +160,15 @@ namespace binc.PixelAnimator.Editor.Windows{
         private bool IsExistFocusedWindow(){
             foreach (var window in AnimatorPreferences.windows){
                 var isInRect = window.WindowRect.Contains(mousePos);
-                
+
                 if (!isInRect) continue;
+                
                 FocusedWindow = window;
+                FocusChangeable = false;
                 return true;
             }
+
+            FocusChangeable = true;
             return false;
         }
         #region Common
@@ -154,16 +183,23 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void SelectedObject(){
             foreach(var obj in Selection.objects) {
                 if (obj is not PixelAnimation anim){
-                    SelectedAnimation = null;
-                    continue;
-                }
-
-                if(SelectedAnimation == anim){
+                    selectedAnimation = null;
+                    TargetAnimation = null;
                     continue;
                 }
                 TargetAnimation = new SerializedObject(anim);
+                TargetAnimation.Update();
+                if(SelectedAnimation == anim){
+                    continue;
+                }
+
+                
+                Repaint();
                 var spriteList = anim.GetSpriteList();
-                SelectedAnimation = anim;
+                selectedAnimation = anim;
+                IndexOfSelectedGroup = 0;
+                IndexOfSelectedLayer = 0;
+                IndexOfSelectedFrame = 0;
                 
                 if(spriteList != null)
                     lifeTime = 0;
@@ -204,7 +240,8 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
         public void SelectFocusWindow(Window window){
-            FocusedWindow = window;
+            if (FocusChangeable)
+                FocusedWindow = window;
         }
 
 

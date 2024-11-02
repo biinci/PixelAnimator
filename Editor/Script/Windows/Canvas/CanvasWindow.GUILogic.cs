@@ -79,7 +79,7 @@ namespace binc.PixelAnimator.Editor.Windows
                 for (var l = 0; l < group.layers.Count; l++)
                 {
                     var layer = group.layers[l];
-                    var boxRect = layer.frames[animatorWindow.IndexOfSelectedFrame].FrameData.hitBoxRect;
+                    var boxRect = layer.frames[animatorWindow.IndexOfSelectedFrame].hitBoxRect;
 
                     var adjustedRect = new Rect(boxRect.position * spriteScale, boxRect.size * spriteScale);
 

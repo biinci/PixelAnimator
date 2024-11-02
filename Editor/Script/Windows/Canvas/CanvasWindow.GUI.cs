@@ -82,7 +82,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             if(group.layers.Count == 0) return;
             var frame = group.layers[animatorWindow.IndexOfSelectedLayer].frames[animatorWindow.IndexOfSelectedFrame];// Getting the active frame on all layers
             if(frame.GetFrameType() == FrameType.EmptyFrame) return;
-            var rect = frame.FrameData.hitBoxRect; //Getting frame rect for the drawing.
+            var rect = frame.hitBoxRect; //Getting frame rect for the drawing.
             rect.position *= spriteScale; //Changing rect position and size for zoom.
             rect.size *= spriteScale;
             
@@ -103,6 +103,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 var rAdjustedMiddle = new Rect(rect.x + handleSize / 2, rect.y + handleSize / 2, rect.width - handleSize,
                     rect.height - handleSize);
                 var eventCurrent = Event.current;
+                var scale = spriteScale;
                 if (eventCurrent.button == 0 && eventCurrent.type == EventType.MouseDown) {
                     var mousePos = eventCurrent.mousePosition;
                     if (rTopLeft.Contains(mousePos))
@@ -133,54 +134,55 @@ namespace binc.PixelAnimator.Editor.Windows{
                 if (eventCurrent.type == EventType.MouseDrag && eventCurrent.type != EventType.MouseUp) {
                     var xPos = (int)eventCurrent.mousePosition.x/spriteScale;
                     var yPos = (int)eventCurrent.mousePosition.y/spriteScale;
-                    // switch (EditingHandle) {
-                    //     case HandleType.TopLeft:
-                    //         frame.hitBoxRect.xMin = xPos;
-                    //         frame.hitBoxRect.yMin = yPos;
-                    //         break;
-                    //     case HandleType.TopCenter:
-                    //         frame.hitBoxRect.yMin = yPos;
-                    //         break;
-                    //     case HandleType.TopRight:
-                    //         frame.hitBoxRect.xMax = xPos;
-                    //         frame.hitBoxRect.yMin = yPos;
-                    //         break;
-                    //     case HandleType.RightCenter:
-                    //         frame.hitBoxRect.xMax = xPos;
-                    //         break;
-                    //     case HandleType.BottomRight:
-                    //         frame.hitBoxRect.xMax = xPos;
-                    //         frame.hitBoxRect.yMax = yPos;
-                    //         break;
-                    //     case HandleType.BottomCenter:
-                    //         frame.hitBoxRect.yMax = yPos;
-                    //         break;
-                    //     case HandleType.BottomLeft:
-                    //         frame.hitBoxRect.xMin = xPos;
-                    //         frame.hitBoxRect.yMax = yPos;
-                    //         break;
-                    //     case HandleType.LeftCenter:
-                    //         frame.hitBoxRect.xMin = xPos;
-                    //         break;
-                    //     case HandleType.Middle:
-                    //         var xDelta = (int)((clickedMousePos.x - rect.xMin) / scale);
-                    //         var yDelta = (int)((clickedMousePos.y - rect.yMin) / scale);
+                    switch (EditingHandle) {
+                        case HandleType.TopLeft:
+                            frame.hitBoxRect.xMin = xPos;
+                            frame.hitBoxRect.yMin = yPos;
+                            break;
+                        case HandleType.TopCenter:
+                            frame.hitBoxRect.yMin = yPos;
+                            break;
+                        case HandleType.TopRight:
+                            frame.hitBoxRect.xMax = xPos;
+                            frame.hitBoxRect.yMin = yPos;
+                            break;
+                        case HandleType.RightCenter:
+                            frame.hitBoxRect.xMax = xPos;
+                            break;
+                        case HandleType.BottomRight:
+                            frame.hitBoxRect.xMax = xPos;
+                            frame.hitBoxRect.yMax = yPos;
+                            break;
+                        case HandleType.BottomCenter:
+                            frame.hitBoxRect.yMax = yPos;
+                            break;
+                        case HandleType.BottomLeft:
+                            frame.hitBoxRect.xMin = xPos;
+                            frame.hitBoxRect.yMax = yPos;
+                            break;
+                        case HandleType.LeftCenter:
+                            frame.hitBoxRect.xMin = xPos;
+                            break;
+                        case HandleType.Middle:
+                            var xDelta = (int)((clickedMousePos.x - rect.xMin) / scale);
+                            var yDelta = (int)((clickedMousePos.y - rect.yMin) / scale);
                             
-                    //         var newXPos = xPos - xDelta;
-                    //         var newYPos = yPos - yDelta;
+                            var newXPos = xPos - xDelta;
+                            var newYPos = yPos - yDelta;
 
-                    //         var xSize = (int)rect.size.x / scale;
-                    //         var ySize = (int)rect.size.y / scale;
+                            var xSize = (int)rect.size.x / scale;
+                            var ySize = (int)rect.size.y / scale;
 
-                    //         frame.hitBoxRect.position = new Vector2(newXPos, newYPos);
-                    //         frame.hitBoxRect.size = new Vector2(xSize, ySize);
-                    //         clickedMousePos = eventCurrent.mousePosition;
-                    //         break;
-                    //     case HandleType.None:
-                    //         break;
-                    //     default:
-                    //         throw new ArgumentOutOfRangeException(nameof(handleTypes), handleTypes, null);
-                    // }
+                            frame.hitBoxRect.position = new Vector2(newXPos, newYPos);
+                            frame.hitBoxRect.size = new Vector2(xSize, ySize);
+                            clickedMousePos = eventCurrent.mousePosition;
+                            break;
+                        case HandleType.None:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(handleTypes), handleTypes, null);
+                    }
+                    
                 }
 
                 EditorGUI.DrawRect(rTopLeft, rectColor);
@@ -191,7 +193,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 EditorGUI.DrawRect(rBottomCenter, rectColor);
                 EditorGUI.DrawRect(rBottomLeft, rectColor);
                 EditorGUI.DrawRect(rLeftCenter, rectColor);
-
+                PixelAnimatorWindow.AnimatorWindow.Repaint();
 
                 AddCursorRect(rTopLeft, MouseCursor.ResizeUpLeft, HandleType.TopLeft);
                 AddCursorRect(rTopCenter, MouseCursor.ResizeVertical, HandleType.TopCenter);

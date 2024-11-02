@@ -7,13 +7,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         HitBox,
         Sprite
     }
-
-    public enum WindowEnum{
-        Property,
-        Timeline,
-        Canvas,
-        None
-    }
+    
 
     //Box handles.
     public enum HandleType{

@@ -9,55 +9,30 @@ namespace binc.PixelAnimator.Editor.Windows{
 
     [Serializable]
     public partial class TimelineWindow{
-
-        public void InspectorUpdate(){
-            anim = PixelAnimatorWindow.AnimatorWindow.SelectedAnimation;
-        }
         
-        public override void ProcessWindow(){
-            SetRect(); //TODO: OPTIMUM PLEASE
-            ClampTimelinePosition();
-            SetMouseIconState();
-            SetReSizingState();
-            RenderWindow();
-        }
-
-        private void ClampTimelinePosition(){
-            var height = PixelAnimatorWindow.AnimatorWindow.position.height;
-            if(windowRect.y < 200) windowRect.position = new Vector2(windowRect.x, 200);
-            if(windowRect.y > height) windowRect.position = new Vector2(windowRect.x,400);
-        }
-
-        public override void FocusFunctions(){
-            if(!SelectedAnim) return;
-            SetShortcuts();
-        }
-
-
-        #region Timeline
         private void RenderWindow() => GUI.Window(Id, windowRect, _ => RenderWindowContent(), GUIContent.none, timelineStyle);
         
 
         private Vector2 scrollPosition;
 
         private void RenderWindowContent(){
-            EditorGUI.DrawRect(handleRect, Color.black);
-            EditorGUI.DrawRect(new Rect(0, handleRect.height, windowRect.width, windowRect.height), WindowPlaneColor);
-            
-            EditorGUI.DrawRect(new Rect(columnRect.xMax, rowRect.yMax, windowRect.width-columnRect.xMax,windowRect.height-rowRect.yMax), new Color(0.04f,0.04f,0.04f));
-            EditorGUI.DrawRect(new Rect(groupPlaneRect.position,new Vector2(columnRect.xMin, groupPlaneRect.height)), new Color(0.07f, 0.07f, 0.07f));
-            LoadStyles();
-
-            DrawGridLines();
-            DrawToolButtons();
-
+            DrawBackgrounds();//ok
+            DrawGridLines();//ok
+            DrawToolButtons();//ok
             DrawGroupPanel();
             DrawThumbnailPanel();
-
-
+            
             if(isPlaying) Play();
         }
 
+        private void DrawBackgrounds()
+        {
+            EditorGUI.DrawRect(handleRect, Color.black);
+            EditorGUI.DrawRect(new Rect(0, handleRect.height, windowRect.width, windowRect.height), WindowPlaneColor);
+            EditorGUI.DrawRect(new Rect(columnRect.xMax, rowRect.yMax, windowRect.width-columnRect.xMax,windowRect.height-rowRect.yMax), new Color(0.04f,0.04f,0.04f));
+            EditorGUI.DrawRect(new Rect(groupPlaneRect.position,new Vector2(columnRect.xMin, groupPlaneRect.height)), new Color(0.07f, 0.07f, 0.07f));
+        }
+        
         private void DrawGridLines(){
             EditorGUI.DrawRect(columnRect, Color.black);
             EditorGUI.DrawRect(rowRect, Color.black);
@@ -116,21 +91,48 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
         private void DrawThumbnails(List<Sprite> sprites){
+            GUILayout.BeginVertical();
+            GUILayout.BeginHorizontal();
             for(var i = 0; i < sprites.Count; i++){
                 var clicked = DrawThumbnail($"{i+1}",i);
                 if (clicked) thumbnailButton.DownClick(i);
             }
+            GUILayout.EndHorizontal();
+            GUILayout.BeginVertical();
+
+            for (var j = 0; j < anim.Groups.Count; j++)
+            {
+                var group = anim.Groups[j];
+                GUILayout.BeginVertical();
+                for (var k = 0; k < group.layers.Count; k++)
+                {
+                    var layer = group.layers[k];
+                    GUILayout.BeginHorizontal();
+                    for (var i = 0; i < layer.frames.Count; i++)
+                    {
+                        DrawFrame(layer.frames[i]);
+                        
+                    }
+                    GUILayout.EndHorizontal();
+                }
+                GUILayout.EndVertical();
+            }
+            GUILayout.EndVertical();
+            GUILayout.EndVertical();
+
             
         }
 
         private bool DrawThumbnail(string label, int index){
+
             var style = GetThumbnailStyle(index);
             return GUILayout.Button(label,style);
         }
+
+        private GUIStyle hoverSpriteThumbnailStyle;
         private GUIStyle GetThumbnailStyle(int index){
             var isSameIndex = index == PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedFrame;
-            if(isSameIndex) return new GUIStyle(spriteThumbnailStyle){normal = spriteThumbnailStyle.hover};
-            else return spriteThumbnailStyle;
+            return isSameIndex ? hoverSpriteThumbnailStyle : spriteThumbnailStyle;
         }
         private void DrawGroupPanel(){
             GUILayout.BeginArea(groupPlaneRect);
@@ -184,11 +186,12 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void DrawLayer(Layer layer, string label, Group group){
             GUILayout.BeginHorizontal();
             if(GUILayout.Button(label, layerStyle)) layerButton.DownClick((group,layer));
-            DrawFrames(layer.frames);
+            //DrawFrames(layer.frames);
             GUILayout.EndHorizontal();
 
         }
 
+        
         private float framePanelWidth;
         private void DrawFrames(List<Frame> frames){
 
@@ -231,61 +234,9 @@ namespace binc.PixelAnimator.Editor.Windows{
                     return GUIStyle.none;
             }
         }
+        
 
-        #endregion
 
-        #region Rect
-        private void SetRect(){
-            var animatorWindowRect = PixelAnimatorWindow.AnimatorWindow.position;
-            windowRect.size = new Vector2(animatorWindowRect.size.x, animatorWindowRect.height - windowRect.position.y);
-            handleRect = new Rect(0, 0, windowRect.width, HandleHeight);
-            columnRect = new Rect(GroupPanelWidth, HandleHeight, ColumnWidth, windowRect.height);
-            rowRect = new Rect(0, ToolPanelHeight + HandleHeight, windowRect.width, RowHeight);
-            groupPlaneRect = new Rect(0, rowRect.yMax, windowRect.width, windowRect.height - rowRect.yMax);
-            thumbnailPlaneRect = new Rect(columnRect.xMax, HandleHeight, windowRect.width - columnRect.xMax,ToolPanelHeight);
-            toolPanelRect = new Rect(10,8+HandleHeight, columnRect.x, ToolPanelHeight);
-            var availableSpace = new Rect(0,0, animatorWindowRect.width, windowRect.y);
-            PixelAnimatorWindow.AnimatorWindow.SetAvailableRect(availableSpace);
-            
-            ReSizeWindowRect();
-        }
-        private void SetReSizingState(){
-            var r = new Rect(windowRect.position, handleRect.size);
-            var eventCurrent = Event.current;
-            var eventType = eventCurrent.type;
-            var leftCLicked = eventType == EventType.MouseDown && eventCurrent.button == 0;
-            var inHandleRect = r.Contains(eventCurrent.mousePosition);
-            if(leftCLicked && inHandleRect) reSizing = true;
-            var isMouseUp = eventType == EventType.MouseUp;
-            if(isMouseUp) reSizing = false;
-        }
-        private void ReSizeWindowRect(){
-            if(!reSizing) return;
-            windowRect.position = Vector2.up * Event.current.mousePosition.y;
-        }
-        private void SetMouseIconState(){
-            var r = new Rect(windowRect.position, handleRect.size);
-            EditorGUIUtility.AddCursorRect(r, MouseCursor.ResizeVertical);
-            PixelAnimatorWindow.AddCursorBool(reSizing, MouseCursor.ResizeVertical);
-        }
-        #endregion
-        private void Play(){
-            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            if (isPlaying) {
-                var fps = SelectedAnim.fps;
-                if(fps == 0) Debug.Log("Frame rate is zero");
-                var deltaTime = animatorWindow.EditorDeltaTime;
-                timer += deltaTime;
-                if(timer >= 1f/fps){
-                    timer -= 1f/fps;
-                    var frame = (  animatorWindow.IndexOfSelectedFrame +1 ) % SelectedAnim.GetSpriteList().Count;
-                    animatorWindow.SelectFrame(frame);
-                   
-                }
-                animatorWindow.Repaint();
-            }else if(!isPlaying && timer != 0){
-                timer = 0;
-            }
-        }
+
     }
 }

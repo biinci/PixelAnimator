@@ -7,7 +7,28 @@ using binc.PixelAnimator.Common;
 namespace binc.PixelAnimator.Editor.Windows{
 
     public partial class TimelineWindow{
+        public void InspectorUpdate(){
+            anim = PixelAnimatorWindow.AnimatorWindow.SelectedAnimation;
+        }
+        
+        public override void ProcessWindow(){
+            SetRect();
+            ClampTimelinePosition();
+            SetMouseIconState();
+            SetReSizingState();
+            RenderWindow();
+        }
 
+        private void ClampTimelinePosition(){
+            var height = PixelAnimatorWindow.AnimatorWindow.position.height;
+            if(windowRect.y < 200) windowRect.position = new Vector2(windowRect.x, 200);
+            if(windowRect.y > height) windowRect.position = new Vector2(windowRect.x,400);
+        }
+
+        public override void FocusFunctions(){
+            if(!SelectedAnim) return;
+            SetShortcuts();
+        }
         private void SetShortcuts(){
             var eventCurrent = Event.current;
             if(eventCurrent.type != EventType.KeyDown) return;
@@ -50,7 +71,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 animatorWindow.SelectGroup(groupIndex);
                 animatorWindow.SelectLayer(layerIndex);
             } 
-        
+            PixelAnimatorWindow.AnimatorWindow.Repaint();
 
         }
         private FrameType ChangeFrameType(FrameType type, FrameType previousType, int index){
@@ -105,17 +126,75 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void PlayPauseButton(){
             
-            isPlaying = !isPlaying ;
+            isPlaying = !isPlaying;
             playPauseTex = isPlaying ? pauseTex : playTex;
+            PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
 
+        private void Play(){
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
+            if (isPlaying) {
+                var fps = SelectedAnim.fps;
+                if(fps == 0) Debug.Log("Frame rate is zero");
+                var deltaTime = animatorWindow.EditorDeltaTime;
+                timer += deltaTime;
+                if(timer >= 1f/fps){
+                    timer -= 1f/fps;
+                    var frame = (  animatorWindow.IndexOfSelectedFrame +1 ) % SelectedAnim.GetSpriteList().Count;
+                    animatorWindow.SelectFrame(frame);
+                   
+                }
+                animatorWindow.Repaint();
+            }else if(!isPlaying && timer != 0){
+                timer = 0;
+            }
+        }
+        
         private void ChangeSpriteButton(bool isPrevious){
             var factor = isPrevious ? -1 : 1;
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var mod = SelectedAnim.GetSpriteList().Count;
             var index = (animatorWindow.IndexOfSelectedFrame + factor) % mod;
             index = index == -1 ? mod-1 : index;
-            animatorWindow.SelectFrame(index); 
+            animatorWindow.SelectFrame(index);
+            PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
+        
+        #region Rect
+        private void SetRect(){
+            var animatorWindowRect = PixelAnimatorWindow.AnimatorWindow.position;
+            windowRect.size = new Vector2(animatorWindowRect.size.x, animatorWindowRect.height - windowRect.position.y);
+            handleRect = new Rect(0, 0, windowRect.width, HandleHeight);
+            columnRect = new Rect(GroupPanelWidth, HandleHeight, ColumnWidth, windowRect.height);
+            rowRect = new Rect(0, ToolPanelHeight + HandleHeight, windowRect.width, RowHeight);
+            groupPlaneRect = new Rect(0, rowRect.yMax, windowRect.width, windowRect.height - rowRect.yMax);
+            thumbnailPlaneRect = new Rect(columnRect.xMax, HandleHeight, windowRect.width - columnRect.xMax,ToolPanelHeight);
+            toolPanelRect = new Rect(10,8+HandleHeight, columnRect.x, ToolPanelHeight);
+            var availableSpace = new Rect(0,0, animatorWindowRect.width, windowRect.y);
+            PixelAnimatorWindow.AnimatorWindow.SetAvailableRect(availableSpace);
+            
+            ReSizeWindowRect();
+        }
+        private void SetReSizingState(){
+            var r = new Rect(windowRect.position, handleRect.size);
+            var eventCurrent = Event.current;
+            var eventType = eventCurrent.type;
+            var leftCLicked = eventType == EventType.MouseDown && eventCurrent.button == 0;
+            var inHandleRect = r.Contains(eventCurrent.mousePosition);
+            if(leftCLicked && inHandleRect) reSizing = true;
+            var isMouseUp = eventType == EventType.MouseUp;
+            if(isMouseUp) reSizing = false;
+        }
+        private void ReSizeWindowRect(){
+            if(!reSizing) return;
+            windowRect.position = Vector2.up * Event.current.mousePosition.y;
+            PixelAnimatorWindow.AnimatorWindow.Repaint();
+        }
+        private void SetMouseIconState(){
+            var r = new Rect(windowRect.position, handleRect.size);
+            EditorGUIUtility.AddCursorRect(r, MouseCursor.ResizeVertical);
+            PixelAnimatorWindow.AddCursorBool(reSizing, MouseCursor.ResizeVertical);
+        }
+        #endregion
     }
 }

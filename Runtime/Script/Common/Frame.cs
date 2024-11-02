@@ -14,40 +14,25 @@ namespace binc.PixelAnimator.Common{
         
         [SerializeField] private FrameType type;
         
-        public FrameData FrameData{get; private set;}
+        public Rect hitBoxRect;
+        public PropertyData hitBoxData;
         
         public Frame(string guid){
             this.guid = guid;
-            FrameData.SetHitBoxRect(new Rect(0,0,16,16));
 
         }
 
-        public void SetType(FrameType type){
-            this.type = type;
+        public void SetType(FrameType frameType){
+            type = frameType;
         }
 
-        public void SetFrameData(FrameData frameData){
-            FrameData = frameData;
-        }
+
         public FrameType GetFrameType() => type;
         
 
     }
 
-    [Serializable]
-    public struct FrameData{
-        public Rect hitBoxRect;
-        [SerializeField] private PropertyData spriteData;
-        public PropertyData SpriteData => spriteData;
 
-        public void SetHitBoxData(PropertyData data){
-            spriteData = data;
-        }  
-        public void SetHitBoxRect(Rect rect){
-            hitBoxRect = rect;
-        }
-
-    }
 
 
     [Serializable]

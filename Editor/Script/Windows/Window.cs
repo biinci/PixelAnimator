@@ -18,6 +18,7 @@ namespace binc.PixelAnimator.Editor.Windows
         }
 
         public abstract void Initialize(int id);
+        public abstract void Dispose();
 
 
         /// <summary>
@@ -32,6 +33,7 @@ namespace binc.PixelAnimator.Editor.Windows
 
     }
 
+    //This class temporary
     internal interface IUpdate{
         void InspectorUpdate();
     }

@@ -16,13 +16,10 @@ MonoBehaviour:
   - name: Curve
     dataType: 0
     guid: 9787f3b626e77f6f9b1d420f857594c1
-  - name: 
-    dataType: 0
-    guid: d71bd90aab37a77458e3830b62f92ae3
-  - name: 
-    dataType: 0
-    guid: 1b53d09302a7c794f8a14a752101e614
-  hitBoxProperties: []
+  hitBoxProperties:
+  - name: HitAmount
+    dataType: 3
+    guid: 39f6decc86b0a41bbbb1cb6a21251e7c
   boxData:
   - color: {r: 0.18729973, g: 0.6509434, b: 0.28305224, a: 1}
     boxType: Hit
