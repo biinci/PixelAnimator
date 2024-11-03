@@ -92,16 +92,38 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void DrawThumbnails(List<Sprite> sprites){
             GUILayout.BeginVertical();
+            
             GUILayout.BeginHorizontal();
             for(var i = 0; i < sprites.Count; i++){
                 var clicked = DrawThumbnail($"{i+1}",i);
                 if (clicked) thumbnailButton.DownClick(i);
             }
             GUILayout.EndHorizontal();
+            
+
+            
+            GUILayout.EndVertical();
+
+            DrawFrames2();
+        }
+
+        private void DrawFrames2()
+        {
+            GUILayout.BeginArea(new Rect(0, rowRect.yMax, thumbnailPlaneRect.width, groupPlaneRect.height));
+            EditorGUILayout.BeginScrollView(
+                Vector2.up * scrollPos.y,
+                false,
+                false,
+                GUIStyle.none,
+                GUIStyle.none,
+                GUIStyle.none
+            );
+            
             GUILayout.BeginVertical();
 
             for (var j = 0; j < anim.Groups.Count; j++)
             {
+                GUILayout.Space(groupStyle.fixedHeight);
                 var group = anim.Groups[j];
                 GUILayout.BeginVertical();
                 for (var k = 0; k < group.layers.Count; k++)
@@ -117,10 +139,11 @@ namespace binc.PixelAnimator.Editor.Windows{
                 }
                 GUILayout.EndVertical();
             }
-            GUILayout.EndVertical();
-            GUILayout.EndVertical();
-
             
+            GUILayout.EndScrollView();
+            
+            GUILayout.EndVertical();
+            GUILayout.EndArea();
         }
 
         private bool DrawThumbnail(string label, int index){
