@@ -104,12 +104,12 @@ namespace binc.PixelAnimator.Editor.Windows{
             
             GUILayout.EndVertical();
 
-            DrawFrames2();
+            DrawFrames();
         }
 
-        private void DrawFrames2()
+        private void DrawFrames()
         {
-            GUILayout.BeginArea(new Rect(0, rowRect.yMax, thumbnailPlaneRect.width, groupPlaneRect.height));
+            GUILayout.BeginArea(new Rect(0, rowRect.yMax-HandleHeight, thumbnailPlaneRect.width, groupPlaneRect.height));
             EditorGUILayout.BeginScrollView(
                 Vector2.up * scrollPos.y,
                 false,
@@ -121,18 +121,21 @@ namespace binc.PixelAnimator.Editor.Windows{
             
             GUILayout.BeginVertical();
 
-            for (var j = 0; j < anim.Groups.Count; j++)
+            for (var i = 0; i < anim.Groups.Count; i++)
             {
+                loopGroupIndex = i;
                 GUILayout.Space(groupStyle.fixedHeight);
-                var group = anim.Groups[j];
+                var group = anim.Groups[i];
                 GUILayout.BeginVertical();
-                for (var k = 0; k < group.layers.Count; k++)
+                for (var j = 0; j < group.layers.Count; j++)
                 {
-                    var layer = group.layers[k];
+                    loopLayerIndex = j;
+                    var layer = group.layers[j];
                     GUILayout.BeginHorizontal();
-                    for (var i = 0; i < layer.frames.Count; i++)
+                    for (var k = 0; k < layer.frames.Count; k++)
                     {
-                        DrawFrame(layer.frames[i]);
+                        loopFrameIndex = k;
+                        DrawFrame(layer.frames[k]);
                         
                     }
                     GUILayout.EndHorizontal();
@@ -216,28 +219,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         
         private float framePanelWidth;
-        private void DrawFrames(List<Frame> frames){
 
-            var inRepaint = Event.current.type == EventType.Repaint;
-            if(inRepaint) layerRect=GUILayoutUtility.GetLastRect();
-            
-            var position = new Rect(columnRect.xMax, layerRect.y, thumbnailPlaneRect.width, frameButtonStyle.fixedHeight);
-            var viewRect = new Rect(columnRect.xMax, layerRect.y, framePanelWidth, frameButtonStyle.fixedHeight);
-            // GUI.BeginScrollView(
-            //     position, 
-            //     scrollPosition,
-            //     viewRect,
-            //     GUIStyle.none, GUIStyle.none
-            // );
-            GUILayout.BeginHorizontal();
-            for (var i = 0; i < frames.Count; i++){
-                loopFrameIndex = i;
-                DrawFrame(frames[i]);
-            }
-            // if(inRepaint) framePanelWidth = GUILayoutUtility.GetLastRect().xMax;
-            GUILayout.EndHorizontal();
-            // GUI.EndScrollView();
-        }
 
         private void DrawFrame(Frame frame){
             var style = GetFrameStyle(frame.GetFrameType());
