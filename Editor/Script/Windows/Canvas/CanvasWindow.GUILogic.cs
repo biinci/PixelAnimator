@@ -53,6 +53,7 @@ namespace binc.PixelAnimator.Editor.Windows
             var previousScale = spriteScale;
             spriteScale += scaleDelta;
             if (spriteScale <= 0) spriteScale = 1;
+            else if (spriteScale > 6) spriteScale = 6;
             var ratio = spriteScale / (float)previousScale;
             var relativePosition = windowRect.position - eventCurrent.mousePosition;
             var newPosition = relativePosition * ratio;
@@ -79,7 +80,7 @@ namespace binc.PixelAnimator.Editor.Windows
                 for (var l = 0; l < group.layers.Count; l++)
                 {
                     var layer = group.layers[l];
-                    var boxRect = layer.frames[animatorWindow.IndexOfSelectedFrame].hitBoxRect;
+                    var boxRect = layer.frames[animatorWindow.IndexOfSelectedSprite].hitBoxRect;
 
                     var adjustedRect = new Rect(boxRect.position * spriteScale, boxRect.size * spriteScale);
 
@@ -109,7 +110,7 @@ namespace binc.PixelAnimator.Editor.Windows
         private void SetSpritePreview(){
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var sprites = animatorWindow.SelectedAnimation.GetSpriteList();
-            var index = animatorWindow.IndexOfSelectedFrame;
+            var index = animatorWindow.IndexOfSelectedSprite;
             var sprite = sprites[index];
             spritePreview = AssetPreview.GetAssetPreview(sprite);
             if(spritePreview) spritePreview.filterMode = FilterMode.Point;

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using binc.PixelAnimator.DataProvider;
 using binc.PixelAnimator.Utility;
 using UnityEditor;

@@ -19,10 +19,9 @@ namespace binc.PixelAnimator.Editor.Windows{
             DrawBackgrounds();//ok
             DrawGridLines();//ok
             DrawToolButtons();//ok
-            DrawGroupPanel();
             DrawThumbnailPanel();
+            DrawGroupPanel();
             
-            if(isPlaying) Play();
         }
 
         private void DrawBackgrounds()
@@ -42,8 +41,11 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void DrawToolButtons(){
             GUILayout.BeginArea(toolPanelRect);
             GUILayout.BeginHorizontal();
-           
-            GUILayout.Button(timelineBurgerTex, animatorButtonStyle);
+
+            if (GUILayout.Button(timelineBurgerTex, animatorButtonStyle))
+            {
+                burgerButton.DownClick();
+            }
            
             GUILayout.Space(spaceTool);
 
@@ -91,7 +93,6 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
         private void DrawThumbnails(List<Sprite> sprites){
-            GUILayout.BeginVertical();
             
             GUILayout.BeginHorizontal();
             for(var i = 0; i < sprites.Count; i++){
@@ -100,16 +101,13 @@ namespace binc.PixelAnimator.Editor.Windows{
             }
             GUILayout.EndHorizontal();
             
-
-            
-            GUILayout.EndVertical();
-
             DrawFrames();
         }
 
         private void DrawFrames()
         {
-            GUILayout.BeginArea(new Rect(0, rowRect.yMax-HandleHeight, thumbnailPlaneRect.width, groupPlaneRect.height));
+            //EditorGUI.DrawRect(new Rect(0, rowRect.yMax-HandleHeight, thumbnailPlaneRect.width+scrollPos.x*10, groupPlaneRect.height), new Color(0.5f,0.5f,0.5f,0.5f));
+            GUILayout.BeginArea(new Rect(0, rowRect.yMax-HandleHeight, spriteThumbnailStyle.fixedWidth*anim.GetSpriteList().Count, groupPlaneRect.height));
             EditorGUILayout.BeginScrollView(
                 Vector2.up * scrollPos.y,
                 false,
@@ -157,7 +155,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private GUIStyle hoverSpriteThumbnailStyle;
         private GUIStyle GetThumbnailStyle(int index){
-            var isSameIndex = index == PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedFrame;
+            var isSameIndex = index == PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedSprite;
             return isSameIndex ? hoverSpriteThumbnailStyle : spriteThumbnailStyle;
         }
         private void DrawGroupPanel(){
@@ -184,7 +182,6 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void DrawGroups(List<Group> groups){
             var animationPreferences = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences;
             for (var i = 0; i < groups.Count; i++){
-                loopGroupIndex = i;
                 var group = groups[i];
                 var name = animationPreferences.GetBoxData(group.BoxDataGuid).boxType;
                 DrawGroup(group, name);
@@ -203,24 +200,17 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void DrawLayers(Group group, List<Layer> layers){
             for(var i = 0; i < layers.Count; i++){
-                loopLayerIndex = i;
                 DrawLayer(layers[i], $"Layer {i+1}", group);
             }
         }
 
         private Rect layerRect;
         private void DrawLayer(Layer layer, string label, Group group){
-            GUILayout.BeginHorizontal();
             if(GUILayout.Button(label, layerStyle)) layerButton.DownClick((group,layer));
-            //DrawFrames(layer.frames);
-            GUILayout.EndHorizontal();
-
         }
-
         
         private float framePanelWidth;
-
-
+        
         private void DrawFrame(Frame frame){
             var style = GetFrameStyle(frame.GetFrameType());
             var clicked = GUILayout.Button("", style);

@@ -11,21 +11,23 @@ namespace binc.PixelAnimator{
 
     public delegate void CollisionEvent(Collider2D col);
     public class PixelAnimator : MonoBehaviour{
-        private PixelAnimationPreferences preferences;
+        
+        public PixelAnimationPreferences preferences;
         public PixelAnimationPreferences Preferences => preferences;
         [SerializeField] private SpriteRenderer spriteRenderer;
-        [SerializeField, Tooltip("Automatically determines the animation direction according to the flipX in the SpriteRenderer component.")] private bool autoFlip;
+        
+        [SerializeField, Tooltip("Automatically determines the animation direction according to the flipX in the SpriteRenderer component.")] 
+        private bool autoFlip;
         
         private PixelAnimation currAnim; 
         private PixelAnimation nextAnim;
         public PixelAnimation PlayingAnim => currAnim;
-        private int FPS => currAnim == null ? 0 : currAnim.fps;
-        private int frame;
-        public int Frame => frame;
+        private int FPS => currAnim  ? currAnim.fps : 0;
+        private int frameIndex;
         private float clock;
-        private bool isPlaying;
+        public bool isPlaying;
 
-        private GameObject parting;
+        private GameObject titleObject;
 
 
         public Dictionary<string, Action<object>> SpriteProperty{ get; private set; }
@@ -40,43 +42,44 @@ namespace binc.PixelAnimator{
         public Dictionary<string, Action<object>> ColliderEvents{get; private set;}
 
 
-        public int Direction => spriteRenderer.flipX && autoFlip ? -1 : 1; 
+        public int Direction => spriteRenderer.flipX && autoFlip ? -1 : 1;
 
+        private List<Sprite> currSprites;
         private void Awake(){
-            preferences = Resources.Load<PixelAnimationPreferences>("PixelAnimatorPreferences");
-            parting = new GameObject("---PixelAnimator Colliders---"){ transform ={
+            
+            // preferences = Resources.Load<PixelAnimationPreferences>("../../Editor/Resources/PixelAnimationPreferences");
+            titleObject = new GameObject("---PixelAnimator Colliders---"){ transform ={
                     parent = transform,
                     localPosition = Vector3.zero
                 }
             };
 
             ColliderEvents = new Dictionary<string, Action<object>>();
+            SpriteProperty = new Dictionary<string, Action<object>>();
         }
 
         private void Update(){
-            if(currAnim != null)FrameToNext();
+            NextFrame();
+
+ 
 
         }
 
 
-        private void FrameToNext(){
+        private void NextFrame(){
             if (!isPlaying) return;
-            var sprites = currAnim.GetSpriteList();
-            
-            
             clock += Time.deltaTime;
             var secondsPerFrame = 1 / (float) FPS;
-            while (clock >= secondsPerFrame && isPlaying) {
-                
-                if (frame >= 0) UpdateLateFrame();
-                if (frame == sprites.Count - 1 && !currAnim.loop) {
+            while (clock >= secondsPerFrame) {
+                if(frameIndex > 0)UpdateLateFrame();
+
+                if (frameIndex == currSprites.Count && !currAnim.loop) {
                     isPlaying = false;
                     return;
                 }
                 clock -= secondsPerFrame;
-                    
-                frame = (frame + 1) % sprites.Count;
-                spriteRenderer.sprite = sprites[frame];
+                frameIndex = (frameIndex + 1) % currSprites.Count;
+                spriteRenderer.sprite = currSprites[frameIndex];
                 UpdateFrame();
 
                 
@@ -95,26 +98,27 @@ namespace binc.PixelAnimator{
         
 
         private void ApplySpritePropValue(){
-            if (currAnim == null) return;
-            var pixelSprite = currAnim.PixelSprites[frame];
+            if (!currAnim) return;
+            var pixelSprite = currAnim.PixelSprites[frameIndex];
 
             var propertyValues = pixelSprite.SpriteData.genericData;
             foreach (var propertyValue in propertyValues) {
                 var propName = preferences.GetProperty(PropertyType.Sprite, propertyValue.baseData.Guid).Name;
                 if (SpriteProperty.ContainsKey(propName)) {
+                    // Debug.Log(propName + "   " + propertyValue.baseData.InheritData);
                     SpriteProperty[propName].Invoke(propertyValue.baseData.InheritData);
                 }
 
             }
 
-            foreach (var eventName in pixelSprite.SpriteData.eventNames) {
-                if (SpriteEvents.ContainsKey(eventName)) {
-                    SpriteEvents[eventName].Invoke();
-                }
-                else {
-                    Debug.LogWarning($"Method name '{eventName}' does not exist");
-                }
-            }
+            // foreach (var eventName in pixelSprite.SpriteData.eventNames) {
+            //     if (SpriteEvents.ContainsKey(eventName)) {
+            //         SpriteEvents[eventName].Invoke();
+            //     }
+            //     else {
+            //         Debug.LogWarning($"Method name '{eventName}' does not exist");
+            //     }
+            // }
         }
         
         
@@ -172,7 +176,7 @@ namespace binc.PixelAnimator{
             for (var g = 0; g < groupObjects.Count; g++) { // if not exist group in changed animation, delete object
                 if (names.Contains(groupObjects.ElementAt(g).Key)) continue;
 
-                var gameObj = parting.transform.GetChild(g).gameObject;
+                var gameObj = titleObject.transform.GetChild(g).gameObject;
                 groupObjects.Remove(gameObj.name);
                 Destroy(gameObj);
             }
@@ -182,7 +186,7 @@ namespace binc.PixelAnimator{
         private GameObject CreateGroupObject(BoxData boxData){
             var gameObj = new GameObject(boxData.boxType){
                 transform ={
-                    parent = parting.transform,
+                    parent = titleObject.transform,
                     localPosition = Vector3.zero,
                     localScale = transform.localScale
                 },
@@ -199,31 +203,30 @@ namespace binc.PixelAnimator{
             SpriteProperty = new Dictionary<string, Action<object>>();
             // layerToColliderInfo = new Dictionary<Layer, ColliderInfo>();
             // colliderToInfo = new Dictionary<BoxCollider2D, ColliderInfo>();
-            frame = -1;
+            frameIndex = -1;
             clock = 0;
             clock += (float)1/willChange.fps;
             isPlaying = true;
             currAnim = willChange;
             RefreshGroupObject();
             SetLayer(currAnim.Groups);
+            currSprites = currAnim.GetSpriteList();
             
             
         }
         
-        
-        
         private void ApplyBox(){
             SetBoxSize();
-            SetHitBoxProps();
+            // SetHitBoxProps();
 
         }
 
         private void SetHitBoxProps(){
             foreach (var group in currAnim.Groups) {
                 foreach (var layer in group.layers) {
-                    var frameIndex = frame;
-                    if (layer.frames[frame].GetFrameType() != FrameType.KeyFrame) {
-                        for (var i = frame; i >= 0; i--) {
+                    var frameIndex = this.frameIndex;
+                    if (layer.frames[this.frameIndex].GetFrameType() != FrameType.KeyFrame) {
+                        for (var i = this.frameIndex; i >= 0; i--) {
                             var frame = layer.frames[i];
                             if (frame.GetFrameType() != FrameType.KeyFrame) continue;
                             frameIndex = i;
@@ -236,11 +239,11 @@ namespace binc.PixelAnimator{
         }        
 
         private void SetBoxSize(){
-            if (currAnim == null || currAnim.Groups == null) return;
+            if (!currAnim || currAnim.Groups == null) return;
             var groups = currAnim.Groups;
             for (var g = 0; g < groups.Count; g++) {
                 var group = groups[g];
-                var groupObj = parting.transform.GetChild(g);
+                var groupObj = titleObject.transform.GetChild(g);
                 var cols = groupObj.GetComponents<BoxCollider2D>();
                 if (cols.Length != group.layers.Count) return;
                 for (var l = 0; l < group.layers.Count; l++) {
@@ -253,10 +256,11 @@ namespace binc.PixelAnimator{
             
         }
 
+
+        
         private Rect GetAdjustedRect(Layer layer){
-            var f = frame == -1 ? 0 : frame;
-            // return MapBoxRectToTransform(layer.frames[f].hitBoxRect, currAnim.GetSpriteList()[f]);
-            return new Rect();
+            var f = frameIndex == -1 ? 0 : frameIndex;
+            return MapBoxRectToTransform(layer.frames[f].hitBoxRect, currAnim.GetSpriteList()[f]);
         }
         
         private static Rect MapBoxRectToTransform(Rect rect, Sprite sprite) {

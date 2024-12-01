@@ -24,9 +24,11 @@ namespace binc.PixelAnimator{
             layers.Add(new Layer());
             var index = layers.Count -1;
             
-            var frame = layers[index].frames ?? new List<Frame>();
+            
+
+
             foreach (var pixelSprite in pixelSprites) {
-                frame.Add(new Frame(pixelSprite.spriteId));
+                layers[index].frames.Add(new Frame(pixelSprite.spriteId));
             }
         }
 

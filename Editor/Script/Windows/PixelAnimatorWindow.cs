@@ -16,7 +16,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         public static readonly Color BackgroundColor = new(0.12f,0.12f,0.12f);
         public static readonly Vector2 MinSize =  new (150,450);
         public GUISkin PixelAnimatorSkin { get; private set; }
-        public int IndexOfSelectedFrame{get; private set;}
+        public int IndexOfSelectedSprite{get; private set;}
         public int IndexOfSelectedLayer{get; private set;}
         public int IndexOfSelectedGroup{get; private set;}
         [SerializeField] private PixelAnimation selectedAnimation;
@@ -29,7 +29,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         public SerializedObject TargetAnimation{get; private set;}
         
         private bool initialized;
-        public PropertyFocusEnum PropertyFocus{get; private set;}
+        public PropertyFocusEnum PropertyFocus{get; set;}
         public Window FocusedWindow { get; private set; }
         public SerializedObject SerializedAnimator {get; private set;} 
 
@@ -199,7 +199,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 selectedAnimation = anim;
                 IndexOfSelectedGroup = 0;
                 IndexOfSelectedLayer = 0;
-                IndexOfSelectedFrame = 0;
+                IndexOfSelectedSprite = 0;
                 
                 if(spriteList != null)
                     lifeTime = 0;
@@ -232,7 +232,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             var isValid = index < SelectedAnimation.GetSpriteList().Count && index >= 0;
             if(!isValid) throw new IndexOutOfRangeException();
             
-            IndexOfSelectedFrame = index;
+            IndexOfSelectedSprite = index;
         }
 
         public void SetAvailableRect(Rect rect){
@@ -247,7 +247,12 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         #endregion
 
-
+        public T GetWindow<T>() where T : Window
+        {
+            return AnimatorPreferences.windows.Find(w => w.GetType() == typeof(T)) as T;
+        }
+        
+        
 
     }
 

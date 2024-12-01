@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System;
+using UnityEngine.Serialization;
 
 namespace binc.PixelAnimator.Editor.Windows
 {
@@ -8,7 +9,7 @@ namespace binc.PixelAnimator.Editor.Windows
     {
         #region Variables
 
-        private bool isPlaying;
+        public bool IsPlaying { get; private set; }
 
         private Rect handleRect,
             columnRect,

@@ -13,13 +13,10 @@ MonoBehaviour:
   m_Name: Animation Preferences
   m_EditorClassIdentifier: 
   spriteProperties:
-  - name: Curve
-    dataType: 0
-    guid: 9787f3b626e77f6f9b1d420f857594c1
-  hitBoxProperties:
-  - name: HitAmount
-    dataType: 3
-    guid: 39f6decc86b0a41bbbb1cb6a21251e7c
+  - name: Acceleration
+    dataType: 12
+    guid: cc30ddbb031f1fe069661b38a18cf4de
+  hitBoxProperties: []
   boxData:
   - color: {r: 0.18729973, g: 0.6509434, b: 0.28305224, a: 1}
     boxType: Hit
@@ -28,7 +25,7 @@ MonoBehaviour:
     rounded: 0
     guid: 7bcc150ff54fb0b4f9c8b2a7e75b4c89
   - color: {r: 0.13519046, g: 0.9245283, b: 0.14363804, a: 1}
-    boxType: Alo
+    boxType: Physics
     activeLayer: 3
     physicMaterial: {fileID: 0}
     rounded: 0

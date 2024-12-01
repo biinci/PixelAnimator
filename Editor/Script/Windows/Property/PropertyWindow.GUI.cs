@@ -14,13 +14,11 @@ namespace binc.PixelAnimator.Editor.Windows
         
         public override void ProcessWindow()
         {
-
-            DrawPropertyWindow();
             
-
+            if(!timelineWindow.IsPlaying) DrawPropertyWindow();
+            
         }
-
-
+        
         private void DrawProperties(PropertyType propertyType, string header)
         {
             var scrollScope = new EditorGUILayout.ScrollViewScope(propertyScrollPos);
@@ -55,8 +53,7 @@ namespace binc.PixelAnimator.Editor.Windows
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             
             var targetAnimation = PixelAnimatorWindow.AnimatorWindow.TargetAnimation;
-            //targetAnimation.Update();
-            var frameIndex = animatorWindow.IndexOfSelectedFrame;
+            var frameIndex = animatorWindow.IndexOfSelectedSprite;
 
             var propPixelSprite = targetAnimation.FindProperty("pixelSprites")
                 .GetArrayElementAtIndex(frameIndex);
@@ -88,7 +85,7 @@ namespace binc.PixelAnimator.Editor.Windows
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var groupIndex = animatorWindow.IndexOfSelectedGroup;
             var layerIndex = animatorWindow.IndexOfSelectedLayer;
-            var frameIndex = animatorWindow.IndexOfSelectedFrame;
+            var frameIndex = animatorWindow.IndexOfSelectedSprite;
 
             var targetAnimation = animatorWindow.TargetAnimation;
 
@@ -146,11 +143,18 @@ namespace binc.PixelAnimator.Editor.Windows
                     // if(ActiveGroupIndex >= SelectedAnim.Groups.Count) CheckAndFixVariable();
                     var groupIndex = PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedGroup;
                     var layerIndex = PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedLayer;
-                    var frameIndex = PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedFrame;
-                    if (selectedAnim.Groups[groupIndex].layers[layerIndex].frames[frameIndex]
-                            .GetFrameType() != FrameType.KeyFrame) break;
-                    GUI.Window(4, windowRect,
-                        _ => { DrawProperties(PropertyType.HitBox, "HitBox Properties"); }, GUIContent.none);
+                    var frameIndex = PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedSprite;
+                    try
+                    {
+                        if (selectedAnim.Groups[groupIndex].layers[layerIndex].frames[frameIndex]
+                                .GetFrameType() != FrameType.KeyFrame) break;
+                        GUI.Window(4, windowRect,
+                            _ => { DrawProperties(PropertyType.HitBox, "HitBox Properties"); }, GUIContent.none);
+                    }
+                    catch
+                    {
+                        PixelAnimatorWindow.AnimatorWindow.SelectGroup(0);
+                    }
                     break;
                 case PropertyFocusEnum.Sprite:
                     GUI.Window(4, windowRect,

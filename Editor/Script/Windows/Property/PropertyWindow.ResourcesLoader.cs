@@ -9,10 +9,13 @@ namespace binc.PixelAnimator.Editor.Windows{
         private bool eventFoldout;
         private ButtonData<SerializedProperty> addEventButton;
         private ButtonData<(SerializedProperty, int)> removeEventButton;
+        private TimelineWindow timelineWindow;
         public override void Initialize(int id)
         {
             Id = id;
             LoadButtonsMethods();
+            timelineWindow = PixelAnimatorWindow.AnimatorWindow.GetWindow<TimelineWindow>();
+            
         }
 
         public override void Dispose()
@@ -30,6 +33,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         {
             addEventButton.DownClick -= AddEvent;
             removeEventButton.DownClick -= RemoveEvent;
+            
         }
 
     }

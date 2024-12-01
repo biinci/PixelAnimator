@@ -44,12 +44,14 @@ namespace  binc.PixelAnimator.DataProvider{
         public Data(string guid) : base(guid){
         }
 
-        public void OnBeforeSerialize(){
-            InheritData = data;
+        public void OnBeforeSerialize()
+        {
+            InheritData ??= data;
         }
 
-        public void OnAfterDeserialize(){
-            // data = (T)InheritData;
+        public void OnAfterDeserialize()
+        {
+            data ??= (T)InheritData;
         }
     }
     

@@ -94,29 +94,29 @@ namespace binc.PixelAnimator.Editor{
 
             pixelSpriteList.elementHeightCallback = index => {
                 float height = 60;
-                if (!showDetails) return height;
-                height += 30;
-                var element = pixelSpriteList.serializedProperty.GetArrayElementAtIndex(index);
-                var propSpriteData = element.FindPropertyRelative("spriteData");
-                    
-                var propSpriteDataValues = propSpriteData.FindPropertyRelative("genericData");
-                var propSpriteEvent = propSpriteData.FindPropertyRelative("eventNames");
-                    
-                if (propSpriteDataValues.isExpanded) {
-                    var multiply = propSpriteDataValues.arraySize * lineHeightSpace == 0
-                        ? lineHeightSpace
-                        : propSpriteDataValues.arraySize * lineHeightSpace; 
-                    height += multiply + 30;
-                }
-
-                if (!propSpriteEvent.isExpanded) return height;
-                {
-                    var multiply = propSpriteEvent.arraySize * lineHeightSpace == 0
-                        ? lineHeightSpace
-                        : propSpriteEvent.arraySize * lineHeightSpace; 
-                    height += multiply + 30;
-                }
-
+                // if (!showDetails) return height;
+                // height += 30;
+                // var element = pixelSpriteList.serializedProperty.GetArrayElementAtIndex(index);
+                // var propSpriteData = element.FindPropertyRelative("spriteData");
+                //     
+                // var propSpriteDataValues = propSpriteData.FindPropertyRelative("genericData");
+                // var propSpriteEvent = propSpriteData.FindPropertyRelative("eventNames");
+                //     
+                // if (propSpriteDataValues.isExpanded) {
+                //     var multiply = propSpriteDataValues.arraySize * lineHeightSpace == 0
+                //         ? lineHeightSpace
+                //         : propSpriteDataValues.arraySize * lineHeightSpace; 
+                //     height += multiply + 30;
+                // }
+                //
+                // if (!propSpriteEvent.isExpanded) return height;
+                // {
+                //     var multiply = propSpriteEvent.arraySize * lineHeightSpace == 0
+                //         ? lineHeightSpace
+                //         : propSpriteEvent.arraySize * lineHeightSpace; 
+                //     height += multiply + 30;
+                // }
+                //
                 return height;
 
             };
@@ -181,32 +181,33 @@ namespace binc.PixelAnimator.Editor{
                 dataRect,
                 propSpriteDataValues
             );
-            var propSpriteEvent = propSpriteData.FindPropertyRelative("eventNames");
-            if (propSpriteDataValues.isExpanded) {
-                var multiply = propSpriteDataValues.arraySize == 0
-                    ? lineHeightSpace
-                    : lineHeightSpace * propSpriteDataValues.arraySize;
-                var temp = dataRect.y;
-                dataRect.y += multiply + 50;
-                EditorGUI.PropertyField(
-                    dataRect,
-                    propSpriteEvent
-                );
-                dataRect.y = temp;
-            }
-            else {
-                dataRect.y += lineHeight;
-                EditorGUI.PropertyField(
-                    dataRect,
-                    propSpriteEvent
-                );
-            }
+            // var propSpriteEvent = propSpriteData.FindPropertyRelative("eventNames");
+            // if (propSpriteDataValues.isExpanded) {
+            //     var multiply = propSpriteDataValues.arraySize == 0
+            //         ? lineHeightSpace
+            //         : lineHeightSpace * propSpriteDataValues.arraySize;
+            //     var temp = dataRect.y;
+            //     dataRect.y += multiply + 50;
+            //     EditorGUI.PropertyField(
+            //         dataRect,
+            //         propSpriteEvent
+            //     );
+            //     dataRect.y = temp;
+            // }
+            // else {
+            //     dataRect.y += lineHeight;
+            //     EditorGUI.PropertyField(
+            //         dataRect,
+            //         propSpriteEvent
+            //     );
+            // }
         }
 
         public override void OnInspectorGUI(){
+            base.OnInspectorGUI();
             serializedObject.Update();
             DrawPropertiesExcluding(serializedObject,  "m_Script", "pixelSprites");
-
+            
             GUILayout.Space(10);
             // 
             pixelSpriteFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(pixelSpriteFoldout, "Pixel Sprites");

@@ -17,6 +17,8 @@ namespace binc.PixelAnimator.Editor.Windows{
             SetMouseIconState();
             SetReSizingState();
             RenderWindow();
+            if (!SelectedAnim) return;
+            if(IsPlaying) Play();
         }
 
         private void ClampTimelinePosition(){
@@ -38,10 +40,10 @@ namespace binc.PixelAnimator.Editor.Windows{
                     playPauseButton.DownClick();
                     break;
                 case KeyCode.LeftArrow:
-                // previousSpriteClick = true;
+                    previousNextSpriteButton.DownClick(true);
                 break;
                 case KeyCode.RightArrow:
-                // nextSpriteClick = true;
+                    previousNextSpriteButton.DownClick(false);
                 break;
             }
         }
@@ -51,10 +53,10 @@ namespace binc.PixelAnimator.Editor.Windows{
             var layerIndex = data.Item2;
             var frameIndex = data.Item3;
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            var groups = animatorWindow.SelectedAnimation.Groups;
+            var groups = anim.Groups;
             var layers = groups[groupIndex].layers;
             var frames = layers[layerIndex].frames;
-            var isSameFrameIndex = frameIndex == animatorWindow.IndexOfSelectedFrame;
+            var isSameFrameIndex = frameIndex == animatorWindow.IndexOfSelectedSprite;
             var isSameLayerIndex = layerIndex == animatorWindow.IndexOfSelectedLayer;
             var isSameGroupIndex = groupIndex == animatorWindow.IndexOfSelectedGroup;
             var frame = frames[frameIndex];            
@@ -67,9 +69,9 @@ namespace binc.PixelAnimator.Editor.Windows{
                 frame.SetType(ChangeFrameType(frame.GetFrameType(), previousType, frameIndex));
             } 
             
-            if(isSameFrameIndex){
-                animatorWindow.SelectGroup(groupIndex);
-                animatorWindow.SelectLayer(layerIndex);
+            if(isSameFrameIndex){ 
+                 animatorWindow.SelectGroup(groupIndex);
+                 animatorWindow.SelectLayer(layerIndex);
             } 
             PixelAnimatorWindow.AnimatorWindow.Repaint();
 
@@ -106,6 +108,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
         private void BurgerMenuButton(){
+            
             burgerMenu = new GenericMenu();
             AddBurgerMenuItems();
             burgerMenu.ShowAsContext();
@@ -120,41 +123,43 @@ namespace binc.PixelAnimator.Editor.Windows{
             }   
         }
 
-        private void ThumbnailButton(int index){
+        private void ThumbnailButton(int index)
+        {
+            PixelAnimatorWindow.AnimatorWindow.PropertyFocus = PropertyFocusEnum.Sprite;
             PixelAnimatorWindow.AnimatorWindow.SelectFrame(index);
         }
 
-        private void PlayPauseButton(){
-            
-            isPlaying = !isPlaying;
-            playPauseTex = isPlaying ? pauseTex : playTex;
+        private void PlayPauseButton()
+        {
+            timer = 0;
+            IsPlaying = !IsPlaying;
+            playPauseTex = IsPlaying ? pauseTex : playTex;
             PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
 
         private void Play(){
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            if (isPlaying) {
-                var fps = SelectedAnim.fps;
-                if(fps == 0) Debug.Log("Frame rate is zero");
-                var deltaTime = animatorWindow.EditorDeltaTime;
-                timer += deltaTime;
-                if(timer >= 1f/fps){
-                    timer -= 1f/fps;
-                    var frame = (  animatorWindow.IndexOfSelectedFrame +1 ) % SelectedAnim.GetSpriteList().Count;
-                    animatorWindow.SelectFrame(frame);
-                   
-                }
-                animatorWindow.Repaint();
-            }else if(!isPlaying && timer != 0){
-                timer = 0;
+            var fps = SelectedAnim.fps;
+            if(fps == 0) Debug.Log("Frame rate is zero");
+            var deltaTime = animatorWindow.EditorDeltaTime;
+            timer += deltaTime;
+            if(timer >= 1f/fps){
+                timer -= 1f/fps;
+                var frame = (  animatorWindow.IndexOfSelectedSprite +1 ) % SelectedAnim.GetSpriteList().Count;
+                animatorWindow.SelectFrame(frame);
+               
             }
+            animatorWindow.Repaint();
+
         }
         
-        private void ChangeSpriteButton(bool isPrevious){
+        private void ChangeSpriteButton(bool isPrevious)
+        {
+            if (!SelectedAnim) return;
             var factor = isPrevious ? -1 : 1;
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var mod = SelectedAnim.GetSpriteList().Count;
-            var index = (animatorWindow.IndexOfSelectedFrame + factor) % mod;
+            var index = (animatorWindow.IndexOfSelectedSprite + factor) % mod;
             index = index == -1 ? mod-1 : index;
             animatorWindow.SelectFrame(index);
             PixelAnimatorWindow.AnimatorWindow.Repaint();
