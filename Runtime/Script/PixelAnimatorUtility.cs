@@ -20,10 +20,19 @@ namespace binc.PixelAnimator.Utility{
 
     
     public static class PixelAnimatorUtility{
+
+        public static Texture2D GetTexture2DForColor(Color color)
+        {   
+            var tex = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+            tex.SetPixel(0, 0, color);
+            tex.Apply();
+            return tex;
+        }
+        
         
 #if UNITY_EDITOR
         
-
+        
         public static void CreateTooltip(Rect rect, string tooltip, Vector2 containsPosition){
             if (rect.Contains(containsPosition)) {
                 EditorGUI.LabelField(rect,

@@ -312,7 +312,6 @@ ScriptedImporter:
     cells:
     - name: test felan _Frame_0
       frameIndex: 0
-      additiveSortOrder: 0
       cellRect:
         x: 24
         y: 8
@@ -321,7 +320,6 @@ ScriptedImporter:
       spriteId: cfc48cb184ba3b22cac5b682a6a58d77
     - name: test felan _Frame_1
       frameIndex: 1
-      additiveSortOrder: 0
       cellRect:
         x: 24
         y: 10
@@ -330,7 +328,6 @@ ScriptedImporter:
       spriteId: 1c75e2e27a058719890f483e80dea365
     - name: test felan _Frame_2
       frameIndex: 2
-      additiveSortOrder: 0
       cellRect:
         x: 24
         y: 10
@@ -339,7 +336,6 @@ ScriptedImporter:
       spriteId: 15826fa00ccb8595383889d95df6b4c1
     - name: test felan _Frame_3
       frameIndex: 3
-      additiveSortOrder: 0
       cellRect:
         x: 23
         y: 13
@@ -348,7 +344,6 @@ ScriptedImporter:
       spriteId: da87447a93e666b3d8479b2684a8bc52
     - name: test felan _Frame_4
       frameIndex: 4
-      additiveSortOrder: 0
       cellRect:
         x: 27
         y: 13
@@ -357,7 +352,6 @@ ScriptedImporter:
       spriteId: c4f1ec1aaeab1d9a18aa1600f49f1897
     - name: test felan _Frame_5
       frameIndex: 5
-      additiveSortOrder: 0
       cellRect:
         x: 38
         y: 12
@@ -366,7 +360,6 @@ ScriptedImporter:
       spriteId: c4db468a044464c8ba0cc718a4a1147f
     - name: test felan _Frame_6
       frameIndex: 6
-      additiveSortOrder: 0
       cellRect:
         x: 42
         y: 11
@@ -375,7 +368,6 @@ ScriptedImporter:
       spriteId: 337524a7f787894cf918683afac4aec5
     - name: test felan _Frame_7
       frameIndex: 7
-      additiveSortOrder: 0
       cellRect:
         x: 41
         y: 10
@@ -384,7 +376,6 @@ ScriptedImporter:
       spriteId: ec379743ebea5233cb95a34a066fbbaa
     - name: test felan _Frame_8
       frameIndex: 8
-      additiveSortOrder: 0
       cellRect:
         x: 32
         y: 7

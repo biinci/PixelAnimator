@@ -18,6 +18,7 @@ MonoBehaviour:
     guid: cc30ddbb031f1fe069661b38a18cf4de
   hitBoxProperties: []
   boxData:
+<<<<<<< Updated upstream
   - color: {r: 0.18729973, g: 0.6509434, b: 0.28305224, a: 1}
     boxType: Hit
     activeLayer: 2
@@ -27,6 +28,17 @@ MonoBehaviour:
   - color: {r: 0.13519046, g: 0.9245283, b: 0.14363804, a: 1}
     boxType: Physics
     activeLayer: 3
+=======
+  - color: {r: 0.23137255, g: 0.23137255, b: 0.23137255, a: 1}
+    boxType: PushBox
+    activeLayer: 0
+    physicMaterial: {fileID: 0}
+    rounded: 0
+    guid: 25f0ad91a0ec04bde8b039baced6d3af
+  - color: {r: 0, g: 1, b: 0.1750474, a: 1}
+    boxType: HurtBox
+    activeLayer: 0
+>>>>>>> Stashed changes
     physicMaterial: {fileID: 0}
     rounded: 0
     guid: 3456af45ad874d148a48ccd1c9f42d23

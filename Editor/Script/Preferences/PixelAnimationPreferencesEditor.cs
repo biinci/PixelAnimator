@@ -3,8 +3,6 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using binc.PixelAnimator.Utility;
-using System.Collections.Generic;
-using binc.PixelAnimator.Editor.Windows;
 
 
 namespace binc.PixelAnimator.Editor.Preferences{

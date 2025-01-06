@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 
 namespace binc.PixelAnimator.Editor.Windows
 {
-    public partial class TimelineWindow : Window, IUpdate
+    public partial class TimelineWindow : Window
     {
         #region Variables
 
@@ -23,9 +23,12 @@ namespace binc.PixelAnimator.Editor.Windows
             nextFrameTex,
             timelineBurgerTex,
             pauseTex,
-            playPauseTex;
+            playPauseTex,
+            selectedFrameTex;
+        
 
         public static readonly Color WindowPlaneColor = new(0.1f, 0.1f, 0.1f, 1);
+        public static readonly Color AccentColor = new(0.14f, 0.14f, 0.14f, 1);
 
         private GenericMenu burgerMenu, groupMenu, layerMenu;
 
@@ -70,7 +73,6 @@ namespace binc.PixelAnimator.Editor.Windows
 
         #region Init
 
-        private PixelAnimation anim;
 
         public override void Initialize(int id)
         {
@@ -107,6 +109,7 @@ namespace binc.PixelAnimator.Editor.Windows
             timelineBurgerTex = Resources.Load<Texture2D>("Sprites/TimelineBurgerMenu");
             pauseTex = Resources.Load<Texture2D>("Sprites/Pause");
             playTex = Resources.Load<Texture2D>("Sprites/Play");
+            selectedFrameTex = Resources.Load<Texture2D>("Sprites/SelectedFrame");
             playPauseTex = playTex;
         }
 

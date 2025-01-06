@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEditor;
 using binc.PixelAnimator.Common;
+using UnityEngine.UIElements;
 
 
 namespace binc.PixelAnimator.Editor.Windows{
@@ -20,20 +21,19 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void DrawSprite() => GUI.DrawTexture(spriteRect, spritePreview, ScaleMode.ScaleToFit);
 
         private void DrawBoxes(){
-            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            if (animatorWindow.SelectedAnimation?.Groups == null) return;
-            
-            var spriteSize = new Vector2(spritePreview.width, spritePreview.height);
-            
-            var groups = animatorWindow.SelectedAnimation.Groups;
-            var animationPreferences = animatorWindow.AnimationPreferences;
+            var groups = SelectedAnim.Groups;
+            var animationPreferences = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences;
 
             for (var i = 0; i < groups.Count; i++)
             {
                 var group = groups[i];
                 var boxData = animationPreferences.GetBoxData(group.BoxDataGuid);
                 if (!group.isVisible) continue;
+<<<<<<< Updated upstream
                 DrawBox(i, group, boxData, spriteSize, EditingHandle);
+=======
+                ProcessBoxes(i, group, boxData);
+>>>>>>> Stashed changes
             }
         }
 
@@ -61,7 +61,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             grid.width = rect.x + rect.width - grid.x; 
 
             for (var j = 0; j < spritePreview.height / 16; j += 2) {
-                //iterate over Y
                 GUI.DrawTexture(grid, gridWhiteTex);
                 grid.y += grid.height;
                 GUI.DrawTexture(grid, gridBlackTex); 
@@ -74,117 +73,157 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         
 
+<<<<<<< Updated upstream
         private void DrawBox(int groupIndex, Group group, BoxData boxData, Vector2 spriteSize, HandleType handleTypes){
+=======
+        private void ProcessBoxes(int groupIndex, Group group, BoxData boxData){
+>>>>>>> Stashed changes
             
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            var boxColor = boxData.color;
             var isActiveGroup = groupIndex == animatorWindow.IndexOfSelectedGroup;
+<<<<<<< Updated upstream
             var isBoxActive = isActiveGroup && group.isExpanded && animatorWindow.PropertyFocus == PropertyFocusEnum.HitBox;
             
             for (var i = 0; i < group.layers.Count; i++)
             {
                 var frame = group.layers[i].frames[animatorWindow.IndexOfSelectedSprite];// Getting the active frame on all layers
-                
-                if(frame.GetFrameType() == FrameType.EmptyFrame) return;
-                
-                var rect = frame.hitBoxRect; //Getting frame rect for the drawing.
-                rect.position *= spriteScale; //Changing rect position and size for zoom.
-                rect.size *= spriteScale;
-                
+=======
 
+            var selectedLayerIndex = animatorWindow.IndexOfSelectedLayer;
+            for (var i = 0; i < group.layers.Count; i++)
+            {
+                var isBoxActive = isActiveGroup && group.isExpanded &&
+                                  selectedLayerIndex == i;
+                var frame = group.layers[i].frames[animatorWindow.IndexOfSelectedSprite];
+>>>>>>> Stashed changes
+                
+                if(frame.GetFrameType() == FrameType.EmptyFrame) continue;
+                
+                var scaledRect = frame.hitBoxRect; 
+                scaledRect.position *= spriteScale;
+                scaledRect.size *= spriteScale;
+                
                 if (isBoxActive) {
                     var eventCurrent = Event.current;
-                    var scale = spriteScale;
+                    var isDragging = eventCurrent.type == EventType.MouseDrag && eventCurrent.type != EventType.MouseUp;
                     
-
-                    SetHandle(boxColor, rect);
                     
-                    if (eventCurrent.type == EventType.MouseDrag && eventCurrent.type != EventType.MouseUp) {
+                    scaledRect.width = Mathf.Clamp(scaledRect.width, 0, int.MaxValue);
+                    scaledRect.height = Mathf.Clamp(scaledRect.height, 0, int.MaxValue);
+                    
+                    DrawBox(scaledRect, boxData.color);
+                    if (isDragging)
+                    {
                         var xPos = (int)eventCurrent.mousePosition.x/spriteScale;
                         var yPos = (int)eventCurrent.mousePosition.y/spriteScale;
-                        switch (EditingHandle) {
-                            case HandleType.TopLeft:
-                                frame.hitBoxRect.xMin = xPos;
-                                frame.hitBoxRect.yMin = yPos;
-                                break;
-                            case HandleType.TopCenter:
-                                frame.hitBoxRect.yMin = yPos;
-                                break;
-                            case HandleType.TopRight:
-                                frame.hitBoxRect.xMax = xPos;
-                                frame.hitBoxRect.yMin = yPos;
-                                break;
-                            case HandleType.RightCenter:
-                                frame.hitBoxRect.xMax = xPos;
-                                break;
-                            case HandleType.BottomRight:
-                                frame.hitBoxRect.xMax = xPos;
-                                frame.hitBoxRect.yMax = yPos;
-                                break;
-                            case HandleType.BottomCenter:
-                                frame.hitBoxRect.yMax = yPos;
-                                break;
-                            case HandleType.BottomLeft:
-                                frame.hitBoxRect.xMin = xPos;
-                                frame.hitBoxRect.yMax = yPos;
-                                break;
-                            case HandleType.LeftCenter:
-                                frame.hitBoxRect.xMin = xPos;
-                                break;
-                            case HandleType.Middle:
-                                var xDelta = (int)((clickedMousePos.x - rect.xMin) / scale);
-                                var yDelta = (int)((clickedMousePos.y - rect.yMin) / scale);
-                                
-                                var newXPos = xPos - xDelta;
-                                var newYPos = yPos - yDelta;
-
-                                var xSize = (int)rect.size.x / scale;
-                                var ySize = (int)rect.size.y / scale;
-
-                                frame.hitBoxRect.position = new Vector2(newXPos, newYPos);
-                                frame.hitBoxRect.size = new Vector2(xSize, ySize);
-                                clickedMousePos = eventCurrent.mousePosition;
-                                break;
-                            case HandleType.None:
-                                break;
-                        }
-                        
+                        var position = new Vector2(xPos, yPos);
+                        EditBox(frame, scaledRect, position);
                     }
-
-
-
-                    rect.width = Mathf.Clamp(rect.width, 0, int.MaxValue);
-                    rect.height = Mathf.Clamp(rect.height, 0, int.MaxValue);
-
-                    // frame.hitBoxRect.x = Mathf.Clamp(frame.hitBoxRect.x, 0, spriteSize.x - frame.hitBoxRect.width);
-                    // frame.hitBoxRect.y = Mathf.Clamp(frame.hitBoxRect.y, 0, spriteSize.y - frame.hitBoxRect.height);
-                    // frame.hitBoxRect.width = Mathf.Clamp(frame.hitBoxRect.width, 0, spriteSize.x - frame.hitBoxRect.x);
-                    // frame.hitBoxRect.height = Mathf.Clamp(frame.hitBoxRect.height, 0, spriteSize.y - frame.hitBoxRect.y);
-
                     if (eventCurrent.type == EventType.MouseUp) {
-                        EditingHandle = HandleType.None;
+                        EditingBoxHandle = BoxHandleType.None;
                     }
-                        
-                    var color = new Color(boxColor.r, boxColor.g, boxColor.b, 0.2f);
-                    Handles.DrawSolidRectangleWithOutline(rect, color, boxColor);
+
                     
                 }else{
-                    Handles.DrawSolidRectangleWithOutline(rect, new Color(0,0,0,0), boxColor);
-                    if (rect.Contains(Event.current.mousePosition) && Event.current.button == 0 && Event.current.type == EventType.MouseDown)
+                    Handles.DrawSolidRectangleWithOutline(scaledRect, new Color(0.5f,0.5f,0.5f,0f), boxData.color );
+                    var mousePos = Event.current.mousePosition;
+                    var isClickedRect = scaledRect.Contains(mousePos) && Event.current.button == 0 &&
+                                        Event.current.type == EventType.MouseDown;
+
+                    
+                    if (isClickedRect && EditingBoxHandle==BoxHandleType.None && !GetActiveGUIBoxRect().Contains(mousePos))
                     {
+                        Event.current.Use();
                         animatorWindow.SelectGroup(groupIndex);
                         animatorWindow.SelectLayer(i);
                         group.isExpanded = true;
                     }
+
                 }
+
+                
             }
                 
         }
 
-        private void SetHandle(Color boxColor, Rect rect)
+        private Rect GetActiveGUIBoxRect()
+        {
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
+            var rect =  SelectedAnim
+                .Groups[animatorWindow.IndexOfSelectedGroup]
+                .layers[animatorWindow.IndexOfSelectedLayer]
+                .frames[animatorWindow.IndexOfSelectedSprite].hitBoxRect;
+            rect.position *= spriteScale;
+            rect.size *= spriteScale;
+            return rect;
+        }
+        
+        private void EditBox(Frame frame, Rect rect, Vector2 position)
+        {
+            
+            switch (EditingBoxHandle) {
+                case BoxHandleType.TopLeft:
+                    frame.hitBoxRect.xMin = position.x;
+                    frame.hitBoxRect.yMin = position.y;
+                    break;
+                case BoxHandleType.TopCenter:
+                    frame.hitBoxRect.yMin = position.y;
+                    break;
+                case BoxHandleType.TopRight:
+                    frame.hitBoxRect.xMax = position.x;
+                    frame.hitBoxRect.yMin = position.y;
+                    break;
+                case BoxHandleType.RightCenter:
+                    frame.hitBoxRect.xMax = position.x;
+                    break;
+                case BoxHandleType.BottomRight:
+                    frame.hitBoxRect.xMax = position.x;
+                    frame.hitBoxRect.yMax = position.y;
+                    break;
+                case BoxHandleType.BottomCenter:
+                    frame.hitBoxRect.yMax = position.y;
+                    break;
+                case BoxHandleType.BottomLeft:
+                    frame.hitBoxRect.xMin = position.x;
+                    frame.hitBoxRect.yMax = position.y;
+                    break;
+                case BoxHandleType.LeftCenter:
+                    frame.hitBoxRect.xMin = position.x;
+                    break;
+                case BoxHandleType.Middle:
+                    var xDelta = (int)((clickedMousePos.x - rect.xMin) / spriteScale);
+                    var yDelta = (int)((clickedMousePos.y - rect.yMin) / spriteScale);
+                    
+                    var newXPos = position.x - xDelta;
+                    var newYPos = position.y - yDelta;
+
+                    var xSize = (int)rect.size.x / spriteScale;
+                    var ySize = (int)rect.size.y / spriteScale;
+
+                    frame.hitBoxRect.position = new Vector2(newXPos, newYPos);
+                    frame.hitBoxRect.size = new Vector2(xSize, ySize);
+                    clickedMousePos = Event.current.mousePosition;
+                    break;
+                case BoxHandleType.None:
+                    break;
+            }
+
+            PixelAnimatorWindow.AnimatorWindow.TargetAnimation.ApplyModifiedProperties();
+            PixelAnimatorWindow.AnimatorWindow.Repaint();
+        }
+        
+        private void DrawBox(Rect rect, Color boxColor)
+        {
+            var transparentColor = new Color(boxColor.r, boxColor.g, boxColor.b, 0.2f);
+            DrawHandle(boxColor, rect);
+            Handles.DrawSolidRectangleWithOutline(rect, transparentColor, boxColor );
+
+        }
+
+        private void DrawHandle(Color color, Rect rect)
         {
             var eventCurrent = Event.current;
-            float handleSize = 1*spriteScale; // r = rect
+            float handleSize = spriteScale; 
             var rTopLeft = new Rect(rect.xMin - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
             var rTopCenter = new Rect(rect.xMin + rect.width / 2 - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
             var rTopRight = new Rect(rect.xMax - handleSize / 2, rect.yMin - handleSize / 2, handleSize, handleSize);
@@ -197,53 +236,63 @@ namespace binc.PixelAnimator.Editor.Windows{
                 handleSize, handleSize);
             var rAdjustedMiddle = new Rect(rect.x + handleSize / 2, rect.y + handleSize / 2, rect.width - handleSize,
                 rect.height - handleSize);
-
-            if (eventCurrent.button == 0 && eventCurrent.type == EventType.MouseDown) {
+            var leftClicked = eventCurrent.button == 0 && eventCurrent.type == EventType.MouseDown;
+            if (leftClicked)
+            {
+                var temp = EditingBoxHandle;
                 var mousePos = eventCurrent.mousePosition;
                 if (rTopLeft.Contains(mousePos))
-                    EditingHandle = HandleType.TopLeft;
+                    EditingBoxHandle = BoxHandleType.TopLeft;
                 else if (rTopCenter.Contains(mousePos))
-                    EditingHandle = HandleType.TopCenter;
+                    EditingBoxHandle = BoxHandleType.TopCenter;
                 else if (rTopRight.Contains(mousePos))
-                    EditingHandle = HandleType.TopRight;
+                    EditingBoxHandle = BoxHandleType.TopRight;
                 else if (rRightCenter.Contains(mousePos))
-                    EditingHandle = HandleType.RightCenter;
+                    EditingBoxHandle = BoxHandleType.RightCenter;
                 else if (rBottomRight.Contains(mousePos))
-                    EditingHandle = HandleType.BottomRight;
+                    EditingBoxHandle = BoxHandleType.BottomRight;
                 else if (rBottomCenter.Contains(mousePos))
-                    EditingHandle = HandleType.BottomCenter;
+                    EditingBoxHandle = BoxHandleType.BottomCenter;
                 else if (rBottomLeft.Contains(mousePos))
-                    EditingHandle = HandleType.BottomLeft;
+                    EditingBoxHandle = BoxHandleType.BottomLeft;
                 else if (rLeftCenter.Contains(mousePos))
-                    EditingHandle = HandleType.LeftCenter;
+                    EditingBoxHandle = BoxHandleType.LeftCenter;
                 else if (rAdjustedMiddle.Contains(mousePos)) {
-                    EditingHandle = HandleType.Middle;
+                    EditingBoxHandle = BoxHandleType.Middle;
                     clickedMousePos = mousePos;
                 }
                 else {
-                    EditingHandle = HandleType.None;
+                    EditingBoxHandle = BoxHandleType.None;
                 }
+
+                if (EditingBoxHandle != temp)
+                {
+                    eventCurrent.Use();
+                    
+                }
+                
             }
-            EditorGUI.DrawRect(rTopLeft, boxColor);
-            EditorGUI.DrawRect(rTopCenter, boxColor);
-            EditorGUI.DrawRect(rTopRight, boxColor);
-            EditorGUI.DrawRect(rRightCenter, boxColor);
-            EditorGUI.DrawRect(rBottomRight, boxColor);
-            EditorGUI.DrawRect(rBottomCenter, boxColor);
-            EditorGUI.DrawRect(rBottomLeft, boxColor);
-            EditorGUI.DrawRect(rLeftCenter, boxColor);
-            AddCursorRect(rTopLeft, MouseCursor.ResizeUpLeft, HandleType.TopLeft);
-            AddCursorRect(rTopCenter, MouseCursor.ResizeVertical, HandleType.TopCenter);
-            AddCursorRect(rTopRight, MouseCursor.ResizeUpRight, HandleType.TopRight);
-            AddCursorRect(rRightCenter, MouseCursor.ResizeHorizontal, HandleType.RightCenter);
-            AddCursorRect(rBottomRight, MouseCursor.ResizeUpLeft, HandleType.BottomRight);
-            AddCursorRect(rBottomCenter, MouseCursor.ResizeVertical, HandleType.BottomCenter);
-            AddCursorRect(rBottomLeft, MouseCursor.ResizeUpRight, HandleType.BottomLeft);
-            AddCursorRect(rLeftCenter, MouseCursor.ResizeHorizontal, HandleType.LeftCenter);
-            AddCursorRect(rAdjustedMiddle, MouseCursor.MoveArrow, HandleType.Middle);
-            PixelAnimatorWindow.AnimatorWindow.Repaint();
+            EditorGUI.DrawRect(rTopLeft, color);
+            EditorGUI.DrawRect(rTopCenter, color);
+            EditorGUI.DrawRect(rTopRight, color);
+            EditorGUI.DrawRect(rRightCenter, color);
+            EditorGUI.DrawRect(rBottomRight, color);
+            EditorGUI.DrawRect(rBottomCenter, color);
+            EditorGUI.DrawRect(rBottomLeft, color);
+            EditorGUI.DrawRect(rLeftCenter, color);
+            AddCursorRect(rTopLeft, MouseCursor.ResizeUpLeft, BoxHandleType.TopLeft);
+            AddCursorRect(rTopCenter, MouseCursor.ResizeVertical, BoxHandleType.TopCenter);
+            AddCursorRect(rTopRight, MouseCursor.ResizeUpRight, BoxHandleType.TopRight);
+            AddCursorRect(rRightCenter, MouseCursor.ResizeHorizontal, BoxHandleType.RightCenter);
+            AddCursorRect(rBottomRight, MouseCursor.ResizeUpLeft, BoxHandleType.BottomRight);
+            AddCursorRect(rBottomCenter, MouseCursor.ResizeVertical, BoxHandleType.BottomCenter);
+            AddCursorRect(rBottomLeft, MouseCursor.ResizeUpRight, BoxHandleType.BottomLeft);
+            AddCursorRect(rLeftCenter, MouseCursor.ResizeHorizontal, BoxHandleType.LeftCenter);
+            AddCursorRect(rAdjustedMiddle, MouseCursor.MoveArrow, BoxHandleType.Middle);
+            
         }
 
+<<<<<<< Updated upstream
         private void AddCursorRect(Rect rect, MouseCursor cursor, HandleType type){
             EditorGUIUtility.AddCursorRect(rect, cursor);
             PixelAnimatorWindow.AddCursorBool(EditingHandle == type, cursor);
@@ -258,6 +307,8 @@ namespace binc.PixelAnimator.Editor.Windows{
             MoveOperations();
             DrawFocusOutline();
         }
+=======
+>>>>>>> Stashed changes
 
         private void DrawFocusOutline()
         {

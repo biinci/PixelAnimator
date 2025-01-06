@@ -1,19 +1,24 @@
 using System;
+<<<<<<< Updated upstream
 using System.Linq;
 using binc.PixelAnimator.Common;
 using binc.PixelAnimator.DataProvider;
 using binc.PixelAnimator.Preferences;
 using binc.PixelAnimator.Utility;
+=======
+>>>>>>> Stashed changes
 using UnityEditor;
 using UnityEngine;
 
+
 namespace binc.PixelAnimator.Editor.Windows
 {
-    public partial class PropertyWindow : Window
+    public partial class PropertyWindow
     {
-        
+
         public override void ProcessWindow()
         {
+<<<<<<< Updated upstream
             
             if(!timelineWindow.IsPlaying) DrawPropertyWindow();
             
@@ -122,9 +127,14 @@ namespace binc.PixelAnimator.Editor.Windows
 
             DrawEventField(eventNamesProp);
         }
+=======
+>>>>>>> Stashed changes
 
+            if (!timelineWindow.IsPlaying) DrawPropertyWindow();
+        } 
         private void DrawPropertyWindow()
         {
+<<<<<<< Updated upstream
             var tempColor = GUI.color;
             GUI.color = new Color(0, 0, 0, 0.2f);
             windowRect = new Rect(10, 10, 250, 250); // Background rect.
@@ -164,45 +174,109 @@ namespace binc.PixelAnimator.Editor.Windows
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+=======
+>>>>>>> Stashed changes
             
-
-            GUI.color = tempColor;
-
-        }
-
-        private void DrawEventField(SerializedProperty eventNames)
-        {
-            GUILayout.Space(20);
-            eventFoldout = EditorGUILayout.Foldout(eventFoldout, "Event Names", true);
-            if (eventFoldout == false) return;
-            for (var i = 0; i < eventNames.arraySize; i++)
+            const float ratio = 0.35063115f;
+            var factor = Math.Clamp(ratio*PixelAnimatorWindow.AnimatorWindow.position.width, 250, 450);
+            windowRect = new Rect(10, 10, factor, factor);
+            
+            
+            GUI.Window(Id, windowRect, _ =>
             {
-                var methodName = eventNames.GetArrayElementAtIndex(i);
-                using (new GUILayout.HorizontalScope())
+                EditorGUI.DrawRect(new Rect(Vector2.zero, windowRect.size), new Color(0.22f,0.22f,0.22f,0.4f));
+                selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles);
+                
+                switch (selectedTab)
                 {
-                    EditorGUILayout.PropertyField(methodName, GUIContent.none, GUILayout.MaxWidth(100));
-                    if (GUILayout.Button("X", GUILayout.MaxWidth(15), GUILayout.MaxHeight(15)))
-                        removeEventButton.DownClick((eventNames, i));
+                    case 0:
+                        DrawSpriteTab();
+                        break;
+                    case 1:
+                        DrawHitboxTab();
+                        break;
                 }
-            }
 
-            if (GUILayout.Button("Add Event", GUILayout.MaxWidth(100)))
-            {
-                addEventButton.DownClick(eventNames);
-            }
-
-            eventNames.serializedObject.ApplyModifiedProperties();
-
-        }
-
-        private void DrawFocusOutline()
-        {
-            var largestCanvas = new Rect(windowRect.x - 2, windowRect.y - 2, windowRect.width + 4, windowRect.height + 4);
-            EditorGUI.DrawRect(largestCanvas, Color.blue);
+            }, GUIContent.none, GUIStyle.none);
             
         }
+
+        private void DrawHitboxTab()
+        {
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
+            var targetAnimation = animatorWindow.TargetAnimation;
+
+            if (targetAnimation != null && animatorWindow.IsValidFrame())
+            {
+                var property = targetAnimation
+                    .FindProperty("groups")
+                    .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedGroup)
+                    .FindPropertyRelative("layers")
+                    .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedLayer)
+                    .FindPropertyRelative("frames")
+                    .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedSprite)
+                    .FindPropertyRelative("methodStorage");
+                var positionRect = new Rect(0,20, windowRect.width, windowRect.height);
+                var viewRect = new Rect(0, 20, windowRect.width-30, EditorGUI.GetPropertyHeight(property)+20);
+                var listRect = new Rect(10,30, windowRect.width-30, windowRect.height - 30);
+                scrollPos = GUI.BeginScrollView(positionRect,scrollPos,viewRect,false,false);
+
+                property.serializedObject.UpdateIfRequiredOrScript();
+                EditorGUI.BeginProperty(listRect,GUIContent.none, property);
+                EditorGUI.BeginChangeCheck();
+                EditorGUI.PropertyField(listRect, property, GUIContent.none, true);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    property.serializedObject.ApplyModifiedProperties();
+                }
+                    
+                EditorGUI.EndProperty();
+                GUI.EndScrollView();
+            }
+            else if(targetAnimation == null)
+            {
+                EditorGUILayout.LabelField("Please Select an Animation");
+            }
+            else
+            {
+                EditorGUILayout.LabelField("Please Select a Frame");
+            }
+        }
+
+        private void DrawSpriteTab()
+        {
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
+            var targetAnimation = animatorWindow.TargetAnimation;
+            if (targetAnimation != null && animatorWindow.IsValidSprite(animatorWindow.IndexOfSelectedSprite))
+            {
+                var property = targetAnimation.FindProperty("pixelSprites").GetArrayElementAtIndex(animatorWindow.IndexOfSelectedSprite).FindPropertyRelative("methodStorage");
+                var positionRect = new Rect(0,20, windowRect.width, windowRect.height);
+                var viewRect = new Rect(0, 20, windowRect.width-30, EditorGUI.GetPropertyHeight(property)+20);
+                var listRect = new Rect(10,30, windowRect.width-30, windowRect.height - 30);
+                    
+                scrollPos = GUI.BeginScrollView(positionRect,scrollPos,viewRect,false,false);
+                    
+                EditorGUI.PropertyField(listRect, property, GUIContent.none, true);
+                property.serializedObject.ApplyModifiedProperties();
+                    
+                GUI.EndScrollView();
+            }
+            else if(targetAnimation == null)
+            {
+                EditorGUILayout.LabelField("Please Select an Animation");
+            }
+            else
+            {
+                EditorGUILayout.LabelField("Please Select a Sprite");
+            }
+
+        }
+        
 
 
     }
+    
+    
+    
 }
 

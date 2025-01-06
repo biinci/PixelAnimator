@@ -1,7 +1,11 @@
 using System;
 using UnityEngine;
+<<<<<<< Updated upstream
 using binc.PixelAnimator.DataProvider;
 
+=======
+using UnityEngine.Events;
+>>>>>>> Stashed changes
 
 namespace binc.PixelAnimator.Common{
     
@@ -15,8 +19,12 @@ namespace binc.PixelAnimator.Common{
         [SerializeField] private FrameType type;
         
         public Rect hitBoxRect;
+<<<<<<< Updated upstream
         public PropertyData hitBoxData;
         
+=======
+        public MethodStorage methodStorage;
+>>>>>>> Stashed changes
         public Frame(string guid){
             this.guid = guid;
 
@@ -41,6 +49,7 @@ namespace binc.PixelAnimator.Common{
         public string spriteId;
         
         public Sprite sprite;
+<<<<<<< Updated upstream
 
         [SerializeField] private PropertyData spriteData;
         public PropertyData SpriteData => spriteData;
@@ -49,6 +58,14 @@ namespace binc.PixelAnimator.Common{
             this.sprite = sprite;
             spriteData = new PropertyData();
             spriteId = gUid;
+=======
+        public MethodStorage methodStorage;
+
+        public PixelSprite(Sprite sprite, string guid){
+            methodStorage = new MethodStorage();
+            this.sprite = sprite;
+            spriteId = guid;
+>>>>>>> Stashed changes
         }
     }
 

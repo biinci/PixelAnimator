@@ -94,29 +94,11 @@ namespace binc.PixelAnimator.Editor{
 
             pixelSpriteList.elementHeightCallback = index => {
                 float height = 60;
-                // if (!showDetails) return height;
-                // height += 30;
-                // var element = pixelSpriteList.serializedProperty.GetArrayElementAtIndex(index);
-                // var propSpriteData = element.FindPropertyRelative("spriteData");
-                //     
-                // var propSpriteDataValues = propSpriteData.FindPropertyRelative("genericData");
-                // var propSpriteEvent = propSpriteData.FindPropertyRelative("eventNames");
-                //     
-                // if (propSpriteDataValues.isExpanded) {
-                //     var multiply = propSpriteDataValues.arraySize * lineHeightSpace == 0
-                //         ? lineHeightSpace
-                //         : propSpriteDataValues.arraySize * lineHeightSpace; 
-                //     height += multiply + 30;
-                // }
-                //
-                // if (!propSpriteEvent.isExpanded) return height;
-                // {
-                //     var multiply = propSpriteEvent.arraySize * lineHeightSpace == 0
-                //         ? lineHeightSpace
-                //         : propSpriteEvent.arraySize * lineHeightSpace; 
-                //     height += multiply + 30;
-                // }
-                //
+                var methodStorageProp = pixelSpriteList.serializedProperty.GetArrayElementAtIndex(index).FindPropertyRelative("methodStorage");
+                if (methodStorageProp != null)
+                {
+                    height += EditorGUI.GetPropertyHeight(methodStorageProp);
+                }
                 return height;
 
             };
@@ -131,11 +113,12 @@ namespace binc.PixelAnimator.Editor{
             rect.width /= EditorGUIUtility.currentViewWidth;
             rect.y += 2;
 
-            var spriteWidth = currentViewWidth > 523 ? 523 / 3 : currentViewWidth / 3; 
-            var spriteIdWidth = currentViewWidth > 952 ? 952 / 4 : currentViewWidth/4;
+            var spriteWidth = currentViewWidth > 523 ? 174f : currentViewWidth / 3; 
+            var spriteIdWidth = currentViewWidth > 952 ? 238f : currentViewWidth/4;
             var spriteRect = new Rect(rect.x, rect.y, spriteWidth, EditorGUIUtility.singleLineHeight);
             var spriteIdRect = new Rect(rect.x + spriteRect.width + 20, rect.y, spriteIdWidth, EditorGUIUtility.singleLineHeight);
             var spritePreviewRect = new Rect(spriteIdRect.x + spriteIdRect.width + 40, rect.y, 48, 48);
+            var methodStorageRect =new Rect(rect.x,spriteRect.y+EditorGUIUtility.singleLineHeight*1.2f, spriteIdRect.xMax-spriteRect.x, EditorGUIUtility.singleLineHeight);
             
             EditorGUI.PropertyField(
                 spriteRect,
@@ -160,11 +143,13 @@ namespace binc.PixelAnimator.Editor{
                 pixelAnimation.PixelSprites[index].sprite = sprite;
             }
 
+            EditorGUI.PropertyField(methodStorageRect,element.FindPropertyRelative("methodStorage"));
 
             if (!showDetails) return;
             
             rect.x += 30;
             rect.y += lineHeightSpace;
+<<<<<<< Updated upstream
                 
             if(pixelAnimation.PixelSprites[index].SpriteData == null ) return;
             var propSpriteData = element.FindPropertyRelative("spriteData");
@@ -201,6 +186,10 @@ namespace binc.PixelAnimator.Editor{
             //         propSpriteEvent
             //     );
             // }
+=======
+            
+            
+>>>>>>> Stashed changes
         }
 
         public override void OnInspectorGUI(){

@@ -2,15 +2,9 @@ using UnityEngine;
 
 
 namespace binc.PixelAnimator.Editor.Windows{
-
-    public enum PropertyFocusEnum{
-        HitBox,
-        Sprite
-    }
     
-
-    //Box handles.
-    public enum HandleType{
+    
+    public enum BoxHandleType{
         TopLeft,
         TopCenter,
         TopRight,

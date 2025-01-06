@@ -14,6 +14,7 @@ namespace binc.PixelAnimator.Editor.Windows
             propertyValues.serializedObject.Update();
             var alreadyExist = baseData != null;
 
+<<<<<<< Updated upstream
 
             using (new GUILayout.HorizontalScope())
             {
@@ -71,9 +72,11 @@ namespace binc.PixelAnimator.Editor.Windows
             tuple.Item1.serializedObject.ApplyModifiedProperties();
         }
 
+=======
+>>>>>>> Stashed changes
         public override void FocusFunctions()
         {
-            DrawFocusOutline();
+
         }
     }
 }

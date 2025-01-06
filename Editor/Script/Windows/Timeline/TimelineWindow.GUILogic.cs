@@ -7,9 +7,7 @@ using binc.PixelAnimator.Common;
 namespace binc.PixelAnimator.Editor.Windows{
 
     public partial class TimelineWindow{
-        public void InspectorUpdate(){
-            anim = PixelAnimatorWindow.AnimatorWindow.SelectedAnimation;
-        }
+
         
         public override void ProcessWindow(){
             SetRect();
@@ -53,7 +51,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             var layerIndex = data.Item2;
             var frameIndex = data.Item3;
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            var groups = anim.Groups;
+            var groups = SelectedAnim.Groups;
             var layers = groups[groupIndex].layers;
             var frames = layers[layerIndex].frames;
             var isSameFrameIndex = frameIndex == animatorWindow.IndexOfSelectedSprite;
@@ -125,8 +123,13 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void ThumbnailButton(int index)
         {
+<<<<<<< Updated upstream
             PixelAnimatorWindow.AnimatorWindow.PropertyFocus = PropertyFocusEnum.Sprite;
             PixelAnimatorWindow.AnimatorWindow.SelectFrame(index);
+=======
+            var animWindow = PixelAnimatorWindow.AnimatorWindow;
+            animWindow.SelectSprite(index);
+>>>>>>> Stashed changes
         }
 
         private void PlayPauseButton()

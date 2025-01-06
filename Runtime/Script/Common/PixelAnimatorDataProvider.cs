@@ -28,7 +28,7 @@ namespace binc.PixelAnimator{
 
 
             foreach (var pixelSprite in pixelSprites) {
-                layers[index].frames.Add(new Frame(pixelSprite.spriteId));
+                layers[index].frames.Add(new Frame(pixelSprite.spriteId){hitBoxRect = new Rect(0,0,16,16)});
             }
         }
 
@@ -46,7 +46,7 @@ namespace binc.PixelAnimator{
             frames = new List<Frame>();
         }
 
-        public void link(){
+        public void Link(){
             for(var i = 1 ; i < frames.Count; i ++){
                 var frame = frames[i];
                 var isCopyFrame = frame.GetFrameType() == FrameType.CopyFrame;
