@@ -100,22 +100,10 @@ namespace binc.PixelAnimator{
         private void ApplySpritePropValue(){
             if (!currAnim) return;
             var pixelSprite = currAnim.PixelSprites[frameIndex];
-
-<<<<<<< Updated upstream
-            var propertyValues = pixelSprite.SpriteData.genericData;
-            foreach (var propertyValue in propertyValues) {
-                var propName = preferences.GetProperty(PropertyType.Sprite, propertyValue.baseData.Guid).Name;
-                if (SpriteProperty.ContainsKey(propName)) {
-                    // Debug.Log(propName + "   " + propertyValue.baseData.InheritData);
-                    SpriteProperty[propName].Invoke(propertyValue.baseData.InheritData);
-                }
-
-            }
+            
 
             // foreach (var eventName in pixelSprite.SpriteData.eventNames) {
-=======
             // foreach (var eventName in pixelSprite.eventNames) {
->>>>>>> Stashed changes
             //     if (SpriteEvents.ContainsKey(eventName)) {
             //         SpriteEvents[eventName].Invoke();
             //     }

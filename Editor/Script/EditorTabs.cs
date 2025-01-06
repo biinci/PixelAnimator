@@ -55,7 +55,7 @@ public static class EditorTabsAPI
     /// <summary>
     /// Draws tabs and returns the index of the selected tab
     /// </summary>
-    public static int DrawTabs(int selectedTab, string[] tabTitles)
+    public static int DrawTabs(int selectedTab, string[] tabTitles, float maxWidth)
     {
         EditorGUILayout.BeginHorizontal(GUILayout.Height(24));
         
@@ -69,7 +69,7 @@ public static class EditorTabsAPI
             var style = isSelected ? Styles.SelectedTabStyle : Styles.TabStyle;
             var tabWidth = style.CalcSize(new GUIContent(tabTitles[i])).x + style.padding.horizontal;
 
-            var tabRect = GUILayoutUtility.GetRect(tabWidth, 24, style, GUILayout.MaxWidth(tabWidth));
+            var tabRect = GUILayoutUtility.GetRect(tabWidth, 24, style, GUILayout.MinWidth(tabWidth), GUILayout.MaxWidth(maxWidth));
 
             // Draw the tab background and label
             if (GUI.Toggle(tabRect, isSelected, tabTitles[i], style))

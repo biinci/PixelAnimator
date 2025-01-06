@@ -29,11 +29,8 @@ namespace binc.PixelAnimator.Editor.Windows{
                 var group = groups[i];
                 var boxData = animationPreferences.GetBoxData(group.BoxDataGuid);
                 if (!group.isVisible) continue;
-<<<<<<< Updated upstream
-                DrawBox(i, group, boxData, spriteSize, EditingHandle);
-=======
+
                 ProcessBoxes(i, group, boxData);
->>>>>>> Stashed changes
             }
         }
 
@@ -73,21 +70,11 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         
 
-<<<<<<< Updated upstream
-        private void DrawBox(int groupIndex, Group group, BoxData boxData, Vector2 spriteSize, HandleType handleTypes){
-=======
+
         private void ProcessBoxes(int groupIndex, Group group, BoxData boxData){
->>>>>>> Stashed changes
             
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var isActiveGroup = groupIndex == animatorWindow.IndexOfSelectedGroup;
-<<<<<<< Updated upstream
-            var isBoxActive = isActiveGroup && group.isExpanded && animatorWindow.PropertyFocus == PropertyFocusEnum.HitBox;
-            
-            for (var i = 0; i < group.layers.Count; i++)
-            {
-                var frame = group.layers[i].frames[animatorWindow.IndexOfSelectedSprite];// Getting the active frame on all layers
-=======
 
             var selectedLayerIndex = animatorWindow.IndexOfSelectedLayer;
             for (var i = 0; i < group.layers.Count; i++)
@@ -95,7 +82,6 @@ namespace binc.PixelAnimator.Editor.Windows{
                 var isBoxActive = isActiveGroup && group.isExpanded &&
                                   selectedLayerIndex == i;
                 var frame = group.layers[i].frames[animatorWindow.IndexOfSelectedSprite];
->>>>>>> Stashed changes
                 
                 if(frame.GetFrameType() == FrameType.EmptyFrame) continue;
                 
@@ -292,23 +278,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             
         }
 
-<<<<<<< Updated upstream
-        private void AddCursorRect(Rect rect, MouseCursor cursor, HandleType type){
-            EditorGUIUtility.AddCursorRect(rect, cursor);
-            PixelAnimatorWindow.AddCursorBool(EditingHandle == type, cursor);
 
-        }
-
-        public void SetHandle(HandleType handleType){
-            EditingHandle = handleType;
-        }
-
-        public override void FocusFunctions(){
-            MoveOperations();
-            DrawFocusOutline();
-        }
-=======
->>>>>>> Stashed changes
 
         private void DrawFocusOutline()
         {

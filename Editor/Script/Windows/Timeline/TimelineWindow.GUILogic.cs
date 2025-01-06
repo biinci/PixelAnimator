@@ -29,7 +29,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             if(!SelectedAnim) return;
             SetShortcuts();
         }
-        private void SetShortcuts(){
+        public void SetShortcuts(){
             var eventCurrent = Event.current;
             if(eventCurrent.type != EventType.KeyDown) return;
             var keyCode = eventCurrent.keyCode;
@@ -123,13 +123,9 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void ThumbnailButton(int index)
         {
-<<<<<<< Updated upstream
-            PixelAnimatorWindow.AnimatorWindow.PropertyFocus = PropertyFocusEnum.Sprite;
-            PixelAnimatorWindow.AnimatorWindow.SelectFrame(index);
-=======
+
             var animWindow = PixelAnimatorWindow.AnimatorWindow;
             animWindow.SelectSprite(index);
->>>>>>> Stashed changes
         }
 
         private void PlayPauseButton()
@@ -149,7 +145,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             if(timer >= 1f/fps){
                 timer -= 1f/fps;
                 var frame = (  animatorWindow.IndexOfSelectedSprite +1 ) % SelectedAnim.GetSpriteList().Count;
-                animatorWindow.SelectFrame(frame);
+                animatorWindow.SelectSprite(frame);
                
             }
             animatorWindow.Repaint();
@@ -164,7 +160,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             var mod = SelectedAnim.GetSpriteList().Count;
             var index = (animatorWindow.IndexOfSelectedSprite + factor) % mod;
             index = index == -1 ? mod-1 : index;
-            animatorWindow.SelectFrame(index);
+            animatorWindow.SelectSprite(index);
             PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
         

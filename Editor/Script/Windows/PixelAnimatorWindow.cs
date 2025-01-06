@@ -113,14 +113,9 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
 
-<<<<<<< Updated upstream
-        private void OnGUI(){
-            if(!initialized) Init();
-=======
         private void OnGUI()
         {
 
->>>>>>> Stashed changes
             AvailableSpace = position;
             DrawBackground();
             SetEditorDeltaTime();
@@ -271,13 +266,9 @@ namespace binc.PixelAnimator.Editor.Windows{
 
             IndexOfSelectedLayer = layerIndex;
         }
-<<<<<<< Updated upstream
-        public void SelectFrame(int index){
-=======
 
         public void SelectSprite(int index)
         {
->>>>>>> Stashed changes
             var isValid = index < SelectedAnimation.GetSpriteList().Count && index >= 0;
             if (!isValid) throw new IndexOutOfRangeException();
 
@@ -302,16 +293,11 @@ namespace binc.PixelAnimator.Editor.Windows{
         {
             return AnimatorPreferences.windows.Find(w => w.GetType() == typeof(T)) as T;
         }
-<<<<<<< Updated upstream
-        
-        
-=======
 
         public bool IsValidGroup()
         {
             return IndexOfSelectedGroup < SelectedAnimation.Groups.Count;
         }
->>>>>>> Stashed changes
 
         public bool IsValidLayer()
         {

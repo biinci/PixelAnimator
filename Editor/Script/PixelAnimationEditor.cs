@@ -1,4 +1,3 @@
-using binc.PixelAnimator.Editor.DataProvider;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
@@ -149,56 +148,29 @@ namespace binc.PixelAnimator.Editor{
             
             rect.x += 30;
             rect.y += lineHeightSpace;
-<<<<<<< Updated upstream
                 
-            if(pixelAnimation.PixelSprites[index].SpriteData == null ) return;
             var propSpriteData = element.FindPropertyRelative("spriteData");
             var propSpriteDataValues = propSpriteData.FindPropertyRelative("genericData");
 
             var dataRect = new Rect(rect.x, rect.y, currentViewWidth / 2, 70){
                 width = currentViewWidth > 768 ? 768 / 2 : currentViewWidth / 2 < 330/2? 330/2: currentViewWidth / 2 
             };
-            BaseDataPropertyDrawer.extraMultiply = dataRect.width/300;
-            GenericDataDrawer.extraMultiply = dataRect.width / 320;
                 
 
             EditorGUI.PropertyField(
                 dataRect,
                 propSpriteDataValues
             );
-            // var propSpriteEvent = propSpriteData.FindPropertyRelative("eventNames");
-            // if (propSpriteDataValues.isExpanded) {
-            //     var multiply = propSpriteDataValues.arraySize == 0
-            //         ? lineHeightSpace
-            //         : lineHeightSpace * propSpriteDataValues.arraySize;
-            //     var temp = dataRect.y;
-            //     dataRect.y += multiply + 50;
-            //     EditorGUI.PropertyField(
-            //         dataRect,
-            //         propSpriteEvent
-            //     );
-            //     dataRect.y = temp;
-            // }
-            // else {
-            //     dataRect.y += lineHeight;
-            //     EditorGUI.PropertyField(
-            //         dataRect,
-            //         propSpriteEvent
-            //     );
-            // }
-=======
+
             
-            
->>>>>>> Stashed changes
         }
 
         public override void OnInspectorGUI(){
-            base.OnInspectorGUI();
             serializedObject.Update();
             DrawPropertiesExcluding(serializedObject,  "m_Script", "pixelSprites");
             
             GUILayout.Space(10);
-            // 
+            
             pixelSpriteFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(pixelSpriteFoldout, "Pixel Sprites");
             lastRect = GUILayoutUtility.GetLastRect();
             if(pixelSpriteFoldout) pixelSpriteList.DoLayoutList();
@@ -212,9 +184,6 @@ namespace binc.PixelAnimator.Editor{
             serializedObject.ApplyModifiedProperties();
             
         }
-
-
-
         
 
 
@@ -244,15 +213,7 @@ namespace binc.PixelAnimator.Editor{
                 hitBoxRectProp.FindPropertyRelative("height").floatValue = 16;
             }
         }
-        // private static void AddHitBoxData(SerializedProperty groupProps, int index){
-        //     for (var i = 0; i < groupProps.arraySize; i++) {
-        //         var hitBoxProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("hitBoxData");
-        //         hitBoxProps.InsertArrayElementAtIndex(index);
-        //         hitBoxProps.serializedObject.ApplyModifiedProperties();
-        //         hitBoxProps.serializedObject.Update();
-        //     }
-        // }
-        //
+
         private static void RemoveFrames(SerializedProperty groupProps, ReorderableList reorderableList){
             for (var i = 0; i < groupProps.arraySize; i ++) {
                 var layersProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("layers");
@@ -266,73 +227,6 @@ namespace binc.PixelAnimator.Editor{
 
 
 
-        // private static void RemoveHitBoxData(SerializedProperty groupProps, ReorderableList reorderableList){
-        //     for (var i =0 ; i < groupProps.arraySize; i++) {
-        //         var hitBoxProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("hitBoxData");
-        //         hitBoxProps.DeleteArrayElementAtIndex(i);
-        //     }
-        // }
-
-
-        public static void AddLayer(SerializedProperty layersProp, SerializedObject pixelAnimationProp){
-            var pixelSpritesProp = pixelAnimationProp.FindProperty("pixelSprites");
-            if(pixelSpritesProp == null) {
-                Debug.LogError("Pixel Sprites is not exist or null");
-                return;
-            }
-            
-            layersProp.InsertArrayElementAtIndex(layersProp.arraySize);
-            layersProp.serializedObject.ApplyModifiedProperties();
-            layersProp.serializedObject.Update();
-            
-            var layerProp = layersProp.GetArrayElementAtIndex(layersProp.arraySize-1);
-            var framesProp = layerProp.FindPropertyRelative("frames");
-            framesProp.arraySize = pixelSpritesProp.arraySize;
-
-            for(var i = 0; i < framesProp.arraySize; i++){
-                var pixelSpriteProp = pixelSpritesProp.GetArrayElementAtIndex(i);
-                var frameProp = framesProp.GetArrayElementAtIndex(i);
-                frameProp.FindPropertyRelative("guid").stringValue = pixelSpriteProp.FindPropertyRelative("spriteId").stringValue;
-                var hitBoxRectProp = frameProp.FindPropertyRelative("hitBoxRect");
-                hitBoxRectProp.FindPropertyRelative("x").floatValue = 16;
-                hitBoxRectProp.FindPropertyRelative("y").floatValue = 16;
-                hitBoxRectProp.FindPropertyRelative("width").floatValue = 16;
-                hitBoxRectProp.FindPropertyRelative("height").floatValue = 16;
-                var hitBoxData = frameProp.FindPropertyRelative("hitBoxData");
-                hitBoxData.FindPropertyRelative("genericData").arraySize = 0;
-                hitBoxData.FindPropertyRelative("eventNames").arraySize = 0;
-                if(i>0)frameProp.FindPropertyRelative("frameType").intValue = 1;
-
-            }
-            layersProp.serializedObject.ApplyModifiedProperties();
-            layersProp.serializedObject.Update();
-        }
-        
-        
-        public static void RemoveLayer(SerializedProperty layersProp, int deletedIndex){
-            layersProp.DeleteArrayElementAtIndex(deletedIndex);
-            layersProp.serializedObject.ApplyModifiedProperties();
-            layersProp.serializedObject.Update();
-        }
-        
-        public static void AddGroup(SerializedProperty groupsProp, string Guid){
-            groupsProp.InsertArrayElementAtIndex(groupsProp.arraySize);
-            groupsProp.serializedObject.ApplyModifiedProperties();
-            groupsProp.serializedObject.Update();
-
-            var groupProp = groupsProp.GetArrayElementAtIndex(groupsProp.arraySize-1);
-            groupProp.FindPropertyRelative("boxDataGuid").stringValue = Guid;
-
-            groupProp.serializedObject.ApplyModifiedProperties();
-            groupProp.serializedObject.Update();
-        }
-
-
-        public static void RemoveGroup(SerializedProperty groupsProp, int deletedIndex){
-            groupsProp.DeleteArrayElementAtIndex(deletedIndex);
-            groupsProp.serializedObject.ApplyModifiedProperties();
-            groupsProp.serializedObject.Update();
-        }
 
 
     }

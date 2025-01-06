@@ -14,30 +14,23 @@ namespace binc.PixelAnimator.Editor.Preferences{
         #region Variables
 
         private SerializedObject editorSerializedObject;
-        private SerializedProperty serializedBoxData, serializedSpriteProperties, serializedHitBoxProperties;
+        private SerializedProperty serializedBoxData;
         
         private ReorderableList boxDataList;
-        private ReorderableList hitBoxList;
-        private ReorderableList spriteList;
 
         #endregion
 
         private void OnEnable() {     
         
             serializedBoxData = serializedObject.FindProperty("boxData");
-            serializedSpriteProperties = serializedObject.FindProperty("spriteProperties");
-            serializedHitBoxProperties = serializedObject.FindProperty("hitBoxProperties");    
-            
+
             InitGroupList();
-            InitPropertyList();
         }
         
 
         public override void OnInspectorGUI(){
             serializedObject.Update();
             boxDataList.DoLayoutList();
-            spriteList.DoLayoutList();
-            hitBoxList.DoLayoutList();
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -153,85 +146,6 @@ namespace binc.PixelAnimator.Editor.Preferences{
         }
         
         #endregion
-
-        #region Properties
-        
-        private void InitPropertyList(){
-            hitBoxList = new ReorderableList(serializedObject, serializedHitBoxProperties,
-                true, true, true, true){
-                drawElementCallback = (rect, index, _, _) => DrawPropertyList(hitBoxList, rect, index) ,
-                elementHeight = EditorGUIUtility.singleLineHeight,
-                drawHeaderCallback = rect => { EditorGUI.LabelField(rect, "Hit Box Properties!");},
-                onAddCallback = _ => AddProperty(hitBoxList)
-                
-            };
-
-            spriteList = new ReorderableList(serializedObject, serializedSpriteProperties,
-                true, true, true, true){
-                drawElementCallback = (rect, index, _, _) => DrawPropertyList(spriteList, rect, index),
-                elementHeight = EditorGUIUtility.singleLineHeight,
-                drawHeaderCallback = rect => { EditorGUI.LabelField(rect, "Sprite Properties!");},
-                onAddCallback = _ => AddProperty(spriteList)
-            };
-        }
-        
-        private static void DrawPropertyList(ReorderableList list, Rect rect, int index){
-            var element = list.serializedProperty.GetArrayElementAtIndex(index);
-            element.serializedObject.Update();
-            rect.y += 2;
-            DrawPropertyData(rect, element);
-            element.serializedObject.ApplyModifiedProperties();
-        }
-
-
-        private static void DrawPropertyData(Rect rect, SerializedProperty element){
-            element.serializedObject.Update();
-            var nameProp = element.FindPropertyRelative("name");
-
-
-            var nameRect = new Rect(rect.x, rect.y, 90, EditorGUIUtility.singleLineHeight); //Adjusted rect of property.
-
-
-            EditorGUI.PropertyField(
-                nameRect,
-                nameProp,
-                GUIContent.none
-            ); //TODO: Draw name of property
-
-
-            element.serializedObject.ApplyModifiedProperties();
-            var dataType = element.FindPropertyRelative("dataType");
-
-            var dataTypeRect = new Rect(nameRect.xMax + 20, nameRect.y, nameRect.width, nameRect.height);
-
-            using (var check = new EditorGUI.ChangeCheckScope()) {
-                
-                EditorGUI.PropertyField(
-                dataTypeRect,
-                dataType,
-                GUIContent.none
-                );
-                
-                if (check.changed) {
-                    element.FindPropertyRelative("guid").stringValue = GUID.Generate().ToString();
-                }
-            }
-            PixelAnimatorUtility.CreateTooltip(nameRect, "Name", Event.current.mousePosition);
-            PixelAnimatorUtility.CreateTooltip(dataTypeRect, "Data Type", Event.current.mousePosition);
-        }
-        
-        private static void AddProperty(ReorderableList list){
-            var index = list.serializedProperty.arraySize;
-            list.serializedProperty.arraySize ++;
-            list.index = index;
-            var element = list.serializedProperty.GetArrayElementAtIndex(index);
-            element.FindPropertyRelative("guid").stringValue = GUID.Generate().ToString();
-            element.serializedObject.ApplyModifiedProperties();
-        }
-        
-
-        
-        #endregion 
 
 
     }

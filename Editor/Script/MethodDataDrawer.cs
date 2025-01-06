@@ -136,10 +136,7 @@ namespace binc.PixelAnimator.Editor
         }
 
         #region SetData
-        private void SetInstance(SerializedProperty instanceProperty)
-        {
-            ResetMethod(instanceProperty);
-        }
+
         private void SelectMethod(SerializedProperty instanceProperty)
         {
             var menu = new GenericMenu();
