@@ -98,10 +98,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         #endregion
 
-        private void OnInspectorUpdate()
-        {
-            SetWindowsData();
-        }
+
 
         private void SetWindowsData()
         {

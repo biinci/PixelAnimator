@@ -15,24 +15,24 @@ namespace binc.PixelAnimator.Editor.Windows
 
         private void DrawPropertyWindow()
         {
-            const float ratio = 0.35063115f;
+            const float ratio = 0.30063115f;
             var factor = Math.Clamp(ratio*PixelAnimatorWindow.AnimatorWindow.position.width, 250, 450);
             windowRect = new Rect(10, 10, factor, 250);
             
-
+            EditorGUI.DrawRect(new Rect(Vector2.zero, windowRect.size), new Color(0.2f, 0.2f, 0.2f));
+            selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, factor/2f);
+            switch (selectedTab)
+            {
+                case 0:
+                    DrawSpriteTab();
+                    break;
+                case 1:
+                    DrawHitboxTab();
+                    break;
+            }
             GUI.Window(Id, windowRect, _ =>
             {
-                EditorGUI.DrawRect(new Rect(Vector2.zero, windowRect.size), new Color(0.2f, 0.2f, 0.2f));
-                selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, factor/2f);
-                switch (selectedTab)
-                {
-                    case 0:
-                        DrawSpriteTab();
-                        break;
-                    case 1:
-                        DrawHitboxTab();
-                        break;
-                }
+
             
             }, GUIContent.none, GUIStyle.none);
             
@@ -65,7 +65,6 @@ namespace binc.PixelAnimator.Editor.Windows
                 try
                 {
                     EditorGUI.PropertyField(listRect, property, GUIContent.none, true);
-
                 }
                 finally
                 {
@@ -75,9 +74,6 @@ namespace binc.PixelAnimator.Editor.Windows
                     }
                     GUI.EndScrollView();
                 }
-                
-
-                    
                 
 
             }

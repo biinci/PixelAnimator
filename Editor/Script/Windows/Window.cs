@@ -6,7 +6,7 @@ namespace binc.PixelAnimator.Editor.Windows
     [Serializable]
     public abstract class Window{
         
-        protected Rect windowRect;
+        [SerializeField] protected Rect windowRect;
         public Rect WindowRect => windowRect;
         public PixelAnimation SelectedAnim => PixelAnimatorWindow.AnimatorWindow.SelectedAnimation;
         public bool FocusChangeable { get; internal set; }

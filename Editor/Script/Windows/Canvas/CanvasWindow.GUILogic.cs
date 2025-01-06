@@ -52,8 +52,12 @@ namespace binc.PixelAnimator.Editor.Windows
             var scaleDelta = Mathf.Sign(eventCurrent.delta.y) > 0 ? -1 : 1;
             var previousScale = spriteScale;
             spriteScale += scaleDelta;
-            if (spriteScale <= 0) spriteScale = 1;
-            else if (spriteScale > 6) spriteScale = 6;
+            spriteScale = spriteScale switch
+            {
+                <= 0 => 1,
+                > 6 => 6,
+                _ => spriteScale
+            };
             var ratio = spriteScale / (float)previousScale;
             var relativePosition = windowRect.position - eventCurrent.mousePosition;
             var newPosition = relativePosition * ratio;

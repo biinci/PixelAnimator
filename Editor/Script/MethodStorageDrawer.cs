@@ -79,10 +79,15 @@ namespace binc.PixelAnimator.Editor
             if (element == null) return;
 
             rect.y += Spacing;
+            EditorGUI.BeginChangeCheck();
             EditorGUI.PropertyField(
                 new Rect(rect.x, rect.y, rect.width, EditorGUIUtility.singleLineHeight),
                 element
             );
+            if (EditorGUI.EndChangeCheck())
+            {
+                
+            }
 
             element.serializedObject.ApplyModifiedProperties();
         }

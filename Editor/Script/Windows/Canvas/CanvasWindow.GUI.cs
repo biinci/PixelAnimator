@@ -7,10 +7,29 @@ using UnityEngine.UIElements;
 
 namespace binc.PixelAnimator.Editor.Windows{
 
-    public partial class CanvasWindow{
-        
-        private void DrawCanvas() => GUI.Window(Id, windowRect, _=>{WindowFunction();}, GUIContent.none, GUIStyle.none);
+    public partial class CanvasWindow
+    {
 
+        private Vector2 screenSpriteOrigin = new (0, 0);
+
+        private void DrawCanvas()
+        {
+            ClampPosition();
+            GUI.Window(Id, windowRect, _=>{WindowFunction();}, GUIContent.none, GUIStyle.none);
+            
+        }
+        void ClampPosition() { 
+            var spriteWindow = PixelAnimatorWindow.AnimatorWindow.AvailableSpace;
+            screenSpriteOrigin.x = spriteWindow.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
+            screenSpriteOrigin.y = spriteWindow.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
+
+            if (windowRect.x > spritePreview.width * spriteScale * 0.5f + screenSpriteOrigin.x) windowRect.x = spritePreview.width * spriteScale * 0.5f + screenSpriteOrigin.x;
+            if (windowRect.x < -spritePreview.width * spriteScale * 0.5f + screenSpriteOrigin.x) windowRect.x = -spritePreview.width * spriteScale * 0.5f + screenSpriteOrigin.x;
+            
+            if (windowRect.y > spritePreview.height * spriteScale * 0.5f+screenSpriteOrigin.y) windowRect.y = spritePreview.height * spriteScale * 0.5f + screenSpriteOrigin.y;
+            if (windowRect.y < -spritePreview.height * spriteScale * 0.5f+screenSpriteOrigin.y) windowRect.y = -spritePreview.height * spriteScale * 0.5f + screenSpriteOrigin.y;
+            
+        }
 
         private void WindowFunction(){
             DrawGrid();//ok
@@ -194,7 +213,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                     break;
             }
 
-            PixelAnimatorWindow.AnimatorWindow.TargetAnimation.ApplyModifiedProperties();
+            PixelAnimatorWindow.AnimatorWindow.TargetAnimation?.ApplyModifiedProperties();
             PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
         

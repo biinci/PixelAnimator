@@ -191,8 +191,13 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
         private void ReSizeWindowRect(){
             if(!reSizing) return;
-            windowRect.position = Vector2.up * Event.current.mousePosition.y;
-            PixelAnimatorWindow.AnimatorWindow.Repaint();
+            if (Event.current.mousePosition.y > 100 && Event.current.mousePosition.y <
+                PixelAnimatorWindow.AnimatorWindow.position.height - 100)
+            {
+                windowRect.position = new Vector2(windowRect.x,Event.current.mousePosition.y);
+                PixelAnimatorWindow.AnimatorWindow.Repaint();
+            }
+
         }
         private void SetMouseIconState(){
             var r = new Rect(windowRect.position, handleRect.size);
