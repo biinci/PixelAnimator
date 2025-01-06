@@ -96,7 +96,7 @@ namespace binc.PixelAnimator.Editor.Windows
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var targetAnimation = animatorWindow.TargetAnimation;
             var spriteIndex = animatorWindow.IndexOfSelectedSprite;
-            if (targetAnimation != null && animatorWindow.IsValidSprite(spriteIndex))
+            if (targetAnimation != null && animatorWindow.IsValidSprite())
             {
                 var property = targetAnimation
                     .FindProperty("pixelSprites")

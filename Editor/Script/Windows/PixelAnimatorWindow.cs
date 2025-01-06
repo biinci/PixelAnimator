@@ -297,8 +297,15 @@ namespace binc.PixelAnimator.Editor.Windows{
             return AnimatorPreferences.windows.Find(w => w.GetType() == typeof(T)) as T;
         }
 
+        public bool IsValidAnimation()
+        {
+            return SelectedAnimation;
+        }
+        
         public bool IsValidGroup()
         {
+            if (!IsValidAnimation()) return false;
+            if(SelectedAnimation.Groups == null) return false;
             return IndexOfSelectedGroup < SelectedAnimation.Groups.Count;
         }
 
@@ -323,8 +330,9 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         }
 
-        public bool IsValidSprite(int index)
+        public bool IsValidSprite()
         {
+            if (!IsValidAnimation()) return false;
             return IndexOfSelectedSprite < SelectedAnimation.GetSpriteList().Count;
         }
         
