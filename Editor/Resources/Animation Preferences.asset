@@ -12,4 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c6c1fde151efb845a5b0117c7d54b23, type: 3}
   m_Name: Animation Preferences
   m_EditorClassIdentifier: 
-  boxData: []
+  boxData:
+  - color: {r: 0.48235294, g: 0.7058824, b: 0.8745098, a: 1}
+    boxType: Selam
+    activeLayer: 0
+    physicMaterial: {fileID: 0}
+    rounded: 0
+    guid: 5347a2193fadcc044a8d3905e7373fc5

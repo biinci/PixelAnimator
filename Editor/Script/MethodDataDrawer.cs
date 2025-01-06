@@ -14,8 +14,6 @@ namespace binc.PixelAnimator.Editor
         private static Texture2D _functionIcon;
         private const float Padding = 5;
         
-
-        
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             if (Event.current.type == EventType.Layout) return;
@@ -35,9 +33,6 @@ namespace binc.PixelAnimator.Editor
             }
             
             _functionIcon ??= Resources.Load<Texture2D>("Sprites/function-icon");
-                
-            
-
             
             var height = EditorGUIUtility.singleLineHeight;
 
@@ -72,21 +67,30 @@ namespace binc.PixelAnimator.Editor
                 );
 
             property.serializedObject.UpdateIfRequiredOrScript();
-            EditorGUI.BeginProperty(position, label, instanceProperty);
-            
-            property.isExpanded = EditorGUI.Foldout(foldoutRect, property.isExpanded, GUIContent.none);
-
-            EditorGUI.BeginChangeCheck();
-            EditorGUI.PropertyField(objectRect, instanceProperty, GUIContent.none);
-            if (EditorGUI.EndChangeCheck())
+            var propertyScope = new EditorGUI.PropertyScope(position, label, property); 
+            using (propertyScope)
             {
-                ResetMethod(instanceProperty);
-                instanceProperty.serializedObject.ApplyModifiedProperties();
-                instanceProperty.serializedObject.Update();
-                // SetInstance(instanceProperty);
-
+                property.isExpanded = EditorGUI.Foldout(foldoutRect, property.isExpanded, GUIContent.none);
+                DrawInstance(objectRect, instanceProperty);
+                DrawMethod(methodRect, instanceProperty, functionTexRect,functionLabelRect, content);
+                DrawParameters(property, parametersProperty, position, methodProperty); 
             }
             
+        }
+
+        private void DrawInstance(Rect objectRect, SerializedProperty instanceProperty)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.PropertyField(objectRect, instanceProperty, GUIContent.none);
+            if (!EditorGUI.EndChangeCheck()) return;
+            
+            ResetMethod(instanceProperty);
+            instanceProperty.serializedObject.ApplyModifiedProperties();
+            instanceProperty.serializedObject.Update();
+        }
+
+        private void DrawMethod(Rect methodRect, SerializedProperty instanceProperty, Rect functionTexRect, Rect functionLabelRect, string content)
+        {
             if (EditorGUI.DropdownButton(methodRect, GUIContent.none, FocusType.Keyboard))
             {
                 SelectMethod(instanceProperty);
@@ -94,50 +98,47 @@ namespace binc.PixelAnimator.Editor
             
             GUI.DrawTexture(functionTexRect, _functionIcon);
             GUI.Label(functionLabelRect, content);
-
-            
-            if (property.isExpanded)
-            {
-                EditorGUI.indentLevel++;
-                var parameterCount = parametersProperty.arraySize;
-                var yPos = position.y + EditorGUIUtility.standardVerticalSpacing+EditorGUIUtility.singleLineHeight;
-                var methodData = (MethodData)GetParent(methodProperty);
-                for (var i = 0; i < parameterCount; i++)
-                {
-                    var paramProperty = parametersProperty.GetArrayElementAtIndex(i);
-                    var paramHeight = EditorGUI.GetPropertyHeight(paramProperty, true);
-                    var paramRect = new Rect(
-                        position.x, 
-                        yPos, 
-                        position.width, 
-                        paramHeight
-                        );
-                    var name = "";
-                    try
-                    {
-                        name = methodData?.method.methodInfo.GetParameters()[i].Name;
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError(e);
-                    }
-
-                    EditorGUI.PropertyField(paramRect, paramProperty, new GUIContent(name),true);
-                    yPos += paramHeight;
-                }
-
-                EditorGUI.indentLevel--;
-            }
-            
-            
-            EditorGUI.EndProperty();
-            
-            
         }
 
+        private void DrawParameters(SerializedProperty property, SerializedProperty parametersProperty, Rect position, SerializedProperty methodProperty)
+        {
+            if (!property.isExpanded) return;
+            EditorGUI.indentLevel++;
+            var parameterCount = parametersProperty.arraySize;
+            var yPos = position.y + EditorGUIUtility.standardVerticalSpacing+EditorGUIUtility.singleLineHeight;
+            var methodData = (MethodData)GetParent(methodProperty);
+            for (var i = 0; i < parameterCount; i++)
+            {
+                var paramProperty = parametersProperty.GetArrayElementAtIndex(i);
+                var paramHeight = EditorGUI.GetPropertyHeight(paramProperty, true);
+                var paramRect = new Rect(
+                    position.x, 
+                    yPos, 
+                    position.width, 
+                    paramHeight
+                );
+                var name = "";
+                try
+                {
+                    name = methodData?.method.methodInfo.GetParameters()[i].Name;
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                }
+
+                EditorGUI.PropertyField(paramRect, paramProperty, new GUIContent(name),true);
+                yPos += paramHeight;
+            }
+
+            EditorGUI.indentLevel--;
+
+        }
+        
+        
         #region SetData
 
-        private void SelectMethod(SerializedProperty instanceProperty)
+        private static void SelectMethod(SerializedProperty instanceProperty)
         {
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("No function"), false, ()=>ResetMethod(instanceProperty));
@@ -162,11 +163,9 @@ namespace binc.PixelAnimator.Editor
                 {
                     menu.AddItem(new GUIContent(method.Name), false, userData =>
                     {
-                        // noFunction = false;
                         var methodInfo = userData as MethodInfo;
                         data.SelectMethod(methodInfo);
-                        // methodProperty.serializedObject.ApplyModifiedProperties();
-                        // methodProperty.serializedObject.Update();
+                        instanceProperty.serializedObject.Update();
 
                     }, method);
                 }
@@ -177,7 +176,7 @@ namespace binc.PixelAnimator.Editor
         }
         
         
-        private void ResetMethod(SerializedProperty property)
+        private static void ResetMethod(SerializedProperty property)
         {
             if (GetParent(property) is not MethodData data)
             {
@@ -250,11 +249,14 @@ namespace binc.PixelAnimator.Editor
 
         private static object GetValue(object source, string name, int index)
         {
-            var enumerable = GetValue(source, name) as IEnumerable;
+            if (GetValue(source, name) is not IEnumerable enumerable) return null;
             var enm = enumerable.GetEnumerator();
+            using var enm1 = enm as IDisposable;
+
             while(index-- >= 0)
                 enm.MoveNext();
             return enm.Current;
+
         }
         #endregion
         

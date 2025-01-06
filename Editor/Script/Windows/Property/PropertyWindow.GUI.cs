@@ -11,20 +11,19 @@ namespace binc.PixelAnimator.Editor.Windows
         public override void ProcessWindow()
         {
             if (!timelineWindow.IsPlaying) DrawPropertyWindow();
-        } 
+        }
+
         private void DrawPropertyWindow()
         {
-            
             const float ratio = 0.35063115f;
             var factor = Math.Clamp(ratio*PixelAnimatorWindow.AnimatorWindow.position.width, 250, 450);
             windowRect = new Rect(10, 10, factor, 250);
             
-            
+
             GUI.Window(Id, windowRect, _ =>
             {
                 EditorGUI.DrawRect(new Rect(Vector2.zero, windowRect.size), new Color(0.2f, 0.2f, 0.2f));
                 selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, factor/2f);
-                
                 switch (selectedTab)
                 {
                     case 0:
@@ -34,7 +33,7 @@ namespace binc.PixelAnimator.Editor.Windows
                         DrawHitboxTab();
                         break;
                 }
-
+            
             }, GUIContent.none, GUIStyle.none);
             
         }
@@ -57,19 +56,30 @@ namespace binc.PixelAnimator.Editor.Windows
                 var positionRect = new Rect(0,20, windowRect.width, windowRect.height);
                 var viewRect = new Rect(0, 20, windowRect.width-30, EditorGUI.GetPropertyHeight(property)+20);
                 var listRect = new Rect(10,30, windowRect.width-30, windowRect.height - 30);
+                
                 scrollPos = GUI.BeginScrollView(positionRect,scrollPos,viewRect,false,false);
+                EditorGUI.BeginChangeCheck();
 
                 property.serializedObject.UpdateIfRequiredOrScript();
-                EditorGUI.BeginProperty(listRect,GUIContent.none, property);
-                EditorGUI.BeginChangeCheck();
-                EditorGUI.PropertyField(listRect, property, GUIContent.none, true);
-                if (EditorGUI.EndChangeCheck())
+
+                try
                 {
-                    property.serializedObject.ApplyModifiedProperties();
+                    EditorGUI.PropertyField(listRect, property, GUIContent.none, true);
+
                 }
+                finally
+                {
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        property.serializedObject.ApplyModifiedProperties();
+                    }
+                    GUI.EndScrollView();
+                }
+                
+
                     
-                EditorGUI.EndProperty();
-                GUI.EndScrollView();
+                
+
             }
             else if(targetAnimation == null)
             {
@@ -88,17 +98,26 @@ namespace binc.PixelAnimator.Editor.Windows
             var spriteIndex = animatorWindow.IndexOfSelectedSprite;
             if (targetAnimation != null && animatorWindow.IsValidSprite(spriteIndex))
             {
-                var property = targetAnimation.FindProperty("pixelSprites").GetArrayElementAtIndex(spriteIndex).FindPropertyRelative("methodStorage");
+                var property = targetAnimation
+                    .FindProperty("pixelSprites")
+                    .GetArrayElementAtIndex(spriteIndex)
+                    .FindPropertyRelative("methodStorage");
                 var positionRect = new Rect(0,20, windowRect.width, windowRect.height);
                 var viewRect = new Rect(0, 20, windowRect.width-30, EditorGUI.GetPropertyHeight(property)+20);
                 var listRect = new Rect(10,30, windowRect.width-30, windowRect.height - 30);
                     
                 scrollPos = GUI.BeginScrollView(positionRect,scrollPos,viewRect,false,false);
+
+                try
+                {
+                    EditorGUI.PropertyField(listRect, property, GUIContent.none, true);
+                    property.serializedObject.ApplyModifiedProperties();
+                }
+                finally
+                {
+                    GUI.EndScrollView();
+                }
                     
-                EditorGUI.PropertyField(listRect, property, GUIContent.none, true);
-                property.serializedObject.ApplyModifiedProperties();
-                    
-                GUI.EndScrollView();
             }
             else if(targetAnimation == null)
             {

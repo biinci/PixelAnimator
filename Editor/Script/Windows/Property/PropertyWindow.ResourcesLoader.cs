@@ -1,9 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEditor;
-using System.Collections.Generic;
-using UnityEditorInternal;
-using Object = UnityEngine.Object;
 
 
 namespace binc.PixelAnimator.Editor.Windows{

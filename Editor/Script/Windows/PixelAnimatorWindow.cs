@@ -116,6 +116,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void OnGUI()
         {
 
+
             AvailableSpace = position;
             DrawBackground();
             SetEditorDeltaTime();
@@ -139,19 +140,21 @@ namespace binc.PixelAnimator.Editor.Windows{
             EditorGUI.DrawRect(rect, BackgroundColor);
         }
 
+        public Color color;
         private void ProcessingWindows()
         {
             BeginWindows();
             try
             {
+
                 for (var i = 0; i < AnimatorPreferences.windows.Count; i++)
                 {
+
                     var window = AnimatorPreferences.windows[i];
                     var isValidWindow = window != null;
                     if (!isValidWindow) continue;
                     window.ProcessWindow();
                     GUI.BringWindowToBack(i);
-
                 }
             }
             catch (Exception e)
