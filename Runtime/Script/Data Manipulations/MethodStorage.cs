@@ -12,7 +12,7 @@ public class MethodStorage
 
     [SerializeField] private UnityEvent methods;
     
-    // #if UNITY_EDITOR
+    #if UNITY_EDITOR
     
     [SerializeField] public List<MethodData> methodData;
     
@@ -28,7 +28,7 @@ public class MethodStorage
         methodData.RemoveAt(index);
     }
 
-    // #endif
+    #endif
     
     public void Call()
     {

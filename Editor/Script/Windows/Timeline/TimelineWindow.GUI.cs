@@ -106,6 +106,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void DrawFrames()
         {
+            if (!PixelAnimatorWindow.AnimatorWindow.IsValidGroup()) return;
             //EditorGUI.DrawRect(new Rect(0, rowRect.yMax-HandleHeight, thumbnailPlaneRect.width+scrollPos.x*10, groupPlaneRect.height), new Color(0.5f,0.5f,0.5f,0.5f));
             GUILayout.BeginArea(new Rect(0, rowRect.yMax-HandleHeight, spriteThumbnailStyle.fixedWidth*SelectedAnim.GetSpriteList().Count, groupPlaneRect.height));
             EditorGUILayout.BeginScrollView(
