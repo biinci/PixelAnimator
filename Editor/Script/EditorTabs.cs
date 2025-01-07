@@ -13,7 +13,11 @@ public static class EditorTabsAPI
             {
                 normal =
                 {
-                    background = CreateColorTexture(new Color(0.15f, 0.15f, 0.15f)),
+                    background = CreateColorTexture(new Color(0.16f, 0.16f, 0.16f)),
+                    textColor = new Color(0.7f, 0.7f, 0.7f)
+                },
+                hover ={
+                    background = CreateColorTexture(new Color(0.19f, 0.19f, 0.19f)),
                     textColor = new Color(0.7f, 0.7f, 0.7f)
                 },
                 padding = new RectOffset(15, 15, 4, 4),
@@ -80,6 +84,7 @@ public static class EditorTabsAPI
                     GUI.FocusControl(null);
                 }
             }
+
 
             // Draw the blue indicator for the selected tab
             if (!isSelected) continue;

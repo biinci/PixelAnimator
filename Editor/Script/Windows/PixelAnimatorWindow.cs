@@ -114,7 +114,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         {
 
 
-            AvailableSpace = position;
+            // AvailableSpace = position;
             DrawBackground();
             SetEditorDeltaTime();
             SelectedObject();

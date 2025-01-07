@@ -63,9 +63,12 @@ namespace binc.PixelAnimator.Editor.Windows
             if(!isValid) return;
             if(anim.GetSpriteList().Count > 0)SetSpritePreview();
             if(!spritePreview) return;
+            DrawCanvas();
+
             SetRect();
             FocusToCanvas(); //Bad naming
-            DrawCanvas();
+
+
             // SetBox();
         }
     }

@@ -21,7 +21,7 @@ namespace binc.PixelAnimator.Editor.Windows
             }
             if(eventCurrent.type == EventType.ScrollWheel)
             {
-                ScrollWheeled();
+                ZoomChange();
             }
             if(spriteScale <=0){
                 spriteScale = 1;
@@ -39,19 +39,21 @@ namespace binc.PixelAnimator.Editor.Windows
                 case EventType.MouseDrag:
                 {
                     var delta = eventCurrent.mousePosition - previousMousePosition;
-                    windowRect.position += delta;
+                    // windowRect.position += delta;
+                    viewOffset += delta;
                     previousMousePosition = eventCurrent.mousePosition;
                     PixelAnimatorWindow.AnimatorWindow.Repaint();
                     break;
                 }
             }
         }
-        private void ScrollWheeled()
+        private void ZoomChange()
         {
             var eventCurrent = Event.current;
             var scaleDelta = Mathf.Sign(eventCurrent.delta.y) > 0 ? -1 : 1;
             var previousScale = spriteScale;
             spriteScale += scaleDelta;
+            Event.current.Use();
             spriteScale = spriteScale switch
             {
                 <= 0 => 1,
@@ -59,10 +61,19 @@ namespace binc.PixelAnimator.Editor.Windows
                 _ => spriteScale
             };
             var ratio = spriteScale / (float)previousScale;
-            var relativePosition = windowRect.position - eventCurrent.mousePosition;
-            var newPosition = relativePosition * ratio;
-            var deltaVector = newPosition - relativePosition;
-            windowRect.position += deltaVector;
+
+            var mousePosForWindow = eventCurrent.mousePosition - windowRect.position;
+            
+            var spriteWindow = PixelAnimatorWindow.AnimatorWindow.AvailableSpace;
+            var newOrigin = new Vector2
+            ( 
+                spriteWindow.width * 0.5f - spritePreview.width * 0.5f * spriteScale,
+                spriteWindow.height * 0.5f - spritePreview.height * 0.5f * spriteScale
+            );
+            var mousePosForNewWindow = eventCurrent.mousePosition - (newOrigin + viewOffset);
+            var scaledMousePos = mousePosForWindow * ratio;
+            var deltaVector = mousePosForNewWindow - scaledMousePos;
+            viewOffset += deltaVector;
             PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
 

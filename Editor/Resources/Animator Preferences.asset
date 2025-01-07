@@ -13,22 +13,40 @@ MonoBehaviour:
   m_Name: Animator Preferences
   m_EditorClassIdentifier: 
   windows:
-  - rid: 4276865644414631945
   - rid: 4276865644414631944
+  - rid: 4272410984043511871
   - rid: 4276865644414631939
   windowScripts:
-  - {fileID: 11500000, guid: a57b1bc73750cc24a8cd720e3f8aea15, type: 3}
   - {fileID: 11500000, guid: 9f915ddaac9934a3b9ba2bc25ee6054a, type: 3}
+  - {fileID: 11500000, guid: a57b1bc73750cc24a8cd720e3f8aea15, type: 3}
   - {fileID: 11500000, guid: e9fcf5cf068f8954b9346d6adb50358d, type: 3}
   references:
     version: 2
     RefIds:
+    - rid: 4272410984043511871
+      type: {class: PropertyWindow, ns: binc.PixelAnimator.Editor.Windows, asm: com.binc.pixel-animator.Editor}
+      data:
+        windowRect:
+          serializedVersion: 2
+          x: 10
+          y: 10
+          width: 258.42252
+          height: 250
     - rid: 4276865644414631939
       type: {class: CanvasWindow, ns: binc.PixelAnimator.Editor.Windows, asm: com.binc.pixel-animator.Editor}
-      data: 
+      data:
+        windowRect:
+          serializedVersion: 2
+          x: 415.64014
+          y: 129.27995
+          width: 58
+          height: 64
     - rid: 4276865644414631944
       type: {class: TimelineWindow, ns: binc.PixelAnimator.Editor.Windows, asm: com.binc.pixel-animator.Editor}
-      data: 
-    - rid: 4276865644414631945
-      type: {class: PropertyWindow, ns: binc.PixelAnimator.Editor.Windows, asm: com.binc.pixel-animator.Editor}
-      data: 
+      data:
+        windowRect:
+          serializedVersion: 2
+          x: 0
+          y: 315.2
+          width: 859.6
+          height: 165.4
