@@ -145,9 +145,22 @@ namespace binc.PixelAnimator.Editor
             
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("No function"), false, ()=>ResetMethod(instanceProperty));
+            var referenceValue = instanceProperty.objectReferenceValue;
 
+            MethodInfo[] allMethods;
+
+            if (referenceValue.GetType() == typeof(MonoScript))
+            {
+                var a = referenceValue as MonoScript;
+                allMethods = a.GetClass().GetMethods(BindingFlags.Instance | BindingFlags.Public);
+            }
+            else
+            {
+                allMethods = referenceValue.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public);
+            }
+            
+            
             // var allMethods = typeof(Test).GetMethods(BindingFlags.Instance | BindingFlags.Public);
-            var allMethods = instanceProperty.objectReferenceValue.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public);
             var methods = allMethods.Where(m => 
                 m.ReturnType == typeof(void) &&
                 !m.GetParameters().Any(p => 

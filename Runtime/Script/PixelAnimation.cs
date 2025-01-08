@@ -4,12 +4,12 @@ using binc.PixelAnimator.Common;
 using binc.PixelAnimator.Preferences;
 using UnityEditor;
 
-
 namespace binc.PixelAnimator{
 
     [CreateAssetMenu(menuName = "Pixel Animation/ New Animation")]
-    public class PixelAnimation : ScriptableObject {
-
+    public class PixelAnimation : ScriptableObject
+    {
+        
         public bool loop = true;
         public int fps = 12;
         [SerializeField] private List<PixelSprite> pixelSprites;

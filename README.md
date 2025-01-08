@@ -12,11 +12,12 @@ Pixel Animator, **kare kare** animasyonu ile **BoxCollider2D**'ları senkronize 
 ------------------
 
 ## **Pixel Animator Neyi Çözüyor?**
-* Bu [videoda](https://www.youtube.com/watch?v=nBkiSJ5z-hE) gösterildiği gibi Unity'nin dahili animatöründeki ağ cehenneminden kaçmanıza olanak sağlar.
+* Bu [videoda](https://www.youtube.com/watch?v=nBkiSJ5z-hE) gösterildiği gibi Unity'nin dahili animatöründeki ağ karmaşıklığından kaçmanıza olanak sağlar.
 * BoxCollider2D objeleriyle kare kare animasyonunuzla tam nedensel bağ kurmanızı sağlar.
-* GUI tarafından ayarlayabilceğiniz UnityEvent benzeri bir veri yapısıyla animasyonunuza event(UnityEvent'den çok daha esnek) ekleyip oyun içindeki etkileşimlerle animasyonunuzu senkron edebilirsiniz.
+* GUI tarafından ayarlayabilceğiniz UnityEvent benzeri bir veri yapısıyla animasyonunuza event(UnityEvent'den çok daha esnek) ekleyip animasyonunuzu kodunuz ile tam senkron edebilirsiniz.
 
 Etkisini daha iyi anlayabilmek için demo projesine bakabilirsiniz:
+[demo]()
 
 
 
@@ -37,14 +38,14 @@ Belki ilerde Unity'nin Asset Store'unada koyabilirim.
 ### **Kullanım**
 İlk önce *AssetMenu>Create>PixelAnimation>New Animation* yolunu izleyerek Pixel Animation objesini oluşturmanız gerekir.
 
-<img src="https://github.com/biinci/PixelAnimator/blob/main/GIFs/Create_PixelAnimation.gif" width="350" height="400" />
+[//]: # (<img src="https://github.com/biinci/PixelAnimator/blob/main/GIFs/Create_PixelAnimation.gif" width="350" height="400" />)
 
 
 
 
 İlk *Pixel Animation* objenizi oluşturduktan sonra animatörü kullanmak için, kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz. 
 
-![](https://github.com/biinci/PixelAnimator/blob/main/GIFs/Add_Animator_Component.gif)
+[//]: # (![]&#40;https://github.com/biinci/PixelAnimator/blob/main/GIFs/Add_Animator_Component.gif&#41;)
 
 
 
@@ -54,4 +55,6 @@ Belki ilerde Unity'nin Asset Store'unada koyabilirim.
 
 
 Umarım pixel art animasyonlarınızda yardımcı olur. 
-*Fakat yinede hangi animatör sizin için daha rahatsa onu kullanmanız çok daha iyi.*
+
+
+*Hangi animatör sizin için daha rahatsa onu kullanmanız çok daha iyi.*
