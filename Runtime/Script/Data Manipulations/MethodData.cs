@@ -31,7 +31,7 @@ public class MethodData : ISerializationCallbackReceiver
 
     public void OnBeforeSerialize()
     {
-        if (method.methodInfo == null)
+        if (method?.methodInfo == null)
         {
             parameters = new List<BaseData>();
         }

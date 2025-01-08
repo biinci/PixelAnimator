@@ -81,12 +81,14 @@ namespace binc.PixelAnimator.Editor
         private void DrawInstance(Rect objectRect, SerializedProperty instanceProperty)
         {
             EditorGUI.BeginChangeCheck();
+            
             EditorGUI.PropertyField(objectRect, instanceProperty, GUIContent.none);
             if (!EditorGUI.EndChangeCheck()) return;
-            
+
             ResetMethod(instanceProperty);
             instanceProperty.serializedObject.ApplyModifiedProperties();
             instanceProperty.serializedObject.Update();
+
         }
 
         private void DrawMethod(Rect methodRect, SerializedProperty instanceProperty, Rect functionTexRect, Rect functionLabelRect, string content)
@@ -140,11 +142,13 @@ namespace binc.PixelAnimator.Editor
 
         private static void SelectMethod(SerializedProperty instanceProperty)
         {
+            
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("No function"), false, ()=>ResetMethod(instanceProperty));
-            
-            var allMethods = instanceProperty.objectReferenceValue?.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public);
-            var methods = allMethods?.Where(m => 
+
+            // var allMethods = typeof(Test).GetMethods(BindingFlags.Instance | BindingFlags.Public);
+            var allMethods = instanceProperty.objectReferenceValue.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public);
+            var methods = allMethods.Where(m => 
                 m.ReturnType == typeof(void) &&
                 !m.GetParameters().Any(p => 
                     p.ParameterType.IsGenericType || 
@@ -154,7 +158,11 @@ namespace binc.PixelAnimator.Editor
                 !(m.IsSpecialName && (m.Name.StartsWith("get_") || m.Name.StartsWith("set_"))) &&
                 !m.IsGenericMethod
             ).ToArray();
-                
+
+            foreach (var VARIABLE in allMethods)
+            {
+                Debug.Log(VARIABLE.Name);
+            }
                 
             if (methods != null)
             {

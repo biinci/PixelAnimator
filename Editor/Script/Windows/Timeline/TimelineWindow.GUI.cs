@@ -9,19 +9,25 @@ namespace binc.PixelAnimator.Editor.Windows{
 
     [Serializable]
     public partial class TimelineWindow{
-        
-        private void RenderWindow() => GUI.Window(Id, windowRect, _ => RenderWindowContent(), GUIContent.none, timelineStyle);
+
+        private void RenderWindow()
+        {
+            windowRect.y = PixelAnimatorWindow.AnimatorWindow.position.height - windowRect.height;
+            windowRect.width = PixelAnimatorWindow.AnimatorWindow.position.width;
+            GUI.Window(Id, windowRect, _ => RenderWindowContent(), GUIContent.none, timelineStyle);
+        }
         
         
         private Vector2 scrollPosition;
 
-        private void RenderWindowContent(){
+        private void RenderWindowContent()
+        {
             DrawBackgrounds();//ok
             DrawGridLines();//ok
             DrawToolButtons();//ok
             DrawThumbnailPanel();
             DrawGroupPanel();
-            
+
         }
 
         private void DrawBackgrounds()

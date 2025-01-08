@@ -19,20 +19,20 @@ namespace binc.PixelAnimator.Editor.Windows
             var factor = Math.Clamp(ratio*PixelAnimatorWindow.AnimatorWindow.position.width, 250, 450);
             windowRect = new Rect(10, 10, factor, 250);
             
-            EditorGUI.DrawRect(new Rect(Vector2.zero, windowRect.size), new Color(0.2f, 0.2f, 0.2f));
-            selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, factor/2f);
-            switch (selectedTab)
-            {
-                case 0:
-                    DrawSpriteTab();
-                    break;
-                case 1:
-                    DrawHitboxTab();
-                    break;
-            }
+
             GUI.Window(Id, windowRect, _ =>
             {
-
+                EditorGUI.DrawRect(new Rect(Vector2.zero, windowRect.size), new Color(0.2f, 0.2f, 0.2f));
+                selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, factor/2f);
+                switch (selectedTab)
+                {
+                    case 0:
+                        DrawSpriteTab();
+                        break;
+                    case 1:
+                        DrawHitboxTab();
+                        break;
+                }
             
             }, GUIContent.none, GUIStyle.none);
             

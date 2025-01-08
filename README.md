@@ -11,6 +11,19 @@ Pixel Animator, **kare kare** animasyonu ile **BoxCollider2D**'ları senkronize 
 
 ------------------
 
+## **Pixel Animator Neyi Çözüyor?**
+* Bu [videoda](https://www.youtube.com/watch?v=nBkiSJ5z-hE) gösterildiği gibi Unity'nin dahili animatöründeki ağ cehenneminden kaçmanıza olanak sağlar.
+* BoxCollider2D objeleriyle kare kare animasyonunuzla tam nedensel bağ kurmanızı sağlar.
+* GUI tarafından ayarlayabilceğiniz UnityEvent benzeri bir veri yapısıyla animasyonunuza event(UnityEvent'den çok daha esnek) ekleyip oyun içindeki etkileşimlerle animasyonunuzu senkron edebilirsiniz.
+
+Etkisini daha iyi anlayabilmek için demo projesine bakabilirsiniz:
+
+
+
+------------------
+
+------------------
+
 ## **Başlarken**
 
 ### **Kurulum**
@@ -22,14 +35,14 @@ Belki ilerde Unity'nin Asset Store'unada koyabilirim.
 
 ------------------
 ### **Kullanım**
-İlk önce *AssetMenu>Create>PixelAnimation>New Animation* yolunu izleyerek Pixel Animasyon objesini oluşturmanız gerekir.
+İlk önce *AssetMenu>Create>PixelAnimation>New Animation* yolunu izleyerek Pixel Animation objesini oluşturmanız gerekir.
 
 <img src="https://github.com/biinci/PixelAnimator/blob/main/GIFs/Create_PixelAnimation.gif" width="350" height="400" />
 
 
 
 
-İlk *Pixel Animasyon* objenizi oluşturduktan sonra animatörü kullanmak için, kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz. 
+İlk *Pixel Animation* objenizi oluşturduktan sonra animatörü kullanmak için, kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz. 
 
 ![](https://github.com/biinci/PixelAnimator/blob/main/GIFs/Add_Animator_Component.gif)
 

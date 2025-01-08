@@ -106,6 +106,10 @@ namespace binc.PixelAnimator.Editor
         private void DrawElementBackground(Rect rect, int index, bool active, bool focused, ReorderableList list)
         {
             var methods = list.serializedProperty;
+            if (active)
+            {
+                EditorGUI.DrawRect(rect, new Color(0.17f, 0.36f, 0.53f));
+            }
             if (index == methods.arraySize - 1) return;
 
             var partingRect = new Rect(

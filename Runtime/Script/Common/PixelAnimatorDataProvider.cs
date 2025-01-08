@@ -33,7 +33,7 @@ namespace binc.PixelAnimator{
         }
 
 #if UNITY_EDITOR
-        public bool isVisible, isExpanded;
+        public bool isVisible = true, isExpanded = true;
 #endif
     }
     

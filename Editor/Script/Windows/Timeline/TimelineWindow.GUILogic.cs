@@ -167,7 +167,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         #region Rect
         private void SetRect(){
             var animatorWindowRect = PixelAnimatorWindow.AnimatorWindow.position;
-            windowRect.size = new Vector2(animatorWindowRect.size.x, animatorWindowRect.height - windowRect.position.y);
+            // windowRect.size = new Vector2(animatorWindowRect.size.x, animatorWindowRect.height - windowRect.position.y);
             handleRect = new Rect(0, 0, windowRect.width, HandleHeight);
             columnRect = new Rect(GroupPanelWidth, HandleHeight, ColumnWidth, windowRect.height);
             rowRect = new Rect(0, ToolPanelHeight + HandleHeight, windowRect.width, RowHeight);
@@ -191,11 +191,12 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
         private void ReSizeWindowRect(){
             if(!reSizing) return;
-            if (Event.current.mousePosition.y > 100 && Event.current.mousePosition.y <
-                PixelAnimatorWindow.AnimatorWindow.position.height - 100)
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
+            var animatorRect = animatorWindow.position;
+            if (Event.current.mousePosition.y > 100 && Event.current.mousePosition.y < animatorRect.height - 100)
             {
-                windowRect.position = new Vector2(windowRect.x,Event.current.mousePosition.y);
-                PixelAnimatorWindow.AnimatorWindow.Repaint();
+                windowRect.height = animatorRect.height - Event.current.mousePosition.y;
+                animatorWindow.Repaint();
             }
 
         }

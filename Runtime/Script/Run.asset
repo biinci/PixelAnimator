@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecc76e2fa67af4dabbf0f32c4e82debf, type: 3}
+  m_Name: Run
+  m_EditorClassIdentifier: 
+  loop: 1
+  fps: 12
+  pixelSprites:
+  - spriteId: f016af1027f4b10428c7e08be96c95e2
+    sprite: {fileID: 6714889528673798676, guid: 0c4fa36e8e7e8344e8dc35d758823d9c, type: 3}
+    methodStorage:
+      methods:
+        m_PersistentCalls:
+          m_Calls: []
+      methodData:
+      - instance: {fileID: 0}
+        method:
+          serializableType:
+            m_Name: 
+            m_AssemblyQualifiedName: 
+            m_AssemblyName: 
+          methodName: 
+          parameters: []
+          flags: 0
+        parameters: []
+  - spriteId: 8de7966f4150082479aa60d9d11eb028
+    sprite: {fileID: 1227504792967602999, guid: 26299f63de365304c983339b25ee9e79, type: 3}
+    methodStorage:
+      methods:
+        m_PersistentCalls:
+          m_Calls: []
+      methodData:
+      - instance: {fileID: 11400000, guid: ecedc90e817e4fc48b6ae326b3dab5cf, type: 2}
+        method:
+          serializableType:
+            m_Name: 
+            m_AssemblyQualifiedName: 
+            m_AssemblyName: 
+          methodName: 
+          parameters: []
+          flags: 0
+        parameters: []
+  groups:
+  - boxDataGuid: 5347a2193fadcc044a8d3905e7373fc5
+    colliderTypes: 2
+    layers:
+    - frames:
+      - guid: f016af1027f4b10428c7e08be96c95e2
+        type: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 16
+          height: 16
+        methodStorage:
+          methods:
+            m_PersistentCalls:
+              m_Calls: []
+          methodData: []
+      - guid: 8de7966f4150082479aa60d9d11eb028
+        type: 0
+        hitBoxRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 16
+          height: 16
+        methodStorage:
+          methods:
+            m_PersistentCalls:
+              m_Calls: []
+          methodData:
+          - instance: {fileID: 11500000, guid: fa841ad139deaa156ae04ec12384409e, type: 3}
+            method:
+              serializableType:
+                m_Name: 
+                m_AssemblyQualifiedName: 
+                m_AssemblyName: 
+              methodName: 
+              parameters: []
+              flags: 0
+            parameters: []
+    isVisible: 1
+    isExpanded: 1
+  references:
+    version: 2
+    RefIds: []

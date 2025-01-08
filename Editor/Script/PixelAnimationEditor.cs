@@ -9,8 +9,8 @@ using Object = UnityEngine.Object;
 namespace binc.PixelAnimator.Editor{
     
     [CustomEditor(typeof(PixelAnimation))]
-    public class PixelAnimationEditor : UnityEditor.Editor{
-
+    public class PixelAnimationEditor : UnityEditor.Editor
+    {
         private PixelAnimation pixelAnimation;
         private ReorderableList pixelSpriteList;
         [SerializeField] private bool pixelSpriteFoldout;
@@ -168,6 +168,7 @@ namespace binc.PixelAnimator.Editor{
         }
 
         public override void OnInspectorGUI(){
+            // base.OnInspectorGUI();
             serializedObject.Update();
             DrawPropertiesExcluding(serializedObject,  "m_Script", "pixelSprites");
             
