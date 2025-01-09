@@ -118,7 +118,7 @@ namespace binc.PixelAnimator{
             
             
             var boxData = preferences.GetBoxData(group.BoxDataGuid);
-            var isExist = groupObjects.Keys.Contains(boxData.boxType);
+            var isExist = groupObjects.Keys.Contains(boxData.boxName);
             GameObject groupObj;
             
             if (!isExist) {
@@ -126,7 +126,7 @@ namespace binc.PixelAnimator{
                 groupObjects.Add(groupObj.name, groupObj);
             }
             else {
-                groupObj = groupObjects[boxData.boxType].gameObject;
+                groupObj = groupObjects[boxData.boxName].gameObject;
             }
 
             foreach (var component in groupObj.GetComponents<Component>()) {
@@ -175,11 +175,8 @@ namespace binc.PixelAnimator{
                 Destroy(gameObj);
             }
         }
-
-        
         private GameObject CreateGroupObject(BoxData boxData){
-            
-            var gameObj = new GameObject(boxData.boxType){
+            var gameObj = new GameObject(boxData.boxName){
                 transform ={
                     parent = titleObject.transform,
                     localPosition = Vector3.zero,
@@ -189,8 +186,6 @@ namespace binc.PixelAnimator{
             };
             return gameObj;
         }
-        
-
         public void Play(PixelAnimation animation){
             if (currAnim == animation) return;
             
@@ -240,9 +235,9 @@ namespace binc.PixelAnimator{
 
 
         
-        private Rect GetAdjustedRect(Layer layer, int index){
+        private Rect GetAdjustedRect(Box box, int index){
             var f = index == -1 ? 0 : index;
-            return MapBoxRectToTransform(layer.frames[f].hitBoxRect, currAnim.GetSpriteList()[f]);
+            return MapBoxRectToTransform(box.frames[f].hitBoxRect, currAnim.GetSpriteList()[f]);
         }
         
         private static Rect MapBoxRectToTransform(Rect rect, Sprite sprite) {

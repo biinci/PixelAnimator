@@ -191,7 +191,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             var animationPreferences = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences;
             foreach (var group in groups)
             {
-                var name = animationPreferences.GetBoxData(group.BoxDataGuid).boxType;
+                var name = animationPreferences.GetBoxData(group.BoxDataGuid).boxName;
                 DrawGroup(group, name);
             }
         }
@@ -201,19 +201,19 @@ namespace binc.PixelAnimator.Editor.Windows{
             if(clickedGroupButton) groupButton.DownClick(group);
             if(!group.isExpanded) return;
             var layers = group.layers;
-            DrawLayers(group, layers);
+            DrawBoxes(group, layers);
                 
         }
 
-        private void DrawLayers(Group group, List<Layer> layers){
-            for(var i = 0; i < layers.Count; i++){
-                DrawLayer(layers[i], $"Layer {i+1}", group);
+        private void DrawBoxes(Group group, List<Box> boxes){
+            for(var i = 0; i < boxes.Count; i++){
+                DrawBox(boxes[i], $"Box {i+1}", group);
             }
         }
 
-        private Rect layerRect;
-        private void DrawLayer(Layer layer, string label, Group group){
-            if(GUILayout.Button(label, layerStyle)) layerButton.DownClick((group,layer));
+        private Rect boxRect;
+        private void DrawBox(Box box, string label, Group group){
+            if(GUILayout.Button(label, layerStyle)) layerButton.DownClick((group,box));
         }
         
         private float framePanelWidth;

@@ -3,12 +3,8 @@ using UnityEditor;
 #endif
 using UnityEngine;
 
-
-
 namespace binc.PixelAnimator{
-    
     public class ReadOnlyAttribute : PropertyAttribute { }
-
 #if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
     public class ReadOnlyPropertyDrawer : PropertyDrawer{

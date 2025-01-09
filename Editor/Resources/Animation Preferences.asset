@@ -13,9 +13,15 @@ MonoBehaviour:
   m_Name: Animation Preferences
   m_EditorClassIdentifier: 
   boxData:
-  - color: {r: 0.48235294, g: 0.7058824, b: 0.8745098, a: 1}
-    boxType: Selam
-    activeLayer: 0
-    physicMaterial: {fileID: 0}
+  - boxName: Selam
+    color: {r: 0.48235294, g: 0.7058824, b: 0.8745098, a: 1}
+    activeLayer: 1
     rounded: 0
+    physicMaterial: {fileID: 0}
     guid: 5347a2193fadcc044a8d3905e7373fc5
+  - boxName: HitBox
+    color: {r: 0.78113204, g: 0.11053745, b: 0.15271342, a: 1}
+    activeLayer: 1
+    rounded: 0
+    physicMaterial: {fileID: 0}
+    guid: 4fd42eaf973b8d14ebf04c235720314c

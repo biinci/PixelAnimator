@@ -88,25 +88,23 @@ namespace binc.PixelAnimator.Editor.Windows{
                     return FrameType.None;
             }
         }
-        private void LayerButton(ValueTuple<Group, Layer> data){
+        private void BoxButton(ValueTuple<Group, Box> data){
             layerMenu = new GenericMenu();
             
-            layerMenu.AddItem(new GUIContent("Delete Layer"), false, ()=>{data.Item1.layers.Remove(data.Item2);});
+            layerMenu.AddItem(new GUIContent("Delete Box"), false, ()=>{data.Item1.layers.Remove(data.Item2);});
             layerMenu.ShowAsContext();
         }
 
         private void GroupButton(Group group){
             groupMenu = new GenericMenu();
             groupMenu.AddItem(new GUIContent("Delete Group"), false, ()=>{SelectedAnim.RemoveGroup(group.BoxDataGuid);});
-            groupMenu.AddItem(new GUIContent("Add Layer"), false, ()=>{group.AddLayer(SelectedAnim.PixelSprites);});
+            groupMenu.AddItem(new GUIContent("Add Box"), false, ()=>{group.AddBox(SelectedAnim.PixelSprites);});
             groupMenu.AddItem(new GUIContent("Expand"), group.isExpanded, () => {group.isExpanded = !group.isExpanded;});
             groupMenu.AddItem(new GUIContent("Visible"), group.isVisible, () => {group.isVisible = !group.isVisible;});
             groupMenu.ShowAsContext();
-
         }
 
         private void BurgerMenuButton(){
-            
             burgerMenu = new GenericMenu();
             AddBurgerMenuItems();
             burgerMenu.ShowAsContext();
@@ -115,15 +113,13 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void AddBurgerMenuItems(){
             var boxData = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences.BoxData;
             for(var i = 0 ; i < boxData.Count; i ++){
-                burgerMenu.AddItem(new GUIContent($"Add Group/{boxData[i].boxType}"), false, 
+                burgerMenu.AddItem(new GUIContent($"Add Group/{boxData[i].boxName}"), false, 
                 obj=>{SelectedAnim.AddGroup(boxData[(int)obj].Guid);},i);
- 
             }   
         }
 
         private void ThumbnailButton(int index)
         {
-
             var animWindow = PixelAnimatorWindow.AnimatorWindow;
             animWindow.SelectSprite(index);
         }

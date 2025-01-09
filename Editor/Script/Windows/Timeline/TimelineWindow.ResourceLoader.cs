@@ -64,7 +64,7 @@ namespace binc.PixelAnimator.Editor.Windows
         
         private ButtonData<int> thumbnailButton;
         private ButtonData<Group> groupButton;
-        private ButtonData<ValueTuple<Group, Layer>> layerButton;
+        private ButtonData<ValueTuple<Group, Box>> layerButton;
         private ButtonData<ValueTuple<int, int, int>> frameButton;
         private ButtonData burgerButton, playPauseButton;
         private ButtonData<bool> previousNextSpriteButton;
@@ -95,7 +95,7 @@ namespace binc.PixelAnimator.Editor.Windows
         {
             thumbnailButton.DownClick += ThumbnailButton;
             groupButton.DownClick += GroupButton;
-            layerButton.DownClick += LayerButton;
+            layerButton.DownClick += BoxButton;
             frameButton.DownClick += FrameButton;
             burgerButton.DownClick += BurgerMenuButton;
             playPauseButton.DownClick += PlayPauseButton;
@@ -142,7 +142,7 @@ namespace binc.PixelAnimator.Editor.Windows
         {
             thumbnailButton.DownClick -= ThumbnailButton;
             groupButton.DownClick -= GroupButton;
-            layerButton.DownClick -= LayerButton;
+            layerButton.DownClick -= BoxButton;
             frameButton.DownClick -= FrameButton;
             burgerButton.DownClick -= BurgerMenuButton;
             playPauseButton.DownClick -= PlayPauseButton;

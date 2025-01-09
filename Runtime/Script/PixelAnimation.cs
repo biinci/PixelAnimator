@@ -53,7 +53,7 @@ namespace binc.PixelAnimator{
         public List<string> GetGroupsName(PixelAnimationPreferences preferences){
             var names = new List<string>();
             foreach (var group in groups) {
-                names.Add(preferences.GetBoxData(group.BoxDataGuid).boxType);
+                names.Add(preferences.GetBoxData(group.BoxDataGuid).boxName);
             }
             return names;
 

@@ -67,7 +67,7 @@ namespace binc.PixelAnimator.Editor.Preferences{
 
 
             var color = element.FindPropertyRelative("color");
-            var boxType = element.FindPropertyRelative("boxType");
+            var boxName = element.FindPropertyRelative("boxName");
             var activeLayer = element.FindPropertyRelative("activeLayer");
             var physicMaterial2D = element.FindPropertyRelative("physicMaterial");
             var rounded = element.FindPropertyRelative("rounded");
@@ -92,7 +92,7 @@ namespace binc.PixelAnimator.Editor.Preferences{
             //Box Type (Name)
             EditorGUI.PropertyField(
                     boxTypeRect,
-                    boxType,
+                    boxName,
                     GUIContent.none
                 );
 
