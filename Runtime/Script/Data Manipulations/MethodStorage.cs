@@ -10,7 +10,7 @@ using binc.PixelAnimator;
 public class MethodStorage
 {
 
-    [SerializeField] private UnityEvent methods;
+    [SerializeField] public UnityEvent methods;
     
     #if UNITY_EDITOR
     

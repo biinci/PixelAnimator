@@ -4,7 +4,7 @@ using binc.PixelAnimator.Common;
 using UnityEngine;
 using System;
 using System.Linq;
-
+using System.Linq.Expressions;
 
 
 namespace binc.PixelAnimator{
@@ -19,10 +19,9 @@ namespace binc.PixelAnimator{
         [SerializeField, Tooltip("Automatically determines the animation direction according to the flipX in the SpriteRenderer component.")] 
         private bool autoFlip;
         
-        private PixelAnimation currAnim; 
+        [SerializeField]private PixelAnimation currAnim; 
         private PixelAnimation nextAnim;
         public PixelAnimation PlayingAnim => currAnim;
-        private int FPS => currAnim  ? currAnim.fps : 0;
         private int frameIndex;
         private float clock;
         public bool isPlaying;
@@ -30,59 +29,50 @@ namespace binc.PixelAnimator{
         private GameObject titleObject;
 
 
-        public Dictionary<string, Action<object>> SpriteProperty{ get; private set; }
-        public Dictionary<string, PixelAnimatorListener> SpriteEvents{ get; private set; }
-
-        // public Dictionary<Layer, ColliderInfo> layerToColliderInfo;
-        // public Dictionary<BoxCollider2D, ColliderInfo> colliderToInfo;
         public readonly Dictionary<string, GameObject> groupObjects = new();
-
-
-        public CollisionEvent collisionEvent;
-        public Dictionary<string, Action<object>> ColliderEvents{get; private set;}
-
-
+        
         public int Direction => spriteRenderer.flipX && autoFlip ? -1 : 1;
 
-        private List<Sprite> currSprites;
         private void Awake(){
             
             // preferences = Resources.Load<PixelAnimationPreferences>("../../Editor/Resources/PixelAnimationPreferences");
+            CreateTitle();
+            // currAnim.PixelSprites[0].methodStorage.methodData[0].instance
+        }
+
+        private void CreateTitle()
+        {
             titleObject = new GameObject("---PixelAnimator Colliders---"){ transform ={
                     parent = transform,
                     localPosition = Vector3.zero
                 }
             };
-
-            ColliderEvents = new Dictionary<string, Action<object>>();
-            SpriteProperty = new Dictionary<string, Action<object>>();
         }
-
+        
         private void Update(){
             NextFrame();
-
- 
-
+            
         }
 
 
         private void NextFrame(){
             if (!isPlaying) return;
             clock += Time.deltaTime;
-            var secondsPerFrame = 1 / (float) FPS;
-            while (clock >= secondsPerFrame) {
-                if(frameIndex > 0)UpdateLateFrame();
+            var secondPerFrame = 1 / (float) currAnim.fps;
+            var sprites = currAnim.PixelSprites.Select(p => p.sprite).ToList();
+            while (clock >= secondPerFrame) {
+                // if(frameIndex > 0)LateUpdateFrame();
 
-                if (frameIndex == currSprites.Count && !currAnim.loop) {
-                    isPlaying = false;
-                    return;
-                }
-                clock -= secondsPerFrame;
-                frameIndex = (frameIndex + 1) % currSprites.Count;
-                spriteRenderer.sprite = currSprites[frameIndex];
+
+                frameIndex = (frameIndex + 1) % sprites.Count;
+                spriteRenderer.sprite = sprites[frameIndex];
                 UpdateFrame();
 
-                
+                clock -= secondPerFrame;
+                if (frameIndex != sprites.Count - 1 || currAnim.loop) continue;
+                isPlaying = false;
+                break;
+
             }
         }
         
@@ -92,26 +82,10 @@ namespace binc.PixelAnimator{
             ApplyBox();
         }
         
-        private void UpdateLateFrame(){
-            ApplySpritePropValue();
+        private void LateUpdateFrame(){
         }
         
-
-        private void ApplySpritePropValue(){
-            if (!currAnim) return;
-            var pixelSprite = currAnim.PixelSprites[frameIndex];
-            
-
-            // foreach (var eventName in pixelSprite.SpriteData.eventNames) {
-            // foreach (var eventName in pixelSprite.eventNames) {
-            //     if (SpriteEvents.ContainsKey(eventName)) {
-            //         SpriteEvents[eventName].Invoke();
-            //     }
-            //     else {
-            //         Debug.LogWarning($"Method name '{eventName}' does not exist");
-            //     }
-            // }
-        }
+        
         
         
 
@@ -125,7 +99,7 @@ namespace binc.PixelAnimator{
                     var col = groupObj.AddComponent<BoxCollider2D>();
                     // colliderToInfo.Add(col, colInfo);
                     col.enabled = false;
-                    var rect = GetAdjustedRect(layer);
+                    var rect = GetAdjustedRect(layer, frameIndex);
                     col.isTrigger = group.colliderTypes == ColliderTypes.Trigger;
                     col.size = rect.size;
                     col.offset = new Vector2(rect.position.x * Direction, rect.position.y);
@@ -162,10 +136,38 @@ namespace binc.PixelAnimator{
             return groupObj;
         }
 
+        public static Action GetFunction(MethodData data, System.Object obj)
+        {
+            var instance = data.instance;
+            var info = data.method.methodInfo;
+
+            var parameters = data.parameters.Select(p => p.InheritData).ToArray();
+
+            var lambdaParam = Expression.Parameter(typeof(object[]), "parameters");
+
+            var methodParams = info.GetParameters();
+            var convertedParams = new Expression[methodParams.Length];
+            for (var i = 0; i < methodParams.Length; i++)
+            {
+                var paramAccess = Expression.ArrayIndex(lambdaParam, Expression.Constant(i));
+                convertedParams[i] = Expression.Convert(paramAccess, methodParams[i].ParameterType);
+            }
+
+            var methodCall = Expression.Call(
+                Expression.Constant(instance),  
+                info,                    
+                convertedParams                
+            );
+
+            var lambda = Expression.Lambda<Action<object[]>>(methodCall, lambdaParam);
+
+            var compiledDelegate = lambda.Compile();
+            return () => { compiledDelegate(parameters);};
+        }
 
         private void RefreshGroupObject(){
             var names = currAnim.GetGroupsName(preferences);
-            for (var g = 0; g < groupObjects.Count; g++) { // if not exist group in changed animation, delete object
+            for (var g = 0; g < groupObjects.Count; g++) { // if group is not exist in changed animation, delete object
                 if (names.Contains(groupObjects.ElementAt(g).Key)) continue;
 
                 var gameObj = titleObject.transform.GetChild(g).gameObject;
@@ -176,6 +178,7 @@ namespace binc.PixelAnimator{
 
         
         private GameObject CreateGroupObject(BoxData boxData){
+            
             var gameObj = new GameObject(boxData.boxType){
                 transform ={
                     parent = titleObject.transform,
@@ -188,76 +191,63 @@ namespace binc.PixelAnimator{
         }
         
 
-        public void Play(PixelAnimation willChange){
-            if (currAnim == willChange) return;
+        public void Play(PixelAnimation animation){
+            if (currAnim == animation) return;
             
-            SpriteEvents = new Dictionary<string, PixelAnimatorListener>();
-            SpriteProperty = new Dictionary<string, Action<object>>();
-            // layerToColliderInfo = new Dictionary<Layer, ColliderInfo>();
-            // colliderToInfo = new Dictionary<BoxCollider2D, ColliderInfo>();
             frameIndex = -1;
             clock = 0;
-            clock += (float)1/willChange.fps;
+            clock += (float)1/animation.fps;
             isPlaying = true;
-            currAnim = willChange;
+            currAnim = animation;
             RefreshGroupObject();
             SetLayer(currAnim.Groups);
-            currSprites = currAnim.GetSpriteList();
             
             
         }
         
         private void ApplyBox(){
             SetBoxSize();
-            // SetHitBoxProps();
 
         }
-
-        private void SetHitBoxProps(){
-            foreach (var group in currAnim.Groups) {
-                foreach (var layer in group.layers) {
-                    var frameIndex = this.frameIndex;
-                    if (layer.frames[this.frameIndex].GetFrameType() != FrameType.KeyFrame) {
-                        for (var i = this.frameIndex; i >= 0; i--) {
-                            var frame = layer.frames[i];
-                            if (frame.GetFrameType() != FrameType.KeyFrame) continue;
-                            frameIndex = i;
-                            break;
-                        }
-                    }
-                    // layerToColliderInfo[layer].ChangeFrame(layer.frames[frameIndex]);
-                }
-            }
-        }        
+        
 
         private void SetBoxSize(){
-            if (!currAnim || currAnim.Groups == null) return;
-            var groups = currAnim.Groups;
-            for (var g = 0; g < groups.Count; g++) {
-                var group = groups[g];
-                var groupObj = titleObject.transform.GetChild(g);
-                var cols = groupObj.GetComponents<BoxCollider2D>();
-                if (cols.Length != group.layers.Count) return;
-                for (var l = 0; l < group.layers.Count; l++) {
-                    var layer = group.layers[l];
-                    var box = GetAdjustedRect(layer);
-                    cols[l].offset = new Vector2(box.x * Direction, box.y);
-                    cols[l].size = new Vector2(box.width, box.height);
+            try
+            {
+                var groups = currAnim.Groups;
+                for (var g = 0; g < groups.Count; g++)
+                {
+                    var group = groups[g];
+                    var groupObj = titleObject.transform.GetChild(g);
+                    var cols = groupObj.GetComponents<BoxCollider2D>();
+                    if (cols.Length != group.layers.Count) return;
+                    for (var l = 0; l < group.layers.Count; l++)
+                    {
+                        var layer = group.layers[l];
+                        var box = GetAdjustedRect(layer, frameIndex);
+                        cols[l].offset = new Vector2(box.x * Direction, box.y);
+                        cols[l].size = new Vector2(box.width, box.height);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+
             
         }
 
 
         
-        private Rect GetAdjustedRect(Layer layer){
-            var f = frameIndex == -1 ? 0 : frameIndex;
+        private Rect GetAdjustedRect(Layer layer, int index){
+            var f = index == -1 ? 0 : index;
             return MapBoxRectToTransform(layer.frames[f].hitBoxRect, currAnim.GetSpriteList()[f]);
         }
         
         private static Rect MapBoxRectToTransform(Rect rect, Sprite sprite) {
-            var offset = new Vector2((rect.x + rect.width * 0.5f - sprite.pivot.x) / sprite.pixelsPerUnit, (sprite.rect.height - rect.y - rect.height * 0.5f - sprite.pivot.y) / sprite.pixelsPerUnit);
-            var size = new Vector2(rect.width / sprite.pixelsPerUnit, rect.height / sprite.pixelsPerUnit);
+            var offset = new Vector2(rect.x + rect.width * 0.5f - sprite.pivot.x, sprite.rect.height - rect.y - rect.height * 0.5f - sprite.pivot.y)/sprite.pixelsPerUnit;
+            var size = new Vector2(rect.width, rect.height) / sprite.pixelsPerUnit;
             return new Rect(offset, size);
         }
         

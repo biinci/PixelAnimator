@@ -149,10 +149,9 @@ namespace binc.PixelAnimator.Editor
 
             MethodInfo[] allMethods;
 
-            if (referenceValue.GetType() == typeof(MonoScript))
+            if (referenceValue is MonoScript monoScript)
             {
-                var a = referenceValue as MonoScript;
-                allMethods = a.GetClass().GetMethods(BindingFlags.Instance | BindingFlags.Public);
+                allMethods = monoScript.GetClass().GetMethods(BindingFlags.Instance | BindingFlags.Public);
             }
             else
             {
@@ -171,28 +170,21 @@ namespace binc.PixelAnimator.Editor
                 !(m.IsSpecialName && (m.Name.StartsWith("get_") || m.Name.StartsWith("set_"))) &&
                 !m.IsGenericMethod
             ).ToArray();
-
-            foreach (var VARIABLE in allMethods)
-            {
-                Debug.Log(VARIABLE.Name);
-            }
+            
                 
-            if (methods != null)
+            var data = (MethodData)GetParent(instanceProperty);
+            foreach (var method in methods)
             {
-                var data = (MethodData)GetParent(instanceProperty);
-                foreach (var method in methods)
+                menu.AddItem(new GUIContent(method.Name), false, userData =>
                 {
-                    menu.AddItem(new GUIContent(method.Name), false, userData =>
-                    {
-                        var methodInfo = userData as MethodInfo;
-                        data.SelectMethod(methodInfo);
-                        instanceProperty.serializedObject.Update();
+                    var methodInfo = userData as MethodInfo;
+                    data.SelectMethod(methodInfo);
+                    instanceProperty.serializedObject.Update();
 
-                    }, method);
-                }
+                }, method);
+
+                menu.ShowAsContext();
             }
-
-            menu.ShowAsContext();
             
         }
         

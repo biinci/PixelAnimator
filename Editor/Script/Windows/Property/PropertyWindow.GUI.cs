@@ -8,7 +8,6 @@ namespace binc.PixelAnimator.Editor.Windows
 {
     public partial class PropertyWindow
     {
-        private Object obj;
         public override void ProcessWindow()
         {
             if (!timelineWindow.IsPlaying) DrawPropertyWindow();
@@ -24,18 +23,18 @@ namespace binc.PixelAnimator.Editor.Windows
             GUI.Window(Id, windowRect, _ =>
             {
                 EditorGUI.DrawRect(new Rect(Vector2.zero, windowRect.size), new Color(0.2f, 0.2f, 0.2f));
-                obj = EditorGUILayout.ObjectField(obj, typeof(Object), true);
-                // selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, factor/2f);
-                // switch (selectedTab)
-                // {
-                //     case 0:
-                //         DrawSpriteTab();
-                //         break;
-                //     case 1:
-                //         DrawHitboxTab();
-                //         break;
-                // }
-                //
+
+                selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, factor/2f);
+                switch (selectedTab)
+                {
+                    case 0:
+                        DrawSpriteTab();
+                        break;
+                    case 1:
+                        DrawHitboxTab();
+                        break;
+                }
+                
             }, GUIContent.none, GUIStyle.none);
             
         }

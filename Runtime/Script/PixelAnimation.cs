@@ -9,7 +9,6 @@ namespace binc.PixelAnimator{
     [CreateAssetMenu(menuName = "Pixel Animation/ New Animation")]
     public class PixelAnimation : ScriptableObject
     {
-        
         public bool loop = true;
         public int fps = 12;
         [SerializeField] private List<PixelSprite> pixelSprites;
