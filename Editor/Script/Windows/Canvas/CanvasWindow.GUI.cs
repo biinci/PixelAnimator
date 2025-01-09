@@ -41,7 +41,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void DrawSprite() => GUI.DrawTexture(spriteRect, spritePreview, ScaleMode.ScaleToFit);
 
         private void DrawBoxes(){
-            var groups = SelectedAnim.Groups;
+            var groups = SelectedAnim.BoxGroups;
             var animationPreferences = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences;
 
             for (var i = 0; i < groups.Count; i++)
@@ -91,21 +91,21 @@ namespace binc.PixelAnimator.Editor.Windows{
         
 
 
-        private void ProcessBoxes(int groupIndex, Group group, BoxData boxData){
+        private void ProcessBoxes(int groupIndex, BoxGroup boxGroup, BoxData boxData){
             
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var isActiveGroup = groupIndex == animatorWindow.IndexOfSelectedGroup;
 
             var selectedLayerIndex = animatorWindow.IndexOfSelectedLayer;
-            for (var i = 0; i < group.layers.Count; i++)
+            for (var i = 0; i < boxGroup.boxes.Count; i++)
             {
-                var isBoxActive = isActiveGroup && group.isExpanded &&
+                var isBoxActive = isActiveGroup && boxGroup.isExpanded &&
                                   selectedLayerIndex == i;
-                var frame = group.layers[i].frames[animatorWindow.IndexOfSelectedSprite];
+                var frame = boxGroup.boxes[i].frames[animatorWindow.IndexOfSelectedSprite];
                 
-                if(frame.GetFrameType() == FrameType.EmptyFrame) continue;
+                if(frame.GetFrameType() == BoxFrameType.EmptyFrame) continue;
                 
-                var scaledRect = frame.hitBoxRect; 
+                var scaledRect = frame.boxRect; 
                 scaledRect.position *= spriteScale;
                 scaledRect.size *= spriteScale;
                 
@@ -142,7 +142,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                         Event.current.Use();
                         animatorWindow.SelectGroup(groupIndex);
                         animatorWindow.SelectLayer(i);
-                        group.isExpanded = true;
+                        boxGroup.isExpanded = true;
                     }
 
                 }
@@ -156,45 +156,45 @@ namespace binc.PixelAnimator.Editor.Windows{
         {
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var rect =  SelectedAnim
-                .Groups[animatorWindow.IndexOfSelectedGroup]
-                .layers[animatorWindow.IndexOfSelectedLayer]
-                .frames[animatorWindow.IndexOfSelectedSprite].hitBoxRect;
+                .BoxGroups[animatorWindow.IndexOfSelectedGroup]
+                .boxes[animatorWindow.IndexOfSelectedLayer]
+                .frames[animatorWindow.IndexOfSelectedSprite].boxRect;
             rect.position *= spriteScale;
             rect.size *= spriteScale;
             return rect;
         }
         
-        private void EditBox(Frame frame, Rect rect, Vector2 position)
+        private void EditBox(BoxFrame boxFrame, Rect rect, Vector2 position)
         {
             
             switch (EditingBoxHandle) {
                 case BoxHandleType.TopLeft:
-                    frame.hitBoxRect.xMin = position.x;
-                    frame.hitBoxRect.yMin = position.y;
+                    boxFrame.boxRect.xMin = position.x;
+                    boxFrame.boxRect.yMin = position.y;
                     break;
                 case BoxHandleType.TopCenter:
-                    frame.hitBoxRect.yMin = position.y;
+                    boxFrame.boxRect.yMin = position.y;
                     break;
                 case BoxHandleType.TopRight:
-                    frame.hitBoxRect.xMax = position.x;
-                    frame.hitBoxRect.yMin = position.y;
+                    boxFrame.boxRect.xMax = position.x;
+                    boxFrame.boxRect.yMin = position.y;
                     break;
                 case BoxHandleType.RightCenter:
-                    frame.hitBoxRect.xMax = position.x;
+                    boxFrame.boxRect.xMax = position.x;
                     break;
                 case BoxHandleType.BottomRight:
-                    frame.hitBoxRect.xMax = position.x;
-                    frame.hitBoxRect.yMax = position.y;
+                    boxFrame.boxRect.xMax = position.x;
+                    boxFrame.boxRect.yMax = position.y;
                     break;
                 case BoxHandleType.BottomCenter:
-                    frame.hitBoxRect.yMax = position.y;
+                    boxFrame.boxRect.yMax = position.y;
                     break;
                 case BoxHandleType.BottomLeft:
-                    frame.hitBoxRect.xMin = position.x;
-                    frame.hitBoxRect.yMax = position.y;
+                    boxFrame.boxRect.xMin = position.x;
+                    boxFrame.boxRect.yMax = position.y;
                     break;
                 case BoxHandleType.LeftCenter:
-                    frame.hitBoxRect.xMin = position.x;
+                    boxFrame.boxRect.xMin = position.x;
                     break;
                 case BoxHandleType.Middle:
                     var xDelta = (int)((clickedMousePos.x - rect.xMin) / spriteScale);
@@ -206,8 +206,8 @@ namespace binc.PixelAnimator.Editor.Windows{
                     var xSize = (int)rect.size.x / spriteScale;
                     var ySize = (int)rect.size.y / spriteScale;
 
-                    frame.hitBoxRect.position = new Vector2(newXPos, newYPos);
-                    frame.hitBoxRect.size = new Vector2(xSize, ySize);
+                    boxFrame.boxRect.position = new Vector2(newXPos, newYPos);
+                    boxFrame.boxRect.size = new Vector2(xSize, ySize);
                     clickedMousePos = Event.current.mousePosition;
                     break;
                 case BoxHandleType.None:

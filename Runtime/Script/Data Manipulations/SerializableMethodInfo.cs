@@ -47,11 +47,8 @@ public class SerializableMethodInfo : ISerializationCallbackReceiver
         }
         else
             parameters = null;
-        
     }
 
-    
-    
     public void OnAfterDeserialize()
     {
         if (serializableType == null || string.IsNullOrEmpty(methodName))
@@ -66,8 +63,10 @@ public class SerializableMethodInfo : ISerializationCallbackReceiver
                 param[i] = parameters[i].SystemType;
             }
         }
-        
-        methodInfo = param == null ? type.GetMethod(methodName, (BindingFlags)flags) : type.GetMethod(methodName, (BindingFlags)flags,null, param, null);
 
+        if (param == null)
+            methodInfo = type.GetMethod(methodName, (BindingFlags)flags);
+        else
+            methodInfo = type.GetMethod(methodName, (BindingFlags)flags, null, param, null);
     }
 }

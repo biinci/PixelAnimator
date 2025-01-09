@@ -126,16 +126,16 @@ namespace binc.PixelAnimator.Editor.Windows{
             
             GUILayout.BeginVertical();
 
-            for (var i = 0; i < SelectedAnim.Groups.Count; i++)
+            for (var i = 0; i < SelectedAnim.BoxGroups.Count; i++)
             {
                 loopGroupIndex = i;
                 GUILayout.Space(groupStyle.fixedHeight);
-                var group = SelectedAnim.Groups[i];
+                var group = SelectedAnim.BoxGroups[i];
                 GUILayout.BeginVertical();
-                for (var j = 0; j < group.layers.Count; j++)
+                for (var j = 0; j < group.boxes.Count; j++)
                 {
                     loopLayerIndex = j;
-                    var layer = group.layers[j];
+                    var layer = group.boxes[j];
                     GUILayout.BeginHorizontal();
                     for (var k = 0; k < layer.frames.Count; k++)
                     {
@@ -179,14 +179,14 @@ namespace binc.PixelAnimator.Editor.Windows{
 
             scrollPos = Vector2.right * scrollPos.x + Vector2.up * position.y;
             
-            if(SelectedAnim) DrawGroups(SelectedAnim.Groups);
+            if(SelectedAnim) DrawGroups(SelectedAnim.BoxGroups);
         
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
             GUILayout.EndArea();
         }
 
-        private void DrawGroups(List<Group> groups)
+        private void DrawGroups(List<BoxGroup> groups)
         {
             var animationPreferences = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences;
             foreach (var group in groups)
@@ -196,34 +196,34 @@ namespace binc.PixelAnimator.Editor.Windows{
             }
         }
 
-        private void DrawGroup(Group group, string label){
+        private void DrawGroup(BoxGroup boxGroup, string label){
             var clickedGroupButton = GUILayout.Button(label, groupStyle);
-            if(clickedGroupButton) groupButton.DownClick(group);
-            if(!group.isExpanded) return;
-            var layers = group.layers;
-            DrawBoxes(group, layers);
+            if(clickedGroupButton) groupButton.DownClick(boxGroup);
+            if(!boxGroup.isExpanded) return;
+            var layers = boxGroup.boxes;
+            DrawBoxes(boxGroup, layers);
                 
         }
 
-        private void DrawBoxes(Group group, List<Box> boxes){
+        private void DrawBoxes(BoxGroup boxGroup, List<Box> boxes){
             for(var i = 0; i < boxes.Count; i++){
-                DrawBox(boxes[i], $"Box {i+1}", group);
+                DrawBox(boxes[i], $"Box {i+1}", boxGroup);
             }
         }
 
         private Rect boxRect;
-        private void DrawBox(Box box, string label, Group group){
-            if(GUILayout.Button(label, layerStyle)) layerButton.DownClick((group,box));
+        private void DrawBox(Box box, string label, BoxGroup boxGroup){
+            if(GUILayout.Button(label, layerStyle)) layerButton.DownClick((boxGroup,box));
         }
         
         private float framePanelWidth;
         
-        private void DrawFrame(Frame frame){
-            var style = GetFrameStyle(frame.GetFrameType());
+        private void DrawFrame(BoxFrame boxFrame){
+            var style = GetFrameStyle(boxFrame.GetFrameType());
             var clicked = GUILayout.Button("", style);
 
             
-            if (PixelAnimatorWindow.AnimatorWindow.IsSelectedFrame(frame) && Event.current.type == EventType.Repaint)
+            if (PixelAnimatorWindow.AnimatorWindow.IsSelectedFrame(boxFrame) && Event.current.type == EventType.Repaint)
             {
                 var rect = GUILayoutUtility.GetLastRect();
                 GUI.DrawTexture(rect,selectedFrameTex);
@@ -231,13 +231,13 @@ namespace binc.PixelAnimator.Editor.Windows{
             if (clicked) frameButton.DownClick((loopGroupIndex,loopLayerIndex,loopFrameIndex));
         }
 
-        private GUIStyle GetFrameStyle(FrameType type){
+        private GUIStyle GetFrameStyle(BoxFrameType type){
             switch (type){
-                case FrameType.KeyFrame:
+                case BoxFrameType.KeyFrame:
                     return keyFrameStyle;
-                case FrameType.CopyFrame:
+                case BoxFrameType.CopyFrame:
                     return copyFrameStyle;
-                case FrameType.EmptyFrame:
+                case BoxFrameType.EmptyFrame:
                     return emptyFrameStyle;
                 default:
                     return GUIStyle.none;

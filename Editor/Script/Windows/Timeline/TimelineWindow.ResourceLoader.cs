@@ -35,7 +35,7 @@ namespace binc.PixelAnimator.Editor.Windows
         private const float HandleHeight = 6;
 
         private float GroupPanelWidth =>
-            PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("Group").fixedWidth;
+            PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("BoxGroup").fixedWidth;
 
         private float ToolPanelHeight =>
             PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("Tool").fixedWidth;
@@ -63,8 +63,8 @@ namespace binc.PixelAnimator.Editor.Windows
         private int loopGroupIndex, loopLayerIndex, loopFrameIndex;
         
         private ButtonData<int> thumbnailButton;
-        private ButtonData<Group> groupButton;
-        private ButtonData<ValueTuple<Group, Box>> layerButton;
+        private ButtonData<BoxGroup> groupButton;
+        private ButtonData<ValueTuple<BoxGroup, Box>> layerButton;
         private ButtonData<ValueTuple<int, int, int>> frameButton;
         private ButtonData burgerButton, playPauseButton;
         private ButtonData<bool> previousNextSpriteButton;
@@ -116,7 +116,7 @@ namespace binc.PixelAnimator.Editor.Windows
         private void LoadStyles()
         {
             var mySkin = PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin;
-            groupStyle = new GUIStyle(mySkin.GetStyle("Group"));
+            groupStyle = new GUIStyle(mySkin.GetStyle("BoxGroup"));
             layerStyle = new GUIStyle(mySkin.GetStyle("Layer"));
             keyFrameStyle = new GUIStyle(mySkin.GetStyle("KeyFrame"));
             emptyFrameStyle = new GUIStyle(mySkin.GetStyle("EmptyFrame"));

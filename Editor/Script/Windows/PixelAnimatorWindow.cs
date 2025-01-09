@@ -253,7 +253,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         public void SelectGroup(int index)
         {
-            var isValid = index < SelectedAnimation.Groups.Count && index >= 0;
+            var isValid = index < SelectedAnimation.BoxGroups.Count && index >= 0;
             if (!isValid) throw new IndexOutOfRangeException();
 
             IndexOfSelectedGroup = index;
@@ -261,7 +261,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         public void SelectLayer(int layerIndex)
         {
-            var isValid = layerIndex < SelectedAnimation.Groups[IndexOfSelectedGroup].layers.Count && layerIndex >= 0;
+            var isValid = layerIndex < SelectedAnimation.BoxGroups[IndexOfSelectedGroup].boxes.Count && layerIndex >= 0;
             if (!isValid) throw new IndexOutOfRangeException();
 
             IndexOfSelectedLayer = layerIndex;
@@ -302,15 +302,15 @@ namespace binc.PixelAnimator.Editor.Windows{
         public bool IsValidGroup()
         {
             if (!IsValidAnimation()) return false;
-            if(SelectedAnimation.Groups == null) return false;
-            return IndexOfSelectedGroup < SelectedAnimation.Groups.Count;
+            if(SelectedAnimation.BoxGroups == null) return false;
+            return IndexOfSelectedGroup < SelectedAnimation.BoxGroups.Count;
         }
 
         public bool IsValidLayer()
         {
             if (IsValidGroup())
             {
-                return IndexOfSelectedLayer < SelectedAnimation.Groups[IndexOfSelectedGroup].layers.Count;
+                return IndexOfSelectedLayer < SelectedAnimation.BoxGroups[IndexOfSelectedGroup].boxes.Count;
             }
 
             return false;
@@ -334,10 +334,10 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
         
 
-        public bool IsSelectedFrame(Frame frame)
+        public bool IsSelectedFrame(BoxFrame boxFrame)
         {
-            return selectedAnimation.Groups[IndexOfSelectedGroup].layers[IndexOfSelectedLayer]
-                .frames[IndexOfSelectedSprite] == frame;
+            return selectedAnimation.BoxGroups[IndexOfSelectedGroup].boxes[IndexOfSelectedLayer]
+                .frames[IndexOfSelectedSprite] == boxFrame;
         }
         
     }

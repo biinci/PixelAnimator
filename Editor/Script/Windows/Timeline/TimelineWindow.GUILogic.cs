@@ -51,8 +51,8 @@ namespace binc.PixelAnimator.Editor.Windows{
             var layerIndex = data.Item2;
             var frameIndex = data.Item3;
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            var groups = SelectedAnim.Groups;
-            var layers = groups[groupIndex].layers;
+            var groups = SelectedAnim.BoxGroups;
+            var layers = groups[groupIndex].boxes;
             var frames = layers[layerIndex].frames;
             var isSameFrameIndex = frameIndex == animatorWindow.IndexOfSelectedSprite;
             var isSameLayerIndex = layerIndex == animatorWindow.IndexOfSelectedLayer;
@@ -60,7 +60,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             var frame = frames[frameIndex];            
             
             if(isSameLayerIndex && isSameGroupIndex){
-                var previousType = FrameType.None;
+                var previousType = BoxFrameType.None;
                 if(frameIndex > 0){
                     previousType = frames[frameIndex-1].GetFrameType();
                 }
@@ -74,33 +74,33 @@ namespace binc.PixelAnimator.Editor.Windows{
             PixelAnimatorWindow.AnimatorWindow.Repaint();
 
         }
-        private FrameType ChangeFrameType(FrameType type, FrameType previousType, int index){
+        private BoxFrameType ChangeFrameType(BoxFrameType type, BoxFrameType previousType, int index){
             switch (type){
-                case FrameType.KeyFrame:
-                    var isValid = index > 0 && previousType != FrameType.EmptyFrame && previousType != FrameType.None;
-                    if(isValid)return FrameType.CopyFrame;
-                    goto case FrameType.CopyFrame;
-                case FrameType.CopyFrame:
-                    return FrameType.EmptyFrame;
-                case FrameType.EmptyFrame:
-                    return FrameType.KeyFrame;
+                case BoxFrameType.KeyFrame:
+                    var isValid = index > 0 && previousType != BoxFrameType.EmptyFrame && previousType != BoxFrameType.None;
+                    if(isValid)return BoxFrameType.CopyFrame;
+                    goto case BoxFrameType.CopyFrame;
+                case BoxFrameType.CopyFrame:
+                    return BoxFrameType.EmptyFrame;
+                case BoxFrameType.EmptyFrame:
+                    return BoxFrameType.KeyFrame;
                 default:
-                    return FrameType.None;
+                    return BoxFrameType.None;
             }
         }
-        private void BoxButton(ValueTuple<Group, Box> data){
+        private void BoxButton(ValueTuple<BoxGroup, Box> data){
             layerMenu = new GenericMenu();
             
-            layerMenu.AddItem(new GUIContent("Delete Box"), false, ()=>{data.Item1.layers.Remove(data.Item2);});
+            layerMenu.AddItem(new GUIContent("Delete Box"), false, ()=>{data.Item1.boxes.Remove(data.Item2);});
             layerMenu.ShowAsContext();
         }
 
-        private void GroupButton(Group group){
+        private void GroupButton(BoxGroup boxGroup){
             groupMenu = new GenericMenu();
-            groupMenu.AddItem(new GUIContent("Delete Group"), false, ()=>{SelectedAnim.RemoveGroup(group.BoxDataGuid);});
-            groupMenu.AddItem(new GUIContent("Add Box"), false, ()=>{group.AddBox(SelectedAnim.PixelSprites);});
-            groupMenu.AddItem(new GUIContent("Expand"), group.isExpanded, () => {group.isExpanded = !group.isExpanded;});
-            groupMenu.AddItem(new GUIContent("Visible"), group.isVisible, () => {group.isVisible = !group.isVisible;});
+            groupMenu.AddItem(new GUIContent("Delete BoxGroup"), false, ()=>{SelectedAnim.RemoveGroup(boxGroup.BoxDataGuid);});
+            groupMenu.AddItem(new GUIContent("Add Box"), false, ()=>{boxGroup.AddBox(SelectedAnim.PixelSprites);});
+            groupMenu.AddItem(new GUIContent("Expand"), boxGroup.isExpanded, () => {boxGroup.isExpanded = !boxGroup.isExpanded;});
+            groupMenu.AddItem(new GUIContent("Visible"), boxGroup.isVisible, () => {boxGroup.isVisible = !boxGroup.isVisible;});
             groupMenu.ShowAsContext();
         }
 
@@ -113,9 +113,10 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void AddBurgerMenuItems(){
             var boxData = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences.BoxData;
             for(var i = 0 ; i < boxData.Count; i ++){
-                burgerMenu.AddItem(new GUIContent($"Add Group/{boxData[i].boxName}"), false, 
+                burgerMenu.AddItem(new GUIContent($"Add BoxGroup/{boxData[i].boxName}"), false, 
                 obj=>{SelectedAnim.AddGroup(boxData[(int)obj].Guid);},i);
-            }   
+            }
+            burgerMenu.AddItem(new GUIContent("Go to preferences"),false, () => { EditorGUIUtility.PingObject(PixelAnimatorWindow.AnimatorWindow.AnimationPreferences); });
         }
 
         private void ThumbnailButton(int index)
@@ -135,7 +136,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void Play(){
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var fps = SelectedAnim.fps;
-            if(fps == 0) Debug.Log("Frame rate is zero");
+            if(fps == 0) Debug.Log("BoxFrame rate is zero");
             var deltaTime = animatorWindow.EditorDeltaTime;
             timer += deltaTime;
             if(timer >= 1f/fps){

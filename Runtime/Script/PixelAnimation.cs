@@ -3,6 +3,7 @@ using UnityEngine;
 using binc.PixelAnimator.Common;
 using binc.PixelAnimator.Preferences;
 using UnityEditor;
+using UnityEngine.Serialization;
 
 namespace binc.PixelAnimator{
 
@@ -11,28 +12,22 @@ namespace binc.PixelAnimator{
     {
         public bool loop = true;
         public int fps = 12;
-        [SerializeField] private List<PixelSprite> pixelSprites;
         public List<PixelSprite> PixelSprites => pixelSprites;
-        
-        
-        [SerializeField] private List<Group> groups;
-        public List<Group> Groups => groups;
-        
-
-        
+        [SerializeField] private List<PixelSprite> pixelSprites;
+        public List<BoxGroup> BoxGroups => boxGroups;
+        [SerializeField] private List<BoxGroup> boxGroups;
         
         public void AddGroup(string boxDataGuid){
-            groups.Add(new Group(boxDataGuid));
+            boxGroups.Add(new BoxGroup(boxDataGuid));
         }
 
         public void RemoveGroup(string boxDataGuid){
-            var group = Groups.Find(x => x.BoxDataGuid == boxDataGuid);
+            var group = BoxGroups.Find(x => x.BoxDataGuid == boxDataGuid);
             if (group == null){
-                Debug.LogWarning("The group you want to delete is not already on the list.");
+                Debug.LogWarning("The box group you want to delete is not already on the list.");
                 return;
             }
-            Groups.Remove(group);
-
+            BoxGroups.Remove(group);
         }
         
         public List<Sprite> GetSpriteList(){
@@ -43,27 +38,18 @@ namespace binc.PixelAnimator{
                 sprites.Add(pixelSprite.sprite);
             }
             return sprites;
-
         }
 
         public void AddPixelSprite(Sprite sprite){
             pixelSprites.Add(new PixelSprite(sprite, GUID.Generate().ToString()));
         }
 
-        public List<string> GetGroupsName(PixelAnimationPreferences preferences){
+        public List<string> GetBoxGroupsName(PixelAnimationPreferences preferences){
             var names = new List<string>();
-            foreach (var group in groups) {
-                names.Add(preferences.GetBoxData(group.BoxDataGuid).boxName);
+            foreach (var boxGroup in boxGroups) {
+                names.Add(preferences.GetBoxData(boxGroup.BoxDataGuid).boxName);
             }
             return names;
-
         }
-        
-        
     }
-    
-    
 }
-
-
-

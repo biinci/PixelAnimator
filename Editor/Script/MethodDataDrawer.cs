@@ -10,7 +10,6 @@ namespace binc.PixelAnimator.Editor
     [CustomPropertyDrawer(typeof(MethodData))]
     public class MethodDataDrawer : PropertyDrawer
     {
-        
         private static Texture2D _functionIcon;
         private const float Padding = 5;
         
@@ -22,7 +21,6 @@ namespace binc.PixelAnimator.Editor
             var instanceProperty = property.FindPropertyRelative("instance");
             var methodProperty = property.FindPropertyRelative("method");
             var parametersProperty = property.FindPropertyRelative("parameters");
-            
             
             var methodName = methodProperty?.FindPropertyRelative("methodName").stringValue;
             var content = "No Function";
@@ -142,7 +140,6 @@ namespace binc.PixelAnimator.Editor
 
         private static void SelectMethod(SerializedProperty instanceProperty)
         {
-            
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("No function"), false, ()=>ResetMethod(instanceProperty));
             var referenceValue = instanceProperty.objectReferenceValue;
@@ -158,8 +155,6 @@ namespace binc.PixelAnimator.Editor
                 allMethods = referenceValue.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public);
             }
             
-            
-            // var allMethods = typeof(Test).GetMethods(BindingFlags.Instance | BindingFlags.Public);
             var methods = allMethods.Where(m => 
                 m.ReturnType == typeof(void) &&
                 !m.GetParameters().Any(p => 
@@ -171,7 +166,6 @@ namespace binc.PixelAnimator.Editor
                 !m.IsGenericMethod
             ).ToArray();
             
-                
             var data = (MethodData)GetParent(instanceProperty);
             foreach (var method in methods)
             {
@@ -185,9 +179,7 @@ namespace binc.PixelAnimator.Editor
 
                 menu.ShowAsContext();
             }
-            
         }
-        
         
         private static void ResetMethod(SerializedProperty property)
         {
@@ -202,7 +194,6 @@ namespace binc.PixelAnimator.Editor
             property.serializedObject.ApplyModifiedProperties();
             property.serializedObject.Update();
         }
-
         #endregion
         
         #region Height
@@ -272,7 +263,6 @@ namespace binc.PixelAnimator.Editor
 
         }
         #endregion
-        
     }   
 }
 

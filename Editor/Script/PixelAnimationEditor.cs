@@ -54,9 +54,9 @@ namespace binc.PixelAnimator.Editor{
 
                 element.FindPropertyRelative("spriteId").stringValue = GUID.Generate().ToString();
                 so.ApplyModifiedProperties();
-                if(pixelAnimation.Groups == null) return;
+                if(pixelAnimation.BoxGroups == null) return;
                 for (var i = 0; i < groupProps.arraySize; i++) {
-                    var layerProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("layers");
+                    var layerProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("boxes");
                     Add(element, layerProps, index, groupProps);
                 }
                 
@@ -67,7 +67,7 @@ namespace binc.PixelAnimator.Editor{
             pixelSpriteList.onRemoveCallback = reorderableList => {
                 
                 reorderableList.serializedProperty.DeleteArrayElementAtIndex(reorderableList.index);
-                if(pixelAnimation.Groups == null) return;
+                if(pixelAnimation.BoxGroups == null) return;
                 Remove(groupProps, reorderableList);
                 if(reorderableList.index == groupProps.arraySize-1)
                     reorderableList.index -= 1;
@@ -75,7 +75,7 @@ namespace binc.PixelAnimator.Editor{
             
             pixelSpriteList.onReorderCallbackWithDetails = (_, index, newIndex) => {
                 for (var i = 0; i < groupProps.arraySize; i ++) {
-                    var layersProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("layers");
+                    var layersProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("boxes");
                     for (var l = 0; l < layersProps.arraySize; l ++) {
                         var frameProp = layersProps.GetArrayElementAtIndex(l).FindPropertyRelative("frames");
                         frameProp.MoveArrayElement(index, newIndex);
@@ -209,7 +209,7 @@ namespace binc.PixelAnimator.Editor{
                 var frame = framesProp.GetArrayElementAtIndex(index);
                 frame.FindPropertyRelative("guid").stringValue =
                     element.FindPropertyRelative("spriteId").stringValue;
-                var hitBoxRectProp = frame.FindPropertyRelative("hitBoxRect");
+                var hitBoxRectProp = frame.FindPropertyRelative("boxRect");
                 hitBoxRectProp.FindPropertyRelative("x").floatValue = 16;
                 hitBoxRectProp.FindPropertyRelative("y").floatValue = 16;
                 hitBoxRectProp.FindPropertyRelative("width").floatValue = 16;
@@ -219,7 +219,7 @@ namespace binc.PixelAnimator.Editor{
 
         private static void RemoveFrames(SerializedProperty groupProps, ReorderableList reorderableList){
             for (var i = 0; i < groupProps.arraySize; i ++) {
-                var layersProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("layers");
+                var layersProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("boxes");
                 for (var l = 0; l < layersProps.arraySize; l ++) {
                     var frameProp = layersProps.GetArrayElementAtIndex(l).FindPropertyRelative("frames");
                     frameProp.DeleteArrayElementAtIndex(reorderableList.index);

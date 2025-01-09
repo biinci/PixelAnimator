@@ -4,7 +4,6 @@ using UnityEngine;
 using System.Reflection;
 using Object = UnityEngine.Object;
 
-
 [Serializable]
 public class MethodData : ISerializationCallbackReceiver
 {

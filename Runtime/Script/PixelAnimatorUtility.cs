@@ -1,43 +1,25 @@
-using System;
-using System.Runtime.Serialization;
 using UnityEngine;
 using UnityEditorInternal;
-
-
-
 #if UNITY_EDITOR
 using UnityEditor;
-
 #endif
 
-
 namespace binc.PixelAnimator.Utility{
-
-    
     public static class PixelAnimatorUtility{
-
-        public static Texture2D GetTexture2DForColor(Color color)
-        {   
-            var tex = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-            tex.SetPixel(0, 0, color);
-            tex.Apply();
-            return tex;
+        public delegate void PixelAnimationListener(object userData);
+        public static Rect MapBoxRectToTransform(Rect rect, Sprite sprite){
+            var offset = new Vector2(rect.x + rect.width * 0.5f - sprite.pivot.x, sprite.rect.height - rect.y - rect.height * 0.5f - sprite.pivot.y)/sprite.pixelsPerUnit;
+            var size = new Vector2(rect.width, rect.height) / sprite.pixelsPerUnit;
+            return new Rect(offset, size);
         }
-        
-        
 #if UNITY_EDITOR
-        
-        
-        public static void CreateTooltip(Rect rect, string tooltip, Vector2 containsPosition){
-            if (rect.Contains(containsPosition)) {
+        public static void CreateTooltip(Rect rect, string tooltip){
+            if (rect.Contains(Event.current.mousePosition)) {
                 EditorGUI.LabelField(rect,
                     new GUIContent("", tooltip));
             }
         }
         
-        
-        
-
         public static void DropAreaGUI (Rect rect, ReorderableList list, PixelAnimationListener listener){ 
             var evt = Event.current;
             var dropArea = rect;
@@ -64,19 +46,8 @@ namespace binc.PixelAnimator.Utility{
                 break;
             }
         }
-        
-
 #endif
-        
-        public delegate void PixelAnimationListener(object userData);
-
-        
-
-        
-
     }
-
- 
 }
 
 

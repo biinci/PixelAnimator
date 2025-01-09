@@ -2,41 +2,41 @@ using System;
 using System.Collections.Generic;
 using binc.PixelAnimator.Common;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace binc.PixelAnimator{
 
     public enum ColliderTypes{NoTrigger = 1, Trigger = 2}
 
     [Serializable]
-    public class Group{
+    public class BoxGroup{
         public string BoxDataGuid => boxDataGuid;
         [SerializeField, ReadOnly] private string boxDataGuid;
         
         public ColliderTypes colliderTypes = ColliderTypes.Trigger;
-        public List<Box> layers;
-
-        public Group(string boxDataGuid){
-            layers = new List<Box>();
-            this.boxDataGuid = boxDataGuid;
-        }
-        public void AddBox(List<PixelSprite> pixelSprites){
-            layers.Add(new Box());
-            var index = layers.Count -1;
-            foreach (var pixelSprite in pixelSprites) {
-                layers[index].frames.Add(new Frame(pixelSprite.spriteId){hitBoxRect = new Rect(0,0,16,16)});
-            }
-        }
-
+        public List<Box> boxes;
 #if UNITY_EDITOR
         public bool isVisible = true, isExpanded = true;
 #endif
+        public BoxGroup(string boxDataGuid){
+            boxes = new List<Box>();
+            this.boxDataGuid = boxDataGuid;
+        }
+        
+        public void AddBox(List<PixelSprite> pixelSprites){
+            boxes.Add(new Box());
+            var index = boxes.Count -1;
+            foreach (var pixelSprite in pixelSprites) {
+                boxes[index].frames.Add(new BoxFrame(pixelSprite.spriteId){boxRect = new Rect(0,0,16,16)});
+            }
+        }
     }
     [Serializable]
     public class Box{
-        public List<Frame> frames;
+        public List<BoxFrame> frames;
         
         public Box(){
-            frames = new List<Frame>();
+            frames = new List<BoxFrame>();
         }
     }
 }

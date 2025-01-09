@@ -47,9 +47,9 @@ namespace binc.PixelAnimator.Editor.Windows
             if (targetAnimation != null && animatorWindow.IsValidFrame())
             {
                 var property = targetAnimation
-                    .FindProperty("groups")
+                    .FindProperty("boxGroups")
                     .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedGroup)
-                    .FindPropertyRelative("layers")
+                    .FindPropertyRelative("boxes")
                     .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedLayer)
                     .FindPropertyRelative("frames")
                     .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedSprite)
@@ -84,7 +84,7 @@ namespace binc.PixelAnimator.Editor.Windows
             }
             else
             {
-                EditorGUILayout.LabelField("Please Select a Frame");
+                EditorGUILayout.LabelField("Please Select a BoxFrame");
             }
         }
 

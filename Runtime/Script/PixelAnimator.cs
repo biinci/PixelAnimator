@@ -5,43 +5,35 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using binc.PixelAnimator.Utility;
+using UnityEngine.Serialization;
 
 
 namespace binc.PixelAnimator{
-
-    public delegate void CollisionEvent(Collider2D col);
+    [RequireComponent(typeof(SpriteRenderer))]
     public class PixelAnimator : MonoBehaviour{
-        
-        public PixelAnimationPreferences preferences;
         public PixelAnimationPreferences Preferences => preferences;
+        private PixelAnimationPreferences preferences;
+        
         [SerializeField] private SpriteRenderer spriteRenderer;
-        
-        [SerializeField, Tooltip("Automatically determines the animation direction according to the flipX in the SpriteRenderer component.")] 
-        private bool autoFlip;
-        
-        [SerializeField]private PixelAnimation currAnim; 
+        public PixelAnimation PlayingAnim => playingAnim;
+        [SerializeField] private PixelAnimation playingAnim; 
         private PixelAnimation nextAnim;
-        public PixelAnimation PlayingAnim => currAnim;
+        
         private int frameIndex;
-        private float clock;
+        private float elapsedTime;
         public bool isPlaying;
 
         private GameObject titleObject;
-
-
-        public readonly Dictionary<string, GameObject> groupObjects = new();
         
-        public int Direction => spriteRenderer.flipX && autoFlip ? -1 : 1;
-
+        public readonly Dictionary<string, GameObject> colliderObjects = new();
+        
         private void Awake(){
-            
             // preferences = Resources.Load<PixelAnimationPreferences>("../../Editor/Resources/PixelAnimationPreferences");
             CreateTitle();
-            // currAnim.PixelSprites[0].methodStorage.methodData[0].instance
         }
 
-        private void CreateTitle()
-        {
+        private void CreateTitle(){
             titleObject = new GameObject("---PixelAnimator Colliders---"){ transform ={
                     parent = transform,
                     localPosition = Vector3.zero
@@ -51,93 +43,73 @@ namespace binc.PixelAnimator{
         
         private void Update(){
             NextFrame();
-            
         }
-
-
+        
         private void NextFrame(){
             if (!isPlaying) return;
-            clock += Time.deltaTime;
-            var secondPerFrame = 1 / (float) currAnim.fps;
-            var sprites = currAnim.PixelSprites.Select(p => p.sprite).ToList();
-            while (clock >= secondPerFrame) {
+            elapsedTime += Time.deltaTime;
+            var secondsPerFrame = 1 / (float)playingAnim.fps;
+            var sprites = playingAnim.GetSpriteList();
+            while (elapsedTime >= secondsPerFrame){
                 // if(frameIndex > 0)LateUpdateFrame();
-
-
+                
                 frameIndex = (frameIndex + 1) % sprites.Count;
                 spriteRenderer.sprite = sprites[frameIndex];
                 UpdateFrame();
 
-                clock -= secondPerFrame;
-                if (frameIndex != sprites.Count - 1 || currAnim.loop) continue;
+                elapsedTime -= secondsPerFrame;
+                if (frameIndex != sprites.Count - 1 || playingAnim.loop)
+                    continue;
                 isPlaying = false;
                 break;
-
             }
         }
-        
-        
         // This function is called when the current frame time has completely elapsed.
         private void UpdateFrame(){
-            ApplyBox();
+            SetBoxSize();
         }
-        
         private void LateUpdateFrame(){
         }
-        
-        
-        
-        
-
-        
-        //When the current animation changes, the collider info component and the box collider component are added. The size and position of the box collider are adjusted.
-        private void SetLayer(List<Group> groups){
-            foreach (var group in groups) {
-                var groupObj = GetAddedGroupObject(group);
-                // var colInfo = groupObj.AddComponent<ColliderInfo>();
-                foreach (var layer in group.layers) {
-                    var col = groupObj.AddComponent<BoxCollider2D>();
-                    // colliderToInfo.Add(col, colInfo);
-                    col.enabled = false;
-                    var rect = GetAdjustedRect(layer, frameIndex);
-                    col.isTrigger = group.colliderTypes == ColliderTypes.Trigger;
-                    col.size = rect.size;
-                    col.offset = new Vector2(rect.position.x * Direction, rect.position.y);
-                    col.enabled = true;
-                    // colInfo.Setup(this, col);
-                    // layerToColliderInfo.Add(layer, colInfo);
-                    
-                    
+        private void SetBoxSize(){
+            try{
+                var groups = playingAnim.BoxGroups;
+                for (var g = 0; g < groups.Count; g++){
+                    var group = groups[g];
+                    var groupObj = titleObject.transform.GetChild(g);
+                    var cols = groupObj.GetComponents<BoxCollider2D>();
+                    if (cols.Length != group.boxes.Count) return;
+                    for (var l = 0; l < group.boxes.Count; l++)
+                    {
+                        var layer = group.boxes[l];
+                        var box = GetAdjustedRect(layer, frameIndex);
+                        cols[l].offset = new Vector2(box.x, box.y);
+                        cols[l].size = new Vector2(box.width, box.height);
+                    }
                 }
             }
-
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+        }
+        private Rect GetAdjustedRect(Box box, int index){
+            var f = index == -1 ? 0 : index;
+            return PixelAnimatorUtility.MapBoxRectToTransform(box.frames[f].boxRect, playingAnim.GetSpriteList()[f]);
         }
 
-        //When the current animation changes, the objects of the groups are checked. The group object is refreshed depending on the situation.
-        private GameObject GetAddedGroupObject(Group group){
-            
-            
-            var boxData = preferences.GetBoxData(group.BoxDataGuid);
-            var isExist = groupObjects.Keys.Contains(boxData.boxName);
-            GameObject groupObj;
-            
-            if (!isExist) {
-                groupObj = CreateGroupObject(boxData);
-                groupObjects.Add(groupObj.name, groupObj);
-            }
-            else {
-                groupObj = groupObjects[boxData.boxName].gameObject;
-            }
-
-            foreach (var component in groupObj.GetComponents<Component>()) {
-                if(component is not Transform) Destroy(component);
-            }
-
-            return groupObj;
+        private GameObject CreateColliderObject(BoxData boxData){
+            var gameObj = new GameObject(boxData.boxName){
+                transform ={
+                    parent = titleObject.transform,
+                    localPosition = Vector3.zero,
+                    localScale = transform.localScale
+                },
+                layer =  boxData.activeLayer
+            };
+            return gameObj;
         }
-
-        public static Action GetFunction(MethodData data, System.Object obj)
-        {
+        
+        public static Action GetFunction(MethodData data){
             var instance = data.instance;
             var info = data.method.methodInfo;
 
@@ -165,88 +137,66 @@ namespace binc.PixelAnimator{
             return () => { compiledDelegate(parameters);};
         }
 
-        private void RefreshGroupObject(){
-            var names = currAnim.GetGroupsName(preferences);
-            for (var g = 0; g < groupObjects.Count; g++) { // if group is not exist in changed animation, delete object
-                if (names.Contains(groupObjects.ElementAt(g).Key)) continue;
+        public void Play(PixelAnimation animation){//TODO: need to fix
+            frameIndex = 0;
+            elapsedTime = 0;
+            //elapsedTime += (float)1/animation.fps; 
+            isPlaying = true;
+            playingAnim = animation;
+            RefreshColliderObjects();
+            SetBoxes(playingAnim.BoxGroups);
+        }
+        
+        private void RefreshColliderObjects(){
+            var names = playingAnim.GetBoxGroupsName(preferences);
+            for (var g = 0; g < colliderObjects.Count; g++){
+                if (names.Contains(colliderObjects.ElementAt(g).Key)) continue;
 
                 var gameObj = titleObject.transform.GetChild(g).gameObject;
-                groupObjects.Remove(gameObj.name);
+                colliderObjects.Remove(gameObj.name);
                 Destroy(gameObj);
             }
         }
-        private GameObject CreateGroupObject(BoxData boxData){
-            var gameObj = new GameObject(boxData.boxName){
-                transform ={
-                    parent = titleObject.transform,
-                    localPosition = Vector3.zero,
-                    localScale = transform.localScale
-                },
-                layer =  boxData.activeLayer
-            };
-            return gameObj;
-        }
-        public void Play(PixelAnimation animation){
-            if (currAnim == animation) return;
-            
-            frameIndex = -1;
-            clock = 0;
-            clock += (float)1/animation.fps;
-            isPlaying = true;
-            currAnim = animation;
-            RefreshGroupObject();
-            SetLayer(currAnim.Groups);
-            
-            
-        }
         
-        private void ApplyBox(){
-            SetBoxSize();
-
-        }
-        
-
-        private void SetBoxSize(){
-            try
-            {
-                var groups = currAnim.Groups;
-                for (var g = 0; g < groups.Count; g++)
+        //When the current animation changes, the collider info component and the box collider component are added. The size and position of the box collider are adjusted.
+        private void SetBoxes(List<BoxGroup> boxGroups){
+            foreach (var boxGroup in boxGroups) {
+                var colliderObj = SetColliderObject(boxGroup);
+                foreach (var box in boxGroup.boxes)
                 {
-                    var group = groups[g];
-                    var groupObj = titleObject.transform.GetChild(g);
-                    var cols = groupObj.GetComponents<BoxCollider2D>();
-                    if (cols.Length != group.layers.Count) return;
-                    for (var l = 0; l < group.layers.Count; l++)
-                    {
-                        var layer = group.layers[l];
-                        var box = GetAdjustedRect(layer, frameIndex);
-                        cols[l].offset = new Vector2(box.x * Direction, box.y);
-                        cols[l].size = new Vector2(box.width, box.height);
-                    }
+                    SetCollider(colliderObj, box, boxGroup);
                 }
             }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
+        }
+        
+        //When the current animation changes, the objects of the groups are checked. The collider object is refreshed depending on the situation.
+        private GameObject SetColliderObject(BoxGroup boxGroup){
+            GameObject colliderObj;
+            var boxData = preferences.GetBoxData(boxGroup.BoxDataGuid);
+            var isExist = colliderObjects.Keys.Contains(boxData.boxName);
+            if (!isExist){
+                colliderObj = CreateColliderObject(boxData);
+                colliderObjects.Add(colliderObj.name, colliderObj);
+            }
+            else{
+                colliderObj = colliderObjects[boxData.boxName].gameObject;
             }
 
-            
-        }
+            foreach (var component in colliderObj.GetComponents<Component>()){
+                if(component is not Transform) Destroy(component);
+            }
 
-
-        
-        private Rect GetAdjustedRect(Box box, int index){
-            var f = index == -1 ? 0 : index;
-            return MapBoxRectToTransform(box.frames[f].hitBoxRect, currAnim.GetSpriteList()[f]);
+            return colliderObj;
         }
         
-        private static Rect MapBoxRectToTransform(Rect rect, Sprite sprite) {
-            var offset = new Vector2(rect.x + rect.width * 0.5f - sprite.pivot.x, sprite.rect.height - rect.y - rect.height * 0.5f - sprite.pivot.y)/sprite.pixelsPerUnit;
-            var size = new Vector2(rect.width, rect.height) / sprite.pixelsPerUnit;
-            return new Rect(offset, size);
+        private void SetCollider(GameObject colliderObj, Box box, BoxGroup boxGroup){
+            var col = colliderObj.AddComponent<BoxCollider2D>();
+            col.enabled = false;
+            var rect = GetAdjustedRect(box, frameIndex);
+            col.isTrigger = boxGroup.colliderTypes == ColliderTypes.Trigger;
+            col.size = rect.size;
+            col.offset = new Vector2(rect.position.x, rect.position.y);
+            col.enabled = true;
         }
-        
-
-        
     }
 }

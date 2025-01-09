@@ -55,6 +55,8 @@ public class StringClass
 
 public class Test : MonoBehaviour
 {
+    public float asdadasdas;
+    public BoxData boxData;
     private PixelAnimator animator;
     // public DynamicEvent dynamicEvent;
     private Rigidbody2D body;
