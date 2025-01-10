@@ -12,19 +12,15 @@ namespace binc.PixelAnimator.Editor.Windows
         public bool FocusChangeable { get; internal set; }
         public int Id{get; internal set;}
 
-
-        protected Window() {
-        }
-
         public abstract void Initialize(int id);
         public abstract void Dispose();
 
 
         /// <summary>
-        /// This function works when the window focus is on the window from which you inherited this class.
+        /// This function works when the window focus is on the window that you inherited this class from.
         /// </summary>
         /// 
-        public abstract void FocusFunctions();  
+        public abstract void OnFocus();  
                     
     
         public abstract void ProcessWindow();

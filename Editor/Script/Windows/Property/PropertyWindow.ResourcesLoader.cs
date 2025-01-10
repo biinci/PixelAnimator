@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 
-
 namespace binc.PixelAnimator.Editor.Windows{
     [Serializable]
     public partial class PropertyWindow : Window{
@@ -14,28 +13,11 @@ namespace binc.PixelAnimator.Editor.Windows{
         public override void Initialize(int id)
         {
             Id = id;
-            InitList();
             timelineWindow = PixelAnimatorWindow.AnimatorWindow.GetWindow<TimelineWindow>();
-            
-            
         }
-        
-        private void InitList()
-        {
-            
-
-        }
-
         public override void Dispose()
         {
 
         }
-
-        
-
     }
-    
-
-    
 }
-

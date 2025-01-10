@@ -25,7 +25,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             if(windowRect.y > height) windowRect.position = new Vector2(windowRect.x,400);
         }
 
-        public override void FocusFunctions(){
+        public override void OnFocus(){
             if(!SelectedAnim) return;
             SetShortcuts();
         }
@@ -55,8 +55,8 @@ namespace binc.PixelAnimator.Editor.Windows{
             var layers = groups[groupIndex].boxes;
             var frames = layers[layerIndex].frames;
             var isSameFrameIndex = frameIndex == animatorWindow.IndexOfSelectedSprite;
-            var isSameLayerIndex = layerIndex == animatorWindow.IndexOfSelectedLayer;
-            var isSameGroupIndex = groupIndex == animatorWindow.IndexOfSelectedGroup;
+            var isSameLayerIndex = layerIndex == animatorWindow.IndexOfSelectedBox;
+            var isSameGroupIndex = groupIndex == animatorWindow.IndexOfSelectedBoxGroup;
             var frame = frames[frameIndex];            
             
             if(isSameLayerIndex && isSameGroupIndex){
@@ -68,8 +68,8 @@ namespace binc.PixelAnimator.Editor.Windows{
             } 
             
             if(isSameFrameIndex){ 
-                 animatorWindow.SelectGroup(groupIndex);
-                 animatorWindow.SelectLayer(layerIndex);
+                 animatorWindow.SelectBoxGroup(groupIndex);
+                 animatorWindow.SelectBox(layerIndex);
             } 
             PixelAnimatorWindow.AnimatorWindow.Repaint();
 
@@ -89,19 +89,19 @@ namespace binc.PixelAnimator.Editor.Windows{
             }
         }
         private void BoxButton(ValueTuple<BoxGroup, Box> data){
-            layerMenu = new GenericMenu();
+            boxMenu = new GenericMenu();
             
-            layerMenu.AddItem(new GUIContent("Delete Box"), false, ()=>{data.Item1.boxes.Remove(data.Item2);});
-            layerMenu.ShowAsContext();
+            boxMenu.AddItem(new GUIContent("Delete Box"), false, ()=>{data.Item1.boxes.Remove(data.Item2);});
+            boxMenu.ShowAsContext();
         }
 
         private void GroupButton(BoxGroup boxGroup){
-            groupMenu = new GenericMenu();
-            groupMenu.AddItem(new GUIContent("Delete BoxGroup"), false, ()=>{SelectedAnim.RemoveGroup(boxGroup.BoxDataGuid);});
-            groupMenu.AddItem(new GUIContent("Add Box"), false, ()=>{boxGroup.AddBox(SelectedAnim.PixelSprites);});
-            groupMenu.AddItem(new GUIContent("Expand"), boxGroup.isExpanded, () => {boxGroup.isExpanded = !boxGroup.isExpanded;});
-            groupMenu.AddItem(new GUIContent("Visible"), boxGroup.isVisible, () => {boxGroup.isVisible = !boxGroup.isVisible;});
-            groupMenu.ShowAsContext();
+            boxGroupMenu = new GenericMenu();
+            boxGroupMenu.AddItem(new GUIContent("Delete BoxGroup"), false, ()=>{SelectedAnim.RemoveGroup(boxGroup.BoxDataGuid);});
+            boxGroupMenu.AddItem(new GUIContent("Add Box"), false, ()=>{boxGroup.AddBox(SelectedAnim.PixelSprites);});
+            boxGroupMenu.AddItem(new GUIContent("Expand"), boxGroup.isExpanded, () => {boxGroup.isExpanded = !boxGroup.isExpanded;});
+            boxGroupMenu.AddItem(new GUIContent("Visible"), boxGroup.isVisible, () => {boxGroup.isVisible = !boxGroup.isVisible;});
+            boxGroupMenu.ShowAsContext();
         }
 
         private void BurgerMenuButton(){
@@ -200,7 +200,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void SetMouseIconState(){
             var r = new Rect(windowRect.position, handleRect.size);
             EditorGUIUtility.AddCursorRect(r, MouseCursor.ResizeVertical);
-            PixelAnimatorWindow.AddCursorBool(reSizing, MouseCursor.ResizeVertical);
+            PixelAnimatorWindow.AddCursorCondition(reSizing, MouseCursor.ResizeVertical);
         }
         #endregion
     }

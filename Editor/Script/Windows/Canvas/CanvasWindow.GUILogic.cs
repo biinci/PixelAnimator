@@ -106,7 +106,7 @@ namespace binc.PixelAnimator.Editor.Windows
 
         private void AddCursorRect(Rect rect, MouseCursor cursor, BoxHandleType type){
             EditorGUIUtility.AddCursorRect(rect, cursor);
-            PixelAnimatorWindow.AddCursorBool(EditingBoxHandle == type, cursor);
+            PixelAnimatorWindow.AddCursorCondition(EditingBoxHandle == type, cursor);
 
         }
 
@@ -114,7 +114,7 @@ namespace binc.PixelAnimator.Editor.Windows
             EditingBoxHandle = boxHandleType;
         }
 
-        public override void FocusFunctions(){
+        public override void OnFocus(){
             MoveOperations();
             DrawFocusOutline();
             timelineWindow.SetShortcuts();

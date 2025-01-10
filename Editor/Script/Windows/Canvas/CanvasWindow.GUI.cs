@@ -1,9 +1,6 @@
-using System;
 using UnityEngine;
 using UnityEditor;
 using binc.PixelAnimator.Common;
-using UnityEngine.UIElements;
-
 
 namespace binc.PixelAnimator.Editor.Windows{
 
@@ -18,7 +15,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             GUI.Window(Id, windowRect, _=>{WindowFunction();}, GUIContent.none, GUIStyle.none);
             
         }
-        void ClampPosition() { 
+        private void ClampPosition() { 
             var spriteWindow = PixelAnimatorWindow.AnimatorWindow.AvailableSpace;
             screenSpriteOrigin.x = spriteWindow.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
             screenSpriteOrigin.y = spriteWindow.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
@@ -94,9 +91,9 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void ProcessBoxes(int groupIndex, BoxGroup boxGroup, BoxData boxData){
             
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            var isActiveGroup = groupIndex == animatorWindow.IndexOfSelectedGroup;
+            var isActiveGroup = groupIndex == animatorWindow.IndexOfSelectedBoxGroup;
 
-            var selectedLayerIndex = animatorWindow.IndexOfSelectedLayer;
+            var selectedLayerIndex = animatorWindow.IndexOfSelectedBox;
             for (var i = 0; i < boxGroup.boxes.Count; i++)
             {
                 var isBoxActive = isActiveGroup && boxGroup.isExpanded &&
@@ -140,8 +137,8 @@ namespace binc.PixelAnimator.Editor.Windows{
                     if (isClickedRect && EditingBoxHandle==BoxHandleType.None && !GetActiveGUIBoxRect().Contains(mousePos))
                     {
                         Event.current.Use();
-                        animatorWindow.SelectGroup(groupIndex);
-                        animatorWindow.SelectLayer(i);
+                        animatorWindow.SelectBoxGroup(groupIndex);
+                        animatorWindow.SelectBox(i);
                         boxGroup.isExpanded = true;
                     }
 
@@ -156,8 +153,8 @@ namespace binc.PixelAnimator.Editor.Windows{
         {
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var rect =  SelectedAnim
-                .BoxGroups[animatorWindow.IndexOfSelectedGroup]
-                .boxes[animatorWindow.IndexOfSelectedLayer]
+                .BoxGroups[animatorWindow.IndexOfSelectedBoxGroup]
+                .boxes[animatorWindow.IndexOfSelectedBox]
                 .frames[animatorWindow.IndexOfSelectedSprite].boxRect;
             rect.position *= spriteScale;
             rect.size *= spriteScale;
@@ -214,7 +211,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                     break;
             }
 
-            PixelAnimatorWindow.AnimatorWindow.TargetAnimation?.ApplyModifiedProperties();
+            PixelAnimatorWindow.AnimatorWindow.SerializedSelectedAnimation?.ApplyModifiedProperties();
             PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
         

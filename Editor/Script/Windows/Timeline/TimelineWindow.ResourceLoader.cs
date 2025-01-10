@@ -8,7 +8,6 @@ namespace binc.PixelAnimator.Editor.Windows
     public partial class TimelineWindow : Window
     {
         #region Variables
-
         public bool IsPlaying { get; private set; }
 
         private Rect handleRect,
@@ -30,7 +29,7 @@ namespace binc.PixelAnimator.Editor.Windows
         public static readonly Color WindowPlaneColor = new(0.1f, 0.1f, 0.1f, 1);
         public static readonly Color AccentColor = new(0.14f, 0.14f, 0.14f, 1);
 
-        private GenericMenu burgerMenu, groupMenu, layerMenu;
+        private GenericMenu burgerMenu, boxGroupMenu, boxMenu;
 
         private const float HandleHeight = 6;
 
@@ -68,12 +67,9 @@ namespace binc.PixelAnimator.Editor.Windows
         private ButtonData<ValueTuple<int, int, int>> frameButton;
         private ButtonData burgerButton, playPauseButton;
         private ButtonData<bool> previousNextSpriteButton;
-
         #endregion
 
         #region Init
-
-
         public override void Initialize(int id)
         {
             Id = id;
@@ -81,9 +77,7 @@ namespace binc.PixelAnimator.Editor.Windows
             InitRect();
             LoadStyles();
         }
-
-
-
+        
         private void LoadInitResources()
         {
             LoadTextures();

@@ -1,8 +1,6 @@
 using System;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
-
 
 namespace binc.PixelAnimator.Editor.Windows
 {
@@ -16,15 +14,14 @@ namespace binc.PixelAnimator.Editor.Windows
         private void DrawPropertyWindow()
         {
             const float ratio = 0.30063115f;
-            var factor = Math.Clamp(ratio*PixelAnimatorWindow.AnimatorWindow.position.width, 250, 450);
-            windowRect = new Rect(10, 10, factor, 250);
-            
+            var width = Math.Clamp(ratio*PixelAnimatorWindow.AnimatorWindow.position.width, 250, 450);
+            windowRect = new Rect(10, 10, width, 250);
 
             GUI.Window(Id, windowRect, _ =>
             {
                 EditorGUI.DrawRect(new Rect(Vector2.zero, windowRect.size), new Color(0.2f, 0.2f, 0.2f));
 
-                selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, factor/2f);
+                selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, width/2f);
                 switch (selectedTab)
                 {
                     case 0:
@@ -36,21 +33,20 @@ namespace binc.PixelAnimator.Editor.Windows
                 }
                 
             }, GUIContent.none, GUIStyle.none);
-            
         }
 
         private void DrawHitboxTab()
         {
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            var targetAnimation = animatorWindow.TargetAnimation;
+            var targetAnimation = animatorWindow.SerializedSelectedAnimation;
 
             if (targetAnimation != null && animatorWindow.IsValidFrame())
             {
                 var property = targetAnimation
                     .FindProperty("boxGroups")
-                    .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedGroup)
+                    .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedBoxGroup)
                     .FindPropertyRelative("boxes")
-                    .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedLayer)
+                    .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedBox)
                     .FindPropertyRelative("frames")
                     .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedSprite)
                     .FindPropertyRelative("methodStorage");
@@ -75,8 +71,6 @@ namespace binc.PixelAnimator.Editor.Windows
                     }
                     GUI.EndScrollView();
                 }
-                
-
             }
             else if(targetAnimation == null)
             {
@@ -91,7 +85,7 @@ namespace binc.PixelAnimator.Editor.Windows
         private void DrawSpriteTab()
         {
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            var targetAnimation = animatorWindow.TargetAnimation;
+            var targetAnimation = animatorWindow.SerializedSelectedAnimation;
             var spriteIndex = animatorWindow.IndexOfSelectedSprite;
             if (targetAnimation != null && animatorWindow.IsValidSprite())
             {
@@ -124,14 +118,7 @@ namespace binc.PixelAnimator.Editor.Windows
             {
                 EditorGUILayout.LabelField("Please Select a Sprite");
             }
-
         }
-        
-
-
     }
-    
-    
-    
 }
 

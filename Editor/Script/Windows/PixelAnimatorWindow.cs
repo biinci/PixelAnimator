@@ -7,63 +7,72 @@ using binc.PixelAnimator.Preferences;
 using binc.PixelAnimator.Editor.Preferences;
 
 namespace binc.PixelAnimator.Editor.Windows{
-
-
     [Serializable]
     public class PixelAnimatorWindow : EditorWindow
     {
-
-        #region Variables
-
+        #region Singleton
         public static PixelAnimatorWindow AnimatorWindow { get; private set; }
+        #endregion
+        
+        #region Variables
         public static readonly Color BackgroundColor = new(0.098f, 0.098f, 0.098f);
-        public static readonly Vector2 MinSize = new(150, 450);
+        public static readonly Vector2 MinSize = new(800, 450);
         public GUISkin PixelAnimatorSkin { get; private set; }
         public int IndexOfSelectedSprite { get; private set; }
-        public int IndexOfSelectedLayer { get; private set; }
-        public int IndexOfSelectedGroup { get; private set; }
-        [SerializeField] private PixelAnimation selectedAnimation;
+        public int IndexOfSelectedBox { get; private set; }
+        public int IndexOfSelectedBoxGroup { get; private set; }
         public PixelAnimation SelectedAnimation => selectedAnimation;
-
-        public float EditorDeltaTime { get; private set; }
-        private float lifeTime;
+        [SerializeField] private PixelAnimation selectedAnimation;
         public PixelAnimationPreferences AnimationPreferences { get; private set; }
         public PixelAnimatorPreferences AnimatorPreferences { get; private set; }
-        public SerializedObject TargetAnimation { get; private set; }
+        public SerializedObject SerializedSelectedAnimation { get; private set; }
         public Window FocusedWindow { get; private set; }
-        public SerializedObject SerializedAnimator { get; private set; }
-
-        public Rect AvailableSpace { get; private set; }
+        public Rect AvailableSpace { get; private set; } //TODO: It will be deleted. 
         public bool FocusChangeable { get; private set; }
-
+        public float EditorDeltaTime { get; private set; }
+        private float lifeTime;
         #endregion
-
-
-
+        
         #region Initialize
-
         [MenuItem("Window/Pixel Animator")]
         private static void InitWindow()
         {
             AnimatorWindow = CreateInstance<PixelAnimatorWindow>();
             AnimatorWindow.minSize = MinSize;
-
-            AnimatorWindow.Show();
             var icon = Resources.Load<Texture2D>("Sprites/PixelAnimatorIcon");
             AnimatorWindow.titleContent = new GUIContent("Pixel Animator", icon);
+            AnimatorWindow.Show();
         }
 
         private void OnEnable()
         {
-            AnimatorWindow = this;
-            Init();
+            LoadResources();
+            InitWindows();
         }
 
         private void OnDisable()
         {
             DisposeWindows();
         }
+        
+        private void LoadResources()
+        {
+            AnimationPreferences = Resources.Load<PixelAnimationPreferences>("Animation Preferences");
+            AnimatorPreferences = Resources.Load<PixelAnimatorPreferences>("Animator Preferences");
+            PixelAnimatorSkin = Resources.Load<GUISkin>("PixelAnimationSkin");
+        }
 
+        private void InitWindows()
+        {
+            AnimatorWindow = this;
+            FocusedWindow = null;
+            for (var i = 0; i < AnimatorPreferences.windows.Count; i++)
+            {
+                var window = AnimatorPreferences.windows[i];
+                window?.Initialize(i);
+            }
+        }
+        
         private void DisposeWindows()
         {
             foreach (var window in AnimatorPreferences.windows)
@@ -71,64 +80,31 @@ namespace binc.PixelAnimator.Editor.Windows{
                 window?.Dispose();
             }
         }
-
-        private void Init()
-        {
-
-            AnimationPreferences = Resources.Load<PixelAnimationPreferences>("Animation Preferences");
-            AnimatorPreferences = Resources.Load<PixelAnimatorPreferences>("Animator Preferences");
-            PixelAnimatorSkin = Resources.Load<GUISkin>("PixelAnimationSkin");
-            FocusedWindow = null;
-            SerializedAnimator = new SerializedObject(this);
-            SelectedObject();
-            InitWindows();
-
-
-        }
-
-        private void InitWindows()
-        {
-            for (var i = 0; i < AnimatorPreferences.windows.Count; i++)
-            {
-                var window = AnimatorPreferences.windows[i];
-                window?.Initialize(i);
-            }
-        }
-
-
         #endregion
-
-
-
-        private void SetWindowsData()
-        {
-            foreach (var window in AnimatorPreferences.windows)
+        
+        private void OnSelectionChange(){
+            foreach (var obj in Selection.objects)
             {
-                if (window is not IUpdate update) continue;
-                update.InspectorUpdate();
+                if (obj is not PixelAnimation anim) continue;
+                if (SelectedAnimation == anim) continue;
+
+                SerializedSelectedAnimation = new SerializedObject(anim);
+                selectedAnimation = anim;
+                IndexOfSelectedBoxGroup = IndexOfSelectedBox = IndexOfSelectedSprite = 0;
+                var spriteList = anim.GetSpriteList();
+                if (spriteList != null)
+                    lifeTime = 0;
             }
+            Repaint();
         }
-
-
         private void OnGUI()
         {
-
-
-            // AvailableSpace = position;
             DrawBackground();
+            
+            ProcessWindows();
+            CallOnFocus();
+            
             SetEditorDeltaTime();
-            SelectedObject();
-
-            FocusedWindowFunction();
-            ProcessingWindows();
-
-
-            if (Event.current.type != EventType.Used && Event.current.isMouse)
-            {
-                GUI.FocusControl("");
-            }
-
-            // Repaint();
         }
 
         private void DrawBackground()
@@ -136,20 +112,16 @@ namespace binc.PixelAnimator.Editor.Windows{
             var rect = new Rect(Vector2.zero, position.size);
             EditorGUI.DrawRect(rect, BackgroundColor);
         }
-
-        public Color color;
-        private void ProcessingWindows()
+        
+        private void ProcessWindows()
         {
             BeginWindows();
             try
             {
-
                 for (var i = 0; i < AnimatorPreferences.windows.Count; i++)
                 {
-
                     var window = AnimatorPreferences.windows[i];
-                    var isValidWindow = window != null;
-                    if (!isValidWindow) continue;
+                    if (window == null) continue;
                     window.ProcessWindow();
                     GUI.BringWindowToBack(i);
                 }
@@ -158,138 +130,78 @@ namespace binc.PixelAnimator.Editor.Windows{
             {
                 Debug.LogError(e);
             }
-
             EndWindows();
-
         }
-
-        private Vector2 mousePos;
-
-        private void FocusedWindowFunction()
+        
+        private void CallOnFocus()
         {
-            var eventCurrent = Event.current;
-            if (eventCurrent.type != EventType.Used)
+            Vector2 mousePos = Vector2.zero;
+            var currentEvent = Event.current;
+            if (currentEvent.type != EventType.Used)
             {
                 mousePos = Event.current.mousePosition;
             }
-
-            var isLeftClicked = eventCurrent.button == 0 && eventCurrent.type is EventType.MouseDown or EventType.Used;
+            var isLeftClicked = currentEvent.button == 0 && currentEvent.type is EventType.MouseDown or EventType.Used;
             if (isLeftClicked)
             {
-                var foundFocusedWindow = IsExistFocusedWindow();
-                if (!foundFocusedWindow) FocusedWindow = null;
+                foreach (var window in AnimatorPreferences.windows)
+                {
+                    var isMouseInRect = window.WindowRect.Contains(mousePos);
+                    if (!isMouseInRect) continue;
+                    FocusedWindow = window;
+                    FocusChangeable = false;
+                }
 
+                FocusChangeable = true;
+                FocusedWindow = null;
             }
-
-            FocusedWindow?.FocusFunctions();
+            FocusedWindow?.OnFocus();
         }
-
-        private bool IsExistFocusedWindow()
-        {
-            foreach (var window in from window in AnimatorPreferences.windows
-                     let isInRect = window.WindowRect.Contains(mousePos)
-                     where isInRect
-                     select window)
-            {
-                FocusedWindow = window;
-                FocusChangeable = false;
-                return true;
-            }
-
-            FocusChangeable = true;
-            return false;
-        }
-
-        #region Common
-
+        
         private void SetEditorDeltaTime()
-        {
-
-            if (lifeTime == 0f) lifeTime = (float)EditorApplication.timeSinceStartup;
-            EditorDeltaTime = (float)(EditorApplication.timeSinceStartup - lifeTime);
-            lifeTime = (float)EditorApplication.timeSinceStartup;
-
-        }
-
-        private void SelectedObject()
-        {
-            foreach (var obj in Selection.objects)
-            {
-                if (obj is not PixelAnimation anim)
                 {
-                    selectedAnimation = null;
-                    TargetAnimation = null;
-                    continue;
+                    if (lifeTime == 0f) lifeTime = (float)EditorApplication.timeSinceStartup;
+                    EditorDeltaTime = (float)(EditorApplication.timeSinceStartup - lifeTime);
+                    lifeTime = (float)EditorApplication.timeSinceStartup;
                 }
-
-                TargetAnimation = new SerializedObject(anim);
-                TargetAnimation.Update();
-                if (SelectedAnimation == anim)
-                {
-                    continue;
-                }
-
-                var spriteList = anim.GetSpriteList();
-                selectedAnimation = anim;
-                IndexOfSelectedGroup = 0;
-                IndexOfSelectedLayer = 0;
-                IndexOfSelectedSprite = 0;
-
-                if (spriteList != null)
-                    lifeTime = 0;
-            }
-
-        }
-
-        public static void AddCursorBool(bool condition, MouseCursor icon)
+        
+        #region Selection Methods
+        public void SelectBoxGroup(int index)
         {
-
-            if (!condition) return;
-            var rect = new Rect(0, 0, AnimatorWindow.position.size.x, AnimatorWindow.position.size.y);
-            EditorGUIUtility.AddCursorRect(rect, icon);
-
-        }
-
-
-        public void SelectGroup(int index)
-        {
-            var isValid = index < SelectedAnimation.BoxGroups.Count && index >= 0;
+            var isValid = index >= 0 && index < SelectedAnimation.BoxGroups.Count;
             if (!isValid) throw new IndexOutOfRangeException();
 
-            IndexOfSelectedGroup = index;
+            IndexOfSelectedBoxGroup = index;
         }
 
-        public void SelectLayer(int layerIndex)
+        public void SelectBox(int boxIndex)
         {
-            var isValid = layerIndex < SelectedAnimation.BoxGroups[IndexOfSelectedGroup].boxes.Count && layerIndex >= 0;
+            var isValid = boxIndex >= 0 && boxIndex < SelectedAnimation.BoxGroups[IndexOfSelectedBoxGroup].boxes.Count;
             if (!isValid) throw new IndexOutOfRangeException();
 
-            IndexOfSelectedLayer = layerIndex;
+            IndexOfSelectedBox = boxIndex;
         }
 
         public void SelectSprite(int index)
         {
-            var isValid = index < SelectedAnimation.GetSpriteList().Count && index >= 0;
+            var isValid = index >= 0 && index < SelectedAnimation.GetSpriteList().Count;
             if (!isValid) throw new IndexOutOfRangeException();
 
             IndexOfSelectedSprite = index;
         }
-
-        public void SetAvailableRect(Rect rect)
-        {
-            AvailableSpace = rect;
-        }
-
+        
         public void SelectFocusWindow(Window window)
         {
             if (FocusChangeable)
                 FocusedWindow = window;
         }
-
-
+        
         #endregion
-
-        public T GetWindow<T>() where T : Window
+        public void SetAvailableRect(Rect rect)
+        {
+            AvailableSpace = rect;
+        }
+        public new T GetWindow<T>() where T : Window
         {
             return AnimatorPreferences.windows.Find(w => w.GetType() == typeof(T)) as T;
         }
@@ -299,32 +211,23 @@ namespace binc.PixelAnimator.Editor.Windows{
             return SelectedAnimation;
         }
         
-        public bool IsValidGroup()
+        public bool IsValidBoxGroup()
         {
             if (!IsValidAnimation()) return false;
             if(SelectedAnimation.BoxGroups == null) return false;
-            return IndexOfSelectedGroup < SelectedAnimation.BoxGroups.Count;
+            return IndexOfSelectedBoxGroup < SelectedAnimation.BoxGroups.Count;
         }
 
-        public bool IsValidLayer()
+        public bool IsValidBox()
         {
-            if (IsValidGroup())
-            {
-                return IndexOfSelectedLayer < SelectedAnimation.BoxGroups[IndexOfSelectedGroup].boxes.Count;
-            }
-
-            return false;
+            if (!IsValidBoxGroup()) return false;
+            return IndexOfSelectedBox < SelectedAnimation.BoxGroups[IndexOfSelectedBoxGroup].boxes.Count;
         }
 
         public bool IsValidFrame()
         {
-            if (IsValidGroup() && IsValidLayer())
-            {
-                return IndexOfSelectedSprite < SelectedAnimation.GetSpriteList().Count;
-            }
-
-            return false;
-
+            if (!IsValidBox()) return false;
+            return IndexOfSelectedSprite < SelectedAnimation.GetSpriteList().Count;
         }
 
         public bool IsValidSprite()
@@ -333,20 +236,24 @@ namespace binc.PixelAnimator.Editor.Windows{
             return IndexOfSelectedSprite < SelectedAnimation.GetSpriteList().Count;
         }
         
-
-        public bool IsSelectedFrame(BoxFrame boxFrame)
+        public bool IsFrameSelected(BoxFrame boxFrame)
         {
-            return selectedAnimation.BoxGroups[IndexOfSelectedGroup].boxes[IndexOfSelectedLayer]
+            return selectedAnimation.BoxGroups[IndexOfSelectedBoxGroup].boxes[IndexOfSelectedBox]
                 .frames[IndexOfSelectedSprite] == boxFrame;
         }
         
+        public static void AddCursorCondition(bool condition, MouseCursor icon)
+        {
+            if (!condition) return;
+            var rect = new Rect(Vector2.zero, AnimatorWindow.position.size);
+            EditorGUIUtility.AddCursorRect(rect, icon);
+        }
     }
 
     public struct ButtonData<T>
     {
         public Action<T> DownClick;
         public Action<T> UpClick;
-
     }
 
     public struct ButtonData
@@ -354,9 +261,4 @@ namespace binc.PixelAnimator.Editor.Windows{
         public Action DownClick;
         public Action UpClick;
     }
-
 }
-
-    
-
-

@@ -112,7 +112,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void DrawFrames()
         {
-            if (!PixelAnimatorWindow.AnimatorWindow.IsValidGroup()) return;
+            if (!PixelAnimatorWindow.AnimatorWindow.IsValidBoxGroup()) return;
             //EditorGUI.DrawRect(new Rect(0, rowRect.yMax-HandleHeight, thumbnailPlaneRect.width+scrollPos.x*10, groupPlaneRect.height), new Color(0.5f,0.5f,0.5f,0.5f));
             GUILayout.BeginArea(new Rect(0, rowRect.yMax-HandleHeight, spriteThumbnailStyle.fixedWidth*SelectedAnim.GetSpriteList().Count, groupPlaneRect.height));
             EditorGUILayout.BeginScrollView(
@@ -223,7 +223,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             var clicked = GUILayout.Button("", style);
 
             
-            if (PixelAnimatorWindow.AnimatorWindow.IsSelectedFrame(boxFrame) && Event.current.type == EventType.Repaint)
+            if (PixelAnimatorWindow.AnimatorWindow.IsFrameSelected(boxFrame) && Event.current.type == EventType.Repaint)
             {
                 var rect = GUILayoutUtility.GetLastRect();
                 GUI.DrawTexture(rect,selectedFrameTex);
