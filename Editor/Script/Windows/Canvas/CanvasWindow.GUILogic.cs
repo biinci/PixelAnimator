@@ -3,12 +3,8 @@ using UnityEngine;
 using UnityEditor;
 using binc.PixelAnimator.Common;
 
-
-
 namespace binc.PixelAnimator.Editor.Windows
 {
-
-
     public partial class CanvasWindow
     {
 
@@ -62,13 +58,13 @@ namespace binc.PixelAnimator.Editor.Windows
             };
             var ratio = spriteScale / (float)previousScale;
 
-            var mousePosForWindow = eventCurrent.mousePosition - windowRect.position;
+            var mousePosForWindow = eventCurrent.mousePosition - canvasRect.position;
             
-            var spriteWindow = PixelAnimatorWindow.AnimatorWindow.AvailableSpace;
+            // var spriteWindow = PixelAnimatorWindow.AnimatorWindow.AvailableSpace;
             var newOrigin = new Vector2
             ( 
-                spriteWindow.width * 0.5f - spritePreview.width * 0.5f * spriteScale,
-                spriteWindow.height * 0.5f - spritePreview.height * 0.5f * spriteScale
+                windowRect.width * 0.5f - spritePreview.width * 0.5f * spriteScale,
+                windowRect.height * 0.5f - spritePreview.height * 0.5f * spriteScale
             );
             var mousePosForNewWindow = eventCurrent.mousePosition - (newOrigin + viewOffset);
             var scaledMousePos = mousePosForWindow * ratio;
@@ -76,14 +72,9 @@ namespace binc.PixelAnimator.Editor.Windows
             viewOffset += deltaVector;
             PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
-
-
-       
         
         private void SetRect(){
-            var canvasSize = new Vector2(spritePreview.width, spritePreview.height) * spriteScale;
-            windowRect.size = canvasSize;
-            spriteRect = new Rect(Vector2.zero, windowRect.size);
+            spriteRect = new Rect(Vector2.zero, canvasRect.size);
         }
         
         private void SetSpritePreview(){
@@ -96,9 +87,8 @@ namespace binc.PixelAnimator.Editor.Windows
         }
         
         private void FocusToCanvas(){
-            var availableSpace = PixelAnimatorWindow.AnimatorWindow.AvailableSpace;
             var eventCurrent = Event.current;
-            var isClicked = eventCurrent.type == EventType.MouseDown && availableSpace.Contains(eventCurrent.mousePosition);
+            var isClicked = eventCurrent.type == EventType.MouseDown && windowRect.Contains(eventCurrent.mousePosition);
             if(!isClicked) return;
             PixelAnimatorWindow.AnimatorWindow.SelectFocusWindow(this);
         }
@@ -116,10 +106,7 @@ namespace binc.PixelAnimator.Editor.Windows
 
         public override void OnFocus(){
             MoveOperations();
-            DrawFocusOutline();
             timelineWindow.SetShortcuts();
         }
-        
-        
     }
 }

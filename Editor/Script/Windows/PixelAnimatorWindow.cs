@@ -27,7 +27,6 @@ namespace binc.PixelAnimator.Editor.Windows{
         public PixelAnimatorPreferences AnimatorPreferences { get; private set; }
         public SerializedObject SerializedSelectedAnimation { get; private set; }
         public Window FocusedWindow { get; private set; }
-        public Rect AvailableSpace { get; private set; } //TODO: It will be deleted. 
         public bool FocusChangeable { get; private set; }
         public float EditorDeltaTime { get; private set; }
         private float lifeTime;
@@ -197,10 +196,6 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
         
         #endregion
-        public void SetAvailableRect(Rect rect)
-        {
-            AvailableSpace = rect;
-        }
         public new T GetWindow<T>() where T : Window
         {
             return AnimatorPreferences.windows.Find(w => w.GetType() == typeof(T)) as T;

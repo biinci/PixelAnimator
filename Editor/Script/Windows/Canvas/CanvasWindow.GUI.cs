@@ -12,13 +12,14 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void DrawCanvas()
         {
             ClampPosition();
-            GUI.Window(Id, windowRect, _=>{WindowFunction();}, GUIContent.none, GUIStyle.none);
+            var canvasSize = new Vector2(spritePreview.width, spritePreview.height) * spriteScale;
+            canvasRect = new Rect(viewOffset+screenSpriteOrigin,canvasSize);
+            GUI.Window(Id, canvasRect, _=>{WindowFunction();}, GUIContent.none, GUIStyle.none);
             
         }
         private void ClampPosition() { 
-            var spriteWindow = PixelAnimatorWindow.AnimatorWindow.AvailableSpace;
-            screenSpriteOrigin.x = spriteWindow.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
-            screenSpriteOrigin.y = spriteWindow.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
+            screenSpriteOrigin.x = windowRect.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
+            screenSpriteOrigin.y = windowRect.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
             
             if (viewOffset.x > spritePreview.width * spriteScale * 0.5f) viewOffset.x = spritePreview.width * spriteScale * 0.5f;
             if (viewOffset.x < -spritePreview.width * spriteScale * 0.5f) viewOffset.x = -spritePreview.width * spriteScale * 0.5f;
@@ -26,7 +27,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             if (viewOffset.y > spritePreview.height * spriteScale * 0.5f) viewOffset.y= spritePreview.height * spriteScale * 0.5f;
             if (viewOffset.y < -spritePreview.height * spriteScale * 0.5f) viewOffset.y = -spritePreview.height * spriteScale * 0.5f;
 
-            windowRect.position =  viewOffset+screenSpriteOrigin;
         }
 
         private void WindowFunction(){
@@ -294,17 +294,5 @@ namespace binc.PixelAnimator.Editor.Windows{
             AddCursorRect(rAdjustedMiddle, MouseCursor.MoveArrow, BoxHandleType.Middle);
             
         }
-
-
-
-        private void DrawFocusOutline()
-        {
-            if (!PixelAnimatorWindow.AnimatorWindow.IsValidSprite()) return;
-            
-            var largestCanvas = new Rect(windowRect.x - 2, windowRect.y - 2, windowRect.width + 4,
-                windowRect.height + 4);  
-            // EditorGUI.DrawRect(largestCanvas, Color.blue);
-        }
-
     }
 }

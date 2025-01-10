@@ -163,17 +163,12 @@ namespace binc.PixelAnimator.Editor.Windows{
         
         #region Rect
         private void SetRect(){
-            var animatorWindowRect = PixelAnimatorWindow.AnimatorWindow.position;
-            // windowRect.size = new Vector2(animatorWindowRect.size.x, animatorWindowRect.height - windowRect.position.y);
             handleRect = new Rect(0, 0, windowRect.width, HandleHeight);
             columnRect = new Rect(GroupPanelWidth, HandleHeight, ColumnWidth, windowRect.height);
             rowRect = new Rect(0, ToolPanelHeight + HandleHeight, windowRect.width, RowHeight);
             groupPlaneRect = new Rect(0, rowRect.yMax, windowRect.width, windowRect.height - rowRect.yMax);
             thumbnailPlaneRect = new Rect(columnRect.xMax, HandleHeight, windowRect.width - columnRect.xMax,ToolPanelHeight);
             toolPanelRect = new Rect(10,8+HandleHeight, columnRect.x, ToolPanelHeight);
-            var availableSpace = new Rect(0,0, animatorWindowRect.width, windowRect.y);
-            PixelAnimatorWindow.AnimatorWindow.SetAvailableRect(availableSpace);
-            
             ReSizeWindowRect();
         }
         private void SetReSizingState(){
