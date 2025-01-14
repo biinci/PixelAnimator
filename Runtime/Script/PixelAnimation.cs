@@ -17,6 +17,8 @@ namespace binc.PixelAnimator{
         public List<BoxGroup> BoxGroups => boxGroups;
         [SerializeField] private List<BoxGroup> boxGroups;
         
+        public List<Reference> References;
+        
         public void AddGroup(string boxDataGuid){
             boxGroups.Add(new BoxGroup(boxDataGuid));
         }
@@ -51,5 +53,14 @@ namespace binc.PixelAnimator{
             }
             return names;
         }
+    }
+
+    [System.Serializable]
+    public struct Reference
+    {
+        public int id;
+        public string sceneID;
+        public string objectName;
+        public string sceneName;
     }
 }

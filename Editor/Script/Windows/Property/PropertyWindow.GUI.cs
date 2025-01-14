@@ -1,11 +1,13 @@
 using System;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace binc.PixelAnimator.Editor.Windows
 {
     public partial class PropertyWindow
     {
+        private UnityEngine.Object obj;
         public override void ProcessWindow()
         {
             if (!timelineWindow.IsPlaying) DrawPropertyWindow();
@@ -22,16 +24,27 @@ namespace binc.PixelAnimator.Editor.Windows
                 EditorGUI.DrawRect(new Rect(Vector2.zero, windowRect.size), new Color(0.2f, 0.2f, 0.2f));
 
                 selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, width/2f);
-                switch (selectedTab)
-                {
-                    case 0:
-                        DrawSpriteTab();
-                        break;
-                    case 1:
-                        DrawHitboxTab();
-                        break;
-                }
                 
+                EditorGUI.BeginChangeCheck();
+                obj = EditorGUILayout.ObjectField(obj, typeof(UnityEngine.Object), true);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    int objID = obj.GetInstanceID();
+                    SelectedAnim.References.Add(new Reference()
+                    {
+                        id = objID
+                    });
+                }
+                //switch (selectedTab)
+                //{
+                //    case 0:
+                //        DrawSpriteTab();
+                //        break;
+                //    case 1:
+                //        DrawHitboxTab();
+                //        break;
+                //}
+
             }, GUIContent.none, GUIStyle.none);
         }
 
