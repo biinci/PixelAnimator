@@ -134,7 +134,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         
         private void CallOnFocus()
         {
-            Vector2 mousePos = Vector2.zero;
+            var mousePos = Vector2.zero;
             var currentEvent = Event.current;
             if (currentEvent.type != EventType.Used)
             {

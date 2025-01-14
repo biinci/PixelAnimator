@@ -7,8 +7,6 @@ using binc.PixelAnimator.Common;
 namespace binc.PixelAnimator.Editor.Windows{
 
     public partial class TimelineWindow{
-
-        
         public override void ProcessWindow(){
             SetRect();
             ClampTimelinePosition();
@@ -72,7 +70,6 @@ namespace binc.PixelAnimator.Editor.Windows{
                  animatorWindow.SelectBox(layerIndex);
             } 
             PixelAnimatorWindow.AnimatorWindow.Repaint();
-
         }
         private BoxFrameType ChangeFrameType(BoxFrameType type, BoxFrameType previousType, int index){
             switch (type){
@@ -190,7 +187,6 @@ namespace binc.PixelAnimator.Editor.Windows{
                 windowRect.height = animatorRect.height - Event.current.mousePosition.y;
                 animatorWindow.Repaint();
             }
-
         }
         private void SetMouseIconState(){
             var r = new Rect(windowRect.position, handleRect.size);

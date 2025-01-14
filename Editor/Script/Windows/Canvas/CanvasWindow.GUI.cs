@@ -30,8 +30,8 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
         private void WindowFunction(){
-            DrawGrid();//ok
-            DrawSprite();//ok
+            DrawGrid();
+            DrawSprite();
             DrawBoxes();
         }
         
@@ -54,7 +54,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void DrawGrid()
         {
             var rect = spriteRect;
-            var grid = new Rect(rect.x, rect.y, 16 * spriteScale, 16 * spriteScale); //define a single 16x16 tile
+            var grid = new Rect(rect.x, rect.y, 16 * spriteScale, 16 * spriteScale);
 
             for (var i = 0; i < spritePreview.width / 16; i++) {
                 for (var j = 0; j < spritePreview.height / 16; j += 2) {
@@ -84,10 +84,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             grid.height = rect.y + rect.height - grid.y;
             if (rect.y + rect.height - grid.y > 0) GUI.DrawTexture(grid, gridBlackTex); 
         }
-
         
-
-
         private void ProcessBoxes(int groupIndex, BoxGroup boxGroup, BoxData boxData){
             
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;

@@ -25,13 +25,8 @@ namespace binc.PixelAnimator.Editor.Windows
             Id = id;
             SetTextures();
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            
-            // var x = windowRect.x + windowRect.width/2;
-            // var y = windowRect.y + windowRect.height/2;
-            // windowRect.position = new Vector2(x, y);
             spriteScale = 1;
             EditingBoxHandle = BoxHandleType.None;
-
             timelineWindow = animatorWindow.GetWindow<TimelineWindow>();
         }
 

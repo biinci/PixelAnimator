@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -18,23 +19,23 @@ namespace binc.PixelAnimator.Editor
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            // try
-            // {
-            property.serializedObject.UpdateIfRequiredOrScript();
-            var methods = property.FindPropertyRelative("methodData");
-            var list = GetReorderableList(property, methods);
-            list.DoList(position);
-            property.serializedObject.ApplyModifiedProperties();
-            // }
-            // catch (Exception e)
-            // {
-                // Debug.LogError($"Error in MethodStorageDrawer.OnGUI: {e.Message}");
-                // EditorGUI.LabelField(position, "Error drawing property. Check console for details.");
-            // }
-            // finally
-            // {
-            // }
-            EditorGUI.EndProperty();
+            try
+            {
+                property.serializedObject.UpdateIfRequiredOrScript();
+                var methods = property.FindPropertyRelative("methodData");
+                var list = GetReorderableList(property, methods);
+                list.DoList(position);
+                property.serializedObject.ApplyModifiedProperties();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error in MethodStorageDrawer.OnGUI: {e.Message}");
+                EditorGUI.LabelField(position, "Error drawing property. Check console for details.");
+            }
+            finally
+            {
+                EditorGUI.EndProperty();
+            }
 
         }
 
@@ -70,7 +71,7 @@ namespace binc.PixelAnimator.Editor
         }
         
         #region Draw Methods
-        private void DrawListElement(Rect rect, int index, bool isActive, bool isFocused, ReorderableList list)
+        private static void DrawListElement(Rect rect, int index, bool isActive, bool isFocused, ReorderableList list)
         {
             var methods = list.serializedProperty;
             if (methods.arraySize <= index) return;
@@ -92,7 +93,7 @@ namespace binc.PixelAnimator.Editor
             element.serializedObject.ApplyModifiedProperties();
         }
 
-        private float GetElementHeight(int index, ReorderableList list)
+        private static float GetElementHeight(int index, ReorderableList list)
         {
             var methods = list.serializedProperty;
             if (methods.arraySize <= index) return EditorGUIUtility.singleLineHeight;
@@ -103,7 +104,7 @@ namespace binc.PixelAnimator.Editor
             return EditorGUI.GetPropertyHeight(element) + EditorGUIUtility.singleLineHeight;
         }
 
-        private void DrawElementBackground(Rect rect, int index, bool active, bool focused, ReorderableList list)
+        private static void DrawElementBackground(Rect rect, int index, bool active, bool focused, ReorderableList list)
         {
             var methods = list.serializedProperty;
             if (active)
@@ -122,7 +123,7 @@ namespace binc.PixelAnimator.Editor
             EditorGUI.DrawRect(partingRect, PartingLineColor);
         }
 
-        private void AddCallback(ReorderableList list)
+        private static void AddCallback(ReorderableList list)
         {
             var index = list.serializedProperty.arraySize;
             list.serializedProperty.InsertArrayElementAtIndex(index);
@@ -130,7 +131,7 @@ namespace binc.PixelAnimator.Editor
 
         }
 
-        private void RemoveCallback(ReorderableList list)
+        private static void RemoveCallback(ReorderableList list)
         {
             if (list.index < 0) return;
             list.serializedProperty.DeleteArrayElementAtIndex(list.index);

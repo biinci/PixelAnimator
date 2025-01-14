@@ -1,5 +1,5 @@
 {
-    "name": "Unity.PixelAnimator",
+    "name": "com.binc.pixel-animator",
     "rootNamespace": "binc.PixelAnimator",
     "references": [
         "GUID:d528c8c98d269ca44a06cd9624a03945",

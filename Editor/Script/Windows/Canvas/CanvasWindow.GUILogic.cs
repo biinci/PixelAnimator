@@ -7,7 +7,6 @@ namespace binc.PixelAnimator.Editor.Windows
 {
     public partial class CanvasWindow
     {
-
         private void MoveOperations(){
             if(EditingBoxHandle != BoxHandleType.None) return;
             var eventCurrent = Event.current;
@@ -17,13 +16,13 @@ namespace binc.PixelAnimator.Editor.Windows
             }
             if(eventCurrent.type == EventType.ScrollWheel)
             {
-                ZoomChange();
+                ChangeZoom();
             }
             if(spriteScale <=0){
                 spriteScale = 1;
             }
         }
-
+        
         private void MiddleClicked()
         {
             var eventCurrent = Event.current;
@@ -35,7 +34,6 @@ namespace binc.PixelAnimator.Editor.Windows
                 case EventType.MouseDrag:
                 {
                     var delta = eventCurrent.mousePosition - previousMousePosition;
-                    // windowRect.position += delta;
                     viewOffset += delta;
                     previousMousePosition = eventCurrent.mousePosition;
                     PixelAnimatorWindow.AnimatorWindow.Repaint();
@@ -43,7 +41,8 @@ namespace binc.PixelAnimator.Editor.Windows
                 }
             }
         }
-        private void ZoomChange()
+        
+        private void ChangeZoom()
         {
             var eventCurrent = Event.current;
             var scaleDelta = Mathf.Sign(eventCurrent.delta.y) > 0 ? -1 : 1;
@@ -59,8 +58,6 @@ namespace binc.PixelAnimator.Editor.Windows
             var ratio = spriteScale / (float)previousScale;
 
             var mousePosForWindow = eventCurrent.mousePosition - canvasRect.position;
-            
-            // var spriteWindow = PixelAnimatorWindow.AnimatorWindow.AvailableSpace;
             var newOrigin = new Vector2
             ( 
                 windowRect.width * 0.5f - spritePreview.width * 0.5f * spriteScale,
@@ -93,15 +90,10 @@ namespace binc.PixelAnimator.Editor.Windows
             PixelAnimatorWindow.AnimatorWindow.SelectFocusWindow(this);
         }
         
-
         private void AddCursorRect(Rect rect, MouseCursor cursor, BoxHandleType type){
             EditorGUIUtility.AddCursorRect(rect, cursor);
             PixelAnimatorWindow.AddCursorCondition(EditingBoxHandle == type, cursor);
 
-        }
-
-        public void SetHandle(BoxHandleType boxHandleType){
-            EditingBoxHandle = boxHandleType;
         }
 
         public override void OnFocus(){

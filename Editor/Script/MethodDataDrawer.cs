@@ -76,7 +76,8 @@ namespace binc.PixelAnimator.Editor
             
         }
 
-        private void DrawInstance(Rect objectRect, SerializedProperty instanceProperty)
+        #region DrawMethods
+        private static void DrawInstance(Rect objectRect, SerializedProperty instanceProperty)
         {
             EditorGUI.BeginChangeCheck();
             
@@ -89,7 +90,7 @@ namespace binc.PixelAnimator.Editor
 
         }
 
-        private void DrawMethod(Rect methodRect, SerializedProperty instanceProperty, Rect functionTexRect, Rect functionLabelRect, string content)
+        private static void DrawMethod(Rect methodRect, SerializedProperty instanceProperty, Rect functionTexRect, Rect functionLabelRect, string content)
         {
             if (EditorGUI.DropdownButton(methodRect, GUIContent.none, FocusType.Keyboard))
             {
@@ -100,7 +101,7 @@ namespace binc.PixelAnimator.Editor
             GUI.Label(functionLabelRect, content);
         }
 
-        private void DrawParameters(SerializedProperty property, SerializedProperty parametersProperty, Rect position, SerializedProperty methodProperty)
+        private static void DrawParameters(SerializedProperty property, SerializedProperty parametersProperty, Rect position, SerializedProperty methodProperty)
         {
             if (!property.isExpanded) return;
             EditorGUI.indentLevel++;
@@ -134,7 +135,7 @@ namespace binc.PixelAnimator.Editor
             EditorGUI.indentLevel--;
 
         }
-        
+        #endregion
         
         #region SetData
 
