@@ -51,6 +51,11 @@ public class SerializableMethodInfo : ISerializationCallbackReceiver
 
     public void OnAfterDeserialize()
     {
+        LoadMethodInfo();
+    }
+
+    public void LoadMethodInfo()
+    {
         if (serializableType == null || string.IsNullOrEmpty(methodName))
             return;
         var type = serializableType.SystemType;

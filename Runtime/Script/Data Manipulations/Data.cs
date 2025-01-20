@@ -12,7 +12,15 @@ public class BaseData
 public class Data<T> : BaseData, ISerializationCallbackReceiver{
     
     [SerializeField] private T data;
-    public void OnBeforeSerialize() => InheritData ??= data;
-    public void OnAfterDeserialize() => data ??= (T)InheritData;
+    public void OnBeforeSerialize()
+    {
+        // InheritData ??= data;
+    }
+
+    public void OnAfterDeserialize()
+    {
+        // data ??= (T)InheritData;
+        InheritData = data;
+    }
 }
     

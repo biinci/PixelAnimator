@@ -37,6 +37,7 @@ namespace binc.PixelAnimator.Utility{
                         foreach (var draggedObject in DragAndDrop.objectReferences) {
                             list.index = list.count-1;
                             if(draggedObject is object obj){
+                                Debug.Log(obj);
                                 list.onAddCallback.Invoke(list);
                                 listener(obj);
                             }

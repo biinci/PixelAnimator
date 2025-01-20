@@ -72,6 +72,7 @@ namespace binc.PixelAnimator{
         }
         private void LateUpdateFrame(){
         }
+        
         private void SetBoxSize(){
             try{
                 var groups = playingAnim.BoxGroups;

@@ -26,12 +26,15 @@ namespace binc.PixelAnimator.Editor.Windows
             selectedFrameTex;
         
 
-        public static readonly Color WindowPlaneColor = new(0.1f, 0.1f, 0.1f, 1);
-        public static readonly Color AccentColor = new(0.14f, 0.14f, 0.14f, 1);
+        public static  Color WindowPlaneColor = new Color(0.2f, 0.2f, 0.2f);
+        public static  Color DarkColor = new Color(0.16f, 0.16f, 0.16f);
+
+        public static  Color AccentColor = new Color(0.17f, 0.36f, 0.53f);
+        public static  Color InsideAccentColor = new Color(0.14f, 0.14f, 0.14f);
 
         private GenericMenu burgerMenu, boxGroupMenu, boxMenu;
 
-        private const float HandleHeight = 6;
+        private const float HandleHeight = 4f;
 
         private float GroupPanelWidth =>
             PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("BoxGroup").fixedWidth;
@@ -134,6 +137,7 @@ namespace binc.PixelAnimator.Editor.Windows
         
         public override void Dispose()
         {
+            new Color(0.1f, 0.1f, 0.1f);
             thumbnailButton.DownClick -= ThumbnailButton;
             groupButton.DownClick -= GroupButton;
             layerButton.DownClick -= BoxButton;

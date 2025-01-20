@@ -165,7 +165,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             rowRect = new Rect(0, ToolPanelHeight + HandleHeight, windowRect.width, RowHeight);
             groupPlaneRect = new Rect(0, rowRect.yMax, windowRect.width, windowRect.height - rowRect.yMax);
             thumbnailPlaneRect = new Rect(columnRect.xMax, HandleHeight, windowRect.width - columnRect.xMax,ToolPanelHeight);
-            toolPanelRect = new Rect(10,8+HandleHeight, columnRect.x, ToolPanelHeight);
+            toolPanelRect = new Rect(10+RowHeight/2,4+HandleHeight, columnRect.x, ToolPanelHeight);
             ReSizeWindowRect();
         }
         private void SetReSizingState(){

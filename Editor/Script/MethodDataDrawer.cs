@@ -40,7 +40,7 @@ namespace binc.PixelAnimator.Editor
             var foldoutRect = new Rect(position.x, position.y, 16, EditorGUIUtility.singleLineHeight);
 
             var objectRect = new Rect(
-                foldoutRect.xMax+Padding/2, 
+                foldoutRect.xMax+Padding/3, 
                 position.y,
                 position.width/2.2f, 
                 height

@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
 using System.Linq.Expressions;
 using binc.PixelAnimator;
 using UnityEditor;
@@ -10,11 +10,14 @@ public class MethodUtility
 {
     public static Action GetFunction(MethodData data)
     {
-        
+        //is not sync with serialization.
         var parameters = data.parameters.Select(p => p.InheritData).ToArray();
-
+        foreach (var param in parameters)
+        {
+            Debug.Log(param + "  " + data.method.methodName);
+        }
         var lambdaParam = Expression.Parameter(typeof(object[]), "parameters");
-        data.method.OnAfterDeserialize();
+        data.method.LoadMethodInfo();
         var info = data.method.methodInfo;
 
         var methodParams = info.GetParameters();
@@ -26,10 +29,11 @@ public class MethodUtility
         }
 
         var parsable= GlobalObjectId.TryParse(data.globalId, out var id);
-        object value = parsable ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id):null;
+        object value = parsable ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id) : null;
         if (value == null)
         {
-            return () => Debug.LogError("Object not found");
+            Debug.LogError("Object not found");
+            return () => { };
         }
         var methodCall = Expression.Call(
             Expression.Constant(value),  
@@ -49,14 +53,15 @@ public class Test : MonoBehaviour
 {
     public PixelAnimator animator;
     public PixelAnimation run;
+    public List<Sprite> test;
     private void Start()
     {
-        // animator.Play(run);
+        animator.Play(run);
         
     }
     public void Log(string msg)
     {
-        // Debug.Log(msg);
+        Debug.Log(msg);
     }
 
 }

@@ -1,8 +1,8 @@
+using System;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.Events;
 
 namespace binc.PixelAnimator.Editor
 {
@@ -14,69 +14,31 @@ namespace binc.PixelAnimator.Editor
         private static readonly Color PartingLineColor = new(0.14f, 0.14f, 0.14f);
 
         private readonly Dictionary<string, ReorderableList> reorderableListsByPropertyPath = new();
-        private readonly Dictionary<string, bool> editStates = new();
         
         
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
-
-            // try
-            // {
+            try
+            {
                 property.serializedObject.UpdateIfRequiredOrScript();
                 var methods = property.FindPropertyRelative("methodData");
                 var list = GetReorderableList(property, methods);
-                
-                EditorGUI.BeginDisabledGroup(GetEditState(property));
                 list.DoList(position);
-                EditorGUI.EndDisabledGroup();
-                
-                if (GUI.Button(
-                        new Rect(position.x, position.y + list.GetHeight(), 40, EditorGUIUtility.singleLineHeight),
-                        GetLabel(property)))
-                {
-                    var state = !GetEditState(property);
-                    var isAdded = editStates.TryAdd(property.propertyPath, state);
-                    if(!isAdded) editStates[property.propertyPath] = state;
-                    
-                    var storage = fieldInfo.GetValue(MethodDataDrawer.GetParent(property)) as MethodStorage;
 
-                    
-                    // Debug.Log(storage);
-                    if (state)
-                    {
-                        for (var i = 0; i < storage.methodData.Count; i++)
-                        {
-                            var t = storage.methodData[i];
-                            var unityAction = new UnityAction(()=>MethodUtility.GetFunction(t).Invoke());
-                            // UnityEditor.Events.UnityEventTools.AddPersistentListener(storage.methods, unityAction);
-                            // storage.methods.AddListener(unityAction);
-                        }
-                        // storage.methods.Invoke();
-                    }
-                    else
-                    {
-                        Debug.Log("removed");
-                        storage.methods.RemoveAllListeners();
-                    }
-
-                }
-                
                 property.serializedObject.ApplyModifiedProperties();
-            // }
-            // catch (Exception e)
-            // {
-            //     Debug.LogError($"Error in MethodStorageDrawer.OnGUI: {e.Message}");
-            //     EditorGUI.LabelField(position, "Error drawing property. Check console for details.");
-            // }
-            // finally
-            // {
-            //     EditorGUI.EndProperty();
-            // }
-            EditorGUI.EndProperty();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error in MethodStorageDrawer.OnGUI: {e.Message}");
+                EditorGUI.LabelField(position, "Error drawing property. Check console for details.");
+            }
+            finally
+            {
+                EditorGUI.EndProperty();
+            }
 
         }
-        
         
         private ReorderableList GetReorderableList(SerializedProperty property, SerializedProperty methods)
         {
@@ -106,18 +68,6 @@ namespace binc.PixelAnimator.Editor
             return list;
         }
         
-        private bool GetEditState(SerializedProperty property)
-        {
-            var propertyPath = property.propertyPath;
-            var isFound = editStates.TryGetValue(propertyPath, out var state);
-            return isFound && state;
-        }
-
-        private string GetLabel(SerializedProperty property)
-        {
-            var isFound = editStates.TryGetValue(property.propertyPath, out var state);
-            return isFound && state ? "Edit" : "Confirm";
-        }
         
         #region Draw Methods
         private static void DrawListElement(Rect rect, int index, bool isActive, bool isFocused, ReorderableList list)

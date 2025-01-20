@@ -27,17 +27,15 @@ namespace binc.PixelAnimator.Editor.Windows
 
                 selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, width/2f);
                 
-                EditorGUI.BeginChangeCheck();
-                
-                //switch (selectedTab)
-                //{
-                //    case 0:
-                //        DrawSpriteTab();
-                //        break;
-                //    case 1:
-                //        DrawHitboxTab();
-                //        break;
-                //}
+                switch (selectedTab)
+                {
+                    case 0:
+                        DrawSpriteTab();
+                        break;
+                    case 1:
+                        DrawHitboxTab();
+                        break;
+                }
 
             }, GUIContent.none, GUIStyle.none);
         }

@@ -1482,8 +1482,8 @@ MonoBehaviour:
     m_TextClipping: 0
     m_ImagePosition: 0
     m_ContentOffset: {x: 0, y: 0}
-    m_FixedWidth: 48
-    m_FixedHeight: 48
+    m_FixedWidth: 32
+    m_FixedHeight: 40
     m_StretchWidth: 1
     m_StretchHeight: 0
   - m_Name: TImelineLayout
@@ -1548,8 +1548,8 @@ MonoBehaviour:
     m_TextClipping: 0
     m_ImagePosition: 0
     m_ContentOffset: {x: 0, y: 0}
-    m_FixedWidth: 4
-    m_FixedHeight: 4
+    m_FixedWidth: 3
+    m_FixedHeight: 3
     m_StretchWidth: 1
     m_StretchHeight: 0
   - m_Name: Layer
@@ -1944,8 +1944,8 @@ MonoBehaviour:
     m_TextClipping: 0
     m_ImagePosition: 0
     m_ContentOffset: {x: 0, y: 0}
-    m_FixedWidth: 48
-    m_FixedHeight: 48
+    m_FixedWidth: 32
+    m_FixedHeight: 32
     m_StretchWidth: 0
     m_StretchHeight: 0
   - m_Name: AnimatorButton
@@ -2010,8 +2010,8 @@ MonoBehaviour:
     m_TextClipping: 0
     m_ImagePosition: 0
     m_ContentOffset: {x: 0, y: 0}
-    m_FixedWidth: 32
-    m_FixedHeight: 32
+    m_FixedWidth: 24
+    m_FixedHeight: 24
     m_StretchWidth: 0
     m_StretchHeight: 0
   - m_Name: Timeline

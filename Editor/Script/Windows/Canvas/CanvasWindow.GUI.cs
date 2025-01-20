@@ -39,6 +39,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void DrawBoxes(){
             var groups = SelectedAnim.BoxGroups;
+            if (groups == null) return;
             var animationPreferences = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences;
 
             for (var i = 0; i < groups.Count; i++)

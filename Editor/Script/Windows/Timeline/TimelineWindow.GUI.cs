@@ -31,16 +31,17 @@ namespace binc.PixelAnimator.Editor.Windows{
         {
             EditorGUI.DrawRect(handleRect, AccentColor);
             EditorGUI.DrawRect(new Rect(0, handleRect.height, windowRect.width, windowRect.height), WindowPlaneColor);
-            EditorGUI.DrawRect(new Rect(columnRect.xMax, rowRect.yMax, windowRect.width-columnRect.xMax,windowRect.height-rowRect.yMax), new Color(0.04f,0.04f,0.04f));
-            EditorGUI.DrawRect(new Rect(groupPlaneRect.position,new Vector2(columnRect.xMin, groupPlaneRect.height)), new Color(0.07f, 0.07f, 0.07f));
+            EditorGUI.DrawRect(new Rect(columnRect.xMax, rowRect.yMax, windowRect.width-columnRect.xMax,windowRect.height-rowRect.yMax), DarkColor);
+            EditorGUI.DrawRect(new Rect(groupPlaneRect.position,new Vector2(columnRect.xMin, groupPlaneRect.height)), WindowPlaneColor);
         }
         
         private void DrawGridLines(){
-            EditorGUI.DrawRect(columnRect, AccentColor);
-            EditorGUI.DrawRect(rowRect, AccentColor);
+            EditorGUI.DrawRect(columnRect, InsideAccentColor);
+            EditorGUI.DrawRect(rowRect, InsideAccentColor);
+            EditorGUI.DrawRect(new Rect(0,HandleHeight,windowRect.width,RowHeight/2), InsideAccentColor);
         }
 
-        private float spaceTool = 110;
+        private float spaceTool = 160;
         private void DrawToolButtons(){
             GUILayout.BeginArea(toolPanelRect);
             GUILayout.BeginHorizontal();

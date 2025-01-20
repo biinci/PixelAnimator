@@ -15,7 +15,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         #endregion
         
         #region Variables
-        public static readonly Color BackgroundColor = new(0.098f, 0.098f, 0.098f);
+        public static readonly Color BackgroundColor = new(0.1f, 0.1f, 0.1f);
         public static readonly Vector2 MinSize = new(800, 450);
         public GUISkin PixelAnimatorSkin { get; private set; }
         public int IndexOfSelectedSprite { get; private set; }

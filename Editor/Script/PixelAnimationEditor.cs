@@ -1,10 +1,9 @@
-using System;
+using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 using binc.PixelAnimator.Utility;
 using Object = UnityEngine.Object;
-
 
 namespace binc.PixelAnimator.Editor{
     
@@ -13,32 +12,24 @@ namespace binc.PixelAnimator.Editor{
     {
         private PixelAnimation pixelAnimation;
         private ReorderableList pixelSpriteList;
-        [SerializeField] private bool pixelSpriteFoldout;
+        private bool pixelSpriteFoldout;
         private Rect lastRect;
         private SerializedProperty groupProps;
-        private float lineHeight;
-        private float lineHeightSpace;
-        [SerializeField] private bool showDetails;
 
         private void OnEnable(){
             pixelAnimation = target as PixelAnimation;
             InitPixelSpriteList();
-            
         }
 
         private void InitPixelSpriteList(){
-            lineHeight = EditorGUIUtility.singleLineHeight;
-            lineHeightSpace = lineHeight + 10;
             
             pixelSpriteList = new ReorderableList(serializedObject, serializedObject.FindProperty("pixelSprites"),
-                true, true, true, true){
+                true, false, true, true){
                 drawElementCallback = DrawPixelSprite,
                 elementHeight = 170
             };
-
-
-            groupProps = serializedObject.FindProperty("groups");
-
+            
+            groupProps = serializedObject.FindProperty("boxGroups");
             
             pixelSpriteList.onAddCallback = reorderableList => {
                 var sp = reorderableList.serializedProperty;
@@ -59,13 +50,10 @@ namespace binc.PixelAnimator.Editor{
                     var layerProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("boxes");
                     Add(element, layerProps, index, groupProps);
                 }
-                
                 reorderableList.index = index;
-
             };
             
             pixelSpriteList.onRemoveCallback = reorderableList => {
-                
                 reorderableList.serializedProperty.DeleteArrayElementAtIndex(reorderableList.index);
                 if(pixelAnimation.BoxGroups == null) return;
                 Remove(groupProps, reorderableList);
@@ -80,47 +68,30 @@ namespace binc.PixelAnimator.Editor{
                         var frameProp = layersProps.GetArrayElementAtIndex(l).FindPropertyRelative("frames");
                         frameProp.MoveArrayElement(index, newIndex);
                     }
-
                 }
-                
             };
-
-            pixelSpriteList.drawHeaderCallback = rect => {
-                EditorGUI.LabelField(rect, "Sprites! ");
-                rect.x = rect.xMax - 120;
-                EditorGUI.LabelField(rect,"Show Details");
-                rect.x -= 20;
-                showDetails = EditorGUI.Toggle(rect, showDetails);
-            };
-
+            
             pixelSpriteList.elementHeightCallback = index => {
-                float height = 60;
+                var height = EditorGUIUtility.standardVerticalSpacing*2;
                 var methodStorageProp = pixelSpriteList.serializedProperty.GetArrayElementAtIndex(index).FindPropertyRelative("methodStorage");
                 if (methodStorageProp != null)
                 {
                     height += EditorGUI.GetPropertyHeight(methodStorageProp);
                 }
                 return height;
-
             };
-
-
         }
 
         private void DrawPixelSprite(Rect rect, int index, bool isActive, bool isFocused){
             var element = pixelSpriteList.serializedProperty.GetArrayElementAtIndex(index);
-            var currentViewWidth = EditorGUIUtility.currentViewWidth;
-            
-            rect.width /= EditorGUIUtility.currentViewWidth;
             rect.y += 2;
-
-            var spriteWidth = currentViewWidth > 523 ? 174f : currentViewWidth / 3; 
-            var spriteIdWidth = currentViewWidth > 952 ? 238f : currentViewWidth/4;
-            var spriteRect = new Rect(rect.x, rect.y, spriteWidth, EditorGUIUtility.singleLineHeight);
-            var spriteIdRect = new Rect(rect.x + spriteRect.width + 20, rect.y, spriteIdWidth, EditorGUIUtility.singleLineHeight);
-            var spritePreviewRect = new Rect(spriteIdRect.x + spriteIdRect.width + 40, rect.y, 48, 48);
-            var methodStorageRect =new Rect(rect.x,spriteRect.y+EditorGUIUtility.singleLineHeight*1.2f, spriteIdRect.xMax-spriteRect.x, EditorGUIUtility.singleLineHeight);
-            
+            var spriteWidth = rect.width-50; 
+            var spriteIdWidth = rect.width-50;
+            var spriteIdRect = new Rect(rect.x+48+EditorGUIUtility.standardVerticalSpacing, rect.y+5, spriteIdWidth, EditorGUIUtility.singleLineHeight);
+            var spriteRect = new Rect(spriteIdRect.x, spriteIdRect.yMax+EditorGUIUtility.standardVerticalSpacing, spriteWidth, EditorGUIUtility.singleLineHeight);
+            var spritePreviewRect = new Rect(rect.x, rect.y, 48, 48);
+            var methodStorageRect =new Rect(spriteIdRect.x,spritePreviewRect.yMax+EditorGUIUtility.standardVerticalSpacing*2, spriteWidth, EditorGUIUtility.singleLineHeight);
+            EditorGUI.BeginProperty(rect,GUIContent.none, element);
             EditorGUI.PropertyField(
                 spriteRect,
                 element.FindPropertyRelative("sprite"),
@@ -146,29 +117,10 @@ namespace binc.PixelAnimator.Editor{
 
             EditorGUI.PropertyField(methodStorageRect,element.FindPropertyRelative("methodStorage"));
 
-            if (!showDetails) return;
-            
-            rect.x += 30;
-            rect.y += lineHeightSpace;
-                
-            var propSpriteData = element.FindPropertyRelative("spriteData");
-            var propSpriteDataValues = propSpriteData.FindPropertyRelative("genericData");
-
-            var dataRect = new Rect(rect.x, rect.y, currentViewWidth / 2, 70){
-                width = currentViewWidth > 768 ? 768 / 2 : currentViewWidth / 2 < 330/2? 330/2: currentViewWidth / 2 
-            };
-                
-
-            EditorGUI.PropertyField(
-                dataRect,
-                propSpriteDataValues
-            );
-
-            
+            EditorGUI.EndProperty();
         }
 
         public override void OnInspectorGUI(){
-            // base.OnInspectorGUI();
             serializedObject.Update();
             DrawPropertiesExcluding(serializedObject,  "m_Script", "pixelSprites");
             
@@ -179,10 +131,25 @@ namespace binc.PixelAnimator.Editor{
             if(pixelSpriteFoldout) pixelSpriteList.DoLayoutList();
             EditorGUILayout.EndFoldoutHeaderGroup();
             
-            PixelAnimatorUtility.DropAreaGUI(lastRect, pixelSpriteList, obj => {
+            PixelAnimatorUtility.DropAreaGUI(lastRect, pixelSpriteList, obj =>
+            {
+                var sprite = obj as Object;
+                if (obj is Texture2D texture2D)
+                {
+                    var texturePath = AssetDatabase.GetAssetPath(texture2D);
+                    var sprites = AssetDatabase.LoadAllAssetsAtPath(texturePath)
+                        .OfType<Sprite>()
+                        .ToArray();
+            
+                    if (sprites.Length > 0)
+                        sprite = sprites[0];
+                    else
+                        Debug.LogWarning("No sprites found in texture. Make sure the texture is set up as a sprite sheet.");
+                }
+    
                 pixelSpriteList.serializedProperty
                     .GetArrayElementAtIndex(pixelSpriteList.serializedProperty.arraySize-1)
-                    .FindPropertyRelative("sprite").objectReferenceValue = obj as Object;
+                    .FindPropertyRelative("sprite").objectReferenceValue = sprite;
             });
             serializedObject.ApplyModifiedProperties();
             
@@ -227,10 +194,5 @@ namespace binc.PixelAnimator.Editor{
                 }
             }
         }
-
-
-
-
-
     }
 }

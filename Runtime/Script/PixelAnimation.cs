@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using binc.PixelAnimator.Common;
 using binc.PixelAnimator.Preferences;
 using UnityEditor;
-using UnityEngine.Serialization;
 
 namespace binc.PixelAnimator{
 
@@ -20,14 +19,20 @@ namespace binc.PixelAnimator{
 
         private void OnEnable()
         {
-            if (pixelSprites != null)
+            if (pixelSprites != null && EditorApplication.isPlayingOrWillChangePlaymode) //TODO: use another bool for build.
             {
                 foreach (var pixelSprite in pixelSprites)
                 {
-                    if(pixelSprite.methodStorage == null) continue;
-                    pixelSprite.methodStorage.OnEnable();
+                    pixelSprite.methodStorage?.OnEnable();
                 }
-            }   
+            }
+
+            if (boxGroups == null) return;
+            foreach (var frame in boxGroups.Where(group => group.boxes != null).SelectMany(group => group.boxes.Where(box => box.frames != null).SelectMany(box => box.frames)))
+            {
+                frame.methodStorage?.OnEnable();
+            }
+
         }
 
         public void AddGroup(string boxDataGuid){
@@ -65,16 +70,4 @@ namespace binc.PixelAnimator{
             return names;
         }
     }
-
-    [System.Serializable]
-    public struct Reference
-    {
-        [ReadOnly] public string assetGUID;
-        [ReadOnly] public string targetObjectId;
-        
-    }
-    
-
-    
-    
 }
