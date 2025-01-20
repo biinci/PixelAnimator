@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using System.Reflection;
+using Object = UnityEngine.Object;
 
 namespace binc.PixelAnimator.Editor
 {
@@ -12,17 +14,18 @@ namespace binc.PixelAnimator.Editor
     {
         private static Texture2D _functionIcon;
         private const float Padding = 5;
+        private readonly Dictionary<string, Object> objectListByPropertyPath = new();
         
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             if (Event.current.type == EventType.Layout) return;
 
             position.y += 2;
-            var instanceProperty = property.FindPropertyRelative("instance");
             var methodProperty = property.FindPropertyRelative("method");
             var parametersProperty = property.FindPropertyRelative("parameters");
-            
+            var idProperty = property.FindPropertyRelative("globalId");
             var methodName = methodProperty?.FindPropertyRelative("methodName").stringValue;
+            
             var content = "No Function";
             
             if (!string.IsNullOrEmpty(methodName)) 
@@ -63,38 +66,35 @@ namespace binc.PixelAnimator.Editor
                 methodRect.width-(functionTexRect.xMax-methodRect.x)-10,
                 _functionIcon.height
                 );
-
+            
             property.serializedObject.UpdateIfRequiredOrScript();
             var propertyScope = new EditorGUI.PropertyScope(position, label, property); 
             using (propertyScope)
             {
                 property.isExpanded = EditorGUI.Foldout(foldoutRect, property.isExpanded, GUIContent.none);
-                DrawInstance(objectRect, instanceProperty);
-                DrawMethod(methodRect, instanceProperty, functionTexRect,functionLabelRect, content);
+                DrawInstance(objectRect, idProperty);
+                DrawMethod(methodRect, idProperty, functionTexRect,functionLabelRect, content);
                 DrawParameters(property, parametersProperty, position, methodProperty); 
             }
             
         }
 
         #region DrawMethods
-        private static void DrawInstance(Rect objectRect, SerializedProperty instanceProperty)
+        private void DrawInstance(Rect objectRect, SerializedProperty idProperty)
         {
             EditorGUI.BeginChangeCheck();
-            
-            EditorGUI.PropertyField(objectRect, instanceProperty, GUIContent.none);
+            var obj = GetUnityObject(idProperty);
+            obj = EditorGUI.ObjectField(objectRect, obj, typeof(Object), true);
             if (!EditorGUI.EndChangeCheck()) return;
-
-            ResetMethod(instanceProperty);
-            instanceProperty.serializedObject.ApplyModifiedProperties();
-            instanceProperty.serializedObject.Update();
-
+            idProperty.stringValue = GlobalObjectId.GetGlobalObjectIdSlow(obj).ToString();
+            ResetMethod(idProperty);
         }
 
-        private static void DrawMethod(Rect methodRect, SerializedProperty instanceProperty, Rect functionTexRect, Rect functionLabelRect, string content)
+        private void DrawMethod(Rect methodRect, SerializedProperty idProperty, Rect functionTexRect, Rect functionLabelRect, string content)
         {
             if (EditorGUI.DropdownButton(methodRect, GUIContent.none, FocusType.Keyboard))
             {
-                SelectMethod(instanceProperty);
+                SelectMethod(idProperty);
             }
             
             GUI.DrawTexture(functionTexRect, _functionIcon);
@@ -135,15 +135,16 @@ namespace binc.PixelAnimator.Editor
             EditorGUI.indentLevel--;
 
         }
+        
         #endregion
         
         #region SetData
 
-        private static void SelectMethod(SerializedProperty instanceProperty)
+        private void SelectMethod(SerializedProperty idProperty)
         {
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("No function"), false, ()=>ResetMethod(instanceProperty));
-            var referenceValue = instanceProperty.objectReferenceValue;
+            menu.AddItem(new GUIContent("No function"), false, ()=>ResetMethod(idProperty));
+            var referenceValue = GetUnityObject(idProperty);
 
             MethodInfo[] allMethods;
 
@@ -167,14 +168,14 @@ namespace binc.PixelAnimator.Editor
                 !m.IsGenericMethod
             ).ToArray();
             
-            var data = (MethodData)GetParent(instanceProperty);
+            var data = (MethodData)GetParent(idProperty);
             foreach (var method in methods)
             {
                 menu.AddItem(new GUIContent(method.Name), false, userData =>
                 {
                     var methodInfo = userData as MethodInfo;
                     data.SelectMethod(methodInfo);
-                    instanceProperty.serializedObject.Update();
+                    idProperty.serializedObject.Update();
 
                 }, method);
 
@@ -189,11 +190,8 @@ namespace binc.PixelAnimator.Editor
                 Debug.LogWarning("MethodData is null. Cannot reset method.");
                 return;
             }
-
             data.SelectMethod(null);
-
-            property.serializedObject.ApplyModifiedProperties();
-            property.serializedObject.Update();
+            
         }
         #endregion
         
@@ -220,7 +218,16 @@ namespace binc.PixelAnimator.Editor
         
         #region GetValues
 
-        private static object GetParent(SerializedProperty prop)
+        private Object GetUnityObject(SerializedProperty idProperty)
+        {
+            var propertyPath = idProperty.propertyPath;
+
+            var isFound = objectListByPropertyPath.TryGetValue(propertyPath, out var obj);
+            if (isFound) return obj;
+            return GlobalObjectId.TryParse(idProperty.stringValue, out var objectId) ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(objectId) : null;
+        }
+
+        public static object GetParent(SerializedProperty prop)
         {
             var path = prop.propertyPath.Replace(".Array.data[", "[");
             object obj = prop.serializedObject.targetObject;

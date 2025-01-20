@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using binc.PixelAnimator.Common;
@@ -16,9 +17,19 @@ namespace binc.PixelAnimator{
         [SerializeField] private List<PixelSprite> pixelSprites;
         public List<BoxGroup> BoxGroups => boxGroups;
         [SerializeField] private List<BoxGroup> boxGroups;
-        
-        public List<Reference> References;
-        
+
+        private void OnEnable()
+        {
+            if (pixelSprites != null)
+            {
+                foreach (var pixelSprite in pixelSprites)
+                {
+                    if(pixelSprite.methodStorage == null) continue;
+                    pixelSprite.methodStorage.OnEnable();
+                }
+            }   
+        }
+
         public void AddGroup(string boxDataGuid){
             boxGroups.Add(new BoxGroup(boxDataGuid));
         }
@@ -58,9 +69,12 @@ namespace binc.PixelAnimator{
     [System.Serializable]
     public struct Reference
     {
-        public int id;
-        public string sceneID;
-        public string objectName;
-        public string sceneName;
+        [ReadOnly] public string assetGUID;
+        [ReadOnly] public string targetObjectId;
+        
     }
+    
+
+    
+    
 }

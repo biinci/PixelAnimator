@@ -13,7 +13,7 @@ namespace binc.PixelAnimator{
     [RequireComponent(typeof(SpriteRenderer))]
     public class PixelAnimator : MonoBehaviour{
         public PixelAnimationPreferences Preferences => preferences;
-        private PixelAnimationPreferences preferences;
+        [SerializeField]private PixelAnimationPreferences preferences;
         
         [SerializeField] private SpriteRenderer spriteRenderer;
         public PixelAnimation PlayingAnim => playingAnim;
@@ -66,7 +66,9 @@ namespace binc.PixelAnimator{
         }
         // This function is called when the current frame time has completely elapsed.
         private void UpdateFrame(){
-            SetBoxSize();
+            // SetBoxSize();
+            var unityEvent = playingAnim.PixelSprites[frameIndex].methodStorage.methods;
+            unityEvent.Invoke();
         }
         private void LateUpdateFrame(){
         }

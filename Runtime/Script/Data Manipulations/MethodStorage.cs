@@ -1,20 +1,27 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
-using binc.PixelAnimator;
 
 
 [Serializable]
-public class MethodStorage
+public class MethodStorage 
 {
 
     [SerializeField] public UnityEvent methods;
+    [SerializeField] public List<MethodData> methodData;
+    public void OnEnable()
+    { 
+        methods = new UnityEvent();
+        foreach (var method in methodData.Select(MethodUtility.GetFunction))
+        {
+            methods.AddListener(method.Invoke);
+        }
+    }
     
     #if UNITY_EDITOR
     
-    [SerializeField] public List<MethodData> methodData;
     
     public void AddMethod(MethodData method)
     {
@@ -34,8 +41,6 @@ public class MethodStorage
     {
         methods.Invoke();
     }
-    
-    
 
 }
 

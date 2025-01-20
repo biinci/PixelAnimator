@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
+using binc.PixelAnimator;
 using Object = UnityEngine.Object;
 
 [Serializable]
@@ -10,7 +11,7 @@ public class MethodData : ISerializationCallbackReceiver
     public Object instance;
     public SerializableMethodInfo method;
     [SerializeReference] public List<BaseData> parameters;
-    
+    [ReadOnly] public string globalId;
     public void SelectMethod(MethodInfo methodInfo)
     {
         method.methodInfo = methodInfo;

@@ -11,6 +11,9 @@ namespace binc.PixelAnimator.Common
         public Sprite sprite;
         public MethodStorage methodStorage;
 
+        
+        
+        
         public PixelSprite(Sprite sprite, string guid){
             methodStorage = new MethodStorage();
             this.sprite = sprite;
