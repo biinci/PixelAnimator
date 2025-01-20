@@ -2,7 +2,6 @@ using binc.PixelAnimator.Preferences;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-using binc.PixelAnimator.Utility;
 
 
 namespace binc.PixelAnimator.Editor.Preferences{

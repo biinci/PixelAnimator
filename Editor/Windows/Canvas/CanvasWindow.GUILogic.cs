@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEditor;
-using binc.PixelAnimator.Common;
+using binc.PixelAnimator.AnimationData;
 
 namespace binc.PixelAnimator.Editor.Windows
 {

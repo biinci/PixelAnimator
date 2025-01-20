@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 using binc.PixelAnimator;
+using binc.PixelAnimator.DataManipulations;
 using Object = UnityEngine.Object;
 
 [Serializable]
@@ -23,7 +24,7 @@ public class MethodData : ISerializationCallbackReceiver
         for (var i = 0; i < paramCount; i++)
         {
             var parameterType = methodInfo.GetParameters()[i].ParameterType;
-            var genericDataType = typeof(Data<>).MakeGenericType(parameterType);
+            var genericDataType = typeof(SerializableData<>).MakeGenericType(parameterType);
             var baseData = (BaseData)Activator.CreateInstance(genericDataType);
             parameters.Add(baseData);
         }

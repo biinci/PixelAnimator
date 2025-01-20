@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using binc.PixelAnimator.Common;
+using binc.PixelAnimator.AnimationData;
 using binc.PixelAnimator.Preferences;
 using UnityEditor;
 

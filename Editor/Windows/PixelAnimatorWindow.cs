@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.Linq;
-using binc.PixelAnimator.Common;
+using binc.PixelAnimator.AnimationData;
 using binc.PixelAnimator.Preferences;
 using binc.PixelAnimator.Editor.Preferences;
 

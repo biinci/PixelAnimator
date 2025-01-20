@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using binc.PixelAnimator;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -14,7 +15,7 @@ public class MethodStorage
     public void OnEnable()
     { 
         methods = new UnityEvent();
-        foreach (var method in methodData.Select(MethodUtility.GetFunction))
+        foreach (var method in methodData.Select(PixelAnimatorUtility.MethodDataToAction))
         {
             methods.AddListener(method.Invoke);
         }

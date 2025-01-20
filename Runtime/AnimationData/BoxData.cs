@@ -1,23 +1,18 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
-namespace binc.PixelAnimator.Common{
+namespace binc.PixelAnimator.AnimationData{
 
     [System.Serializable]
     public struct BoxData{
         public string boxName;
         public Color color;
-        [Tooltip("LayerMask Index")]
-        public int activeLayer;
+        
+        public int layer;
         public bool rounded;
         public PhysicsMaterial2D physicMaterial;
 
         public string Guid => guid;
         [ReadOnly, SerializeField]
         private string guid;
-
     }
-
-
-
 }

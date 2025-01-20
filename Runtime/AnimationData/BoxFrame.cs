@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace binc.PixelAnimator.Common{
+namespace binc.PixelAnimator.AnimationData{
     
     public enum BoxFrameType{ KeyFrame, CopyFrame, EmptyFrame, None }
     

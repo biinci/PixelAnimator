@@ -1,35 +1,31 @@
 using System.Collections.Generic;
 using binc.PixelAnimator.Preferences;
-using binc.PixelAnimator.Common;
+using binc.PixelAnimator.AnimationData;
 using UnityEngine;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using binc.PixelAnimator.Utility;
-using UnityEngine.Serialization;
-
 
 namespace binc.PixelAnimator{
     [RequireComponent(typeof(SpriteRenderer))]
     public class PixelAnimator : MonoBehaviour{
         public PixelAnimationPreferences Preferences => preferences;
-        [SerializeField]private PixelAnimationPreferences preferences;
+        private PixelAnimationPreferences preferences;
         
         [SerializeField] private SpriteRenderer spriteRenderer;
         public PixelAnimation PlayingAnim => playingAnim;
-        [SerializeField] private PixelAnimation playingAnim; 
+        [SerializeField] private PixelAnimation playingAnim;
         private PixelAnimation nextAnim;
-        
         private int frameIndex;
         private float elapsedTime;
         public bool isPlaying;
 
         private GameObject titleObject;
         
-        public readonly Dictionary<string, GameObject> colliderObjects = new();
+        private readonly Dictionary<string, GameObject> colliderObjects = new();
         
         private void Awake(){
-            // preferences = Resources.Load<PixelAnimationPreferences>("../../Editor/Resources/PixelAnimationPreferences");
+            preferences = Resources.Load<PixelAnimationPreferences>("Animation Preferences");
             CreateTitle();
         }
 
@@ -107,39 +103,11 @@ namespace binc.PixelAnimator{
                     localPosition = Vector3.zero,
                     localScale = transform.localScale
                 },
-                layer =  boxData.activeLayer
+                layer =  boxData.layer
             };
             return gameObj;
         }
         
-        public static Action GetFunction(MethodData data){
-            var instance = data.instance;
-            var info = data.method.methodInfo;
-
-            var parameters = data.parameters.Select(p => p.InheritData).ToArray();
-
-            var lambdaParam = Expression.Parameter(typeof(object[]), "parameters");
-
-            var methodParams = info.GetParameters();
-            var convertedParams = new Expression[methodParams.Length];
-            for (var i = 0; i < methodParams.Length; i++)
-            {
-                var paramAccess = Expression.ArrayIndex(lambdaParam, Expression.Constant(i));
-                convertedParams[i] = Expression.Convert(paramAccess, methodParams[i].ParameterType);
-            }
-
-            var methodCall = Expression.Call(
-                Expression.Constant(instance),  
-                info,                    
-                convertedParams                
-            );
-
-            var lambda = Expression.Lambda<Action<object[]>>(methodCall, lambdaParam);
-
-            var compiledDelegate = lambda.Compile();
-            return () => { compiledDelegate(parameters);};
-        }
-
         public void Play(PixelAnimation animation){//TODO: need to fix
             frameIndex = 0;
             elapsedTime = 0;

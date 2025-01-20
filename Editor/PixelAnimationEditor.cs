@@ -2,7 +2,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
-using binc.PixelAnimator.Utility;
 using Object = UnityEngine.Object;
 
 namespace binc.PixelAnimator.Editor{
@@ -152,19 +151,14 @@ namespace binc.PixelAnimator.Editor{
                     .FindPropertyRelative("sprite").objectReferenceValue = sprite;
             });
             serializedObject.ApplyModifiedProperties();
-            
         }
         
-
-
         private static void Add(SerializedProperty element, SerializedProperty layersProps, int index, SerializedProperty groupProps){
             AddFrames(element, layersProps, index);
-            // AddHitBoxData(groupProps, index);
         }
         
         private static void Remove(SerializedProperty groupProps, ReorderableList reorderableList){
             RemoveFrames(groupProps, reorderableList);
-            // RemoveHitBoxData(groupProps, reorderableList);
         }        
         
         private static void AddFrames(SerializedProperty element, SerializedProperty layersProps, int index){

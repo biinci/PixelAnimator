@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using binc.PixelAnimator.Common;
+using binc.PixelAnimator.AnimationData;
 using UnityEngine;
 using UnityEngine.Serialization;
 

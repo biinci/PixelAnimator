@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace binc.PixelAnimator.Common
+namespace binc.PixelAnimator.AnimationData
 {
     [Serializable]
     public class PixelSprite{

@@ -1,10 +1,11 @@
-using UnityEngine;
-using UnityEditorInternal;
-#if UNITY_EDITOR
+using System;
+using System.Linq;
+using System.Linq.Expressions;
 using UnityEditor;
-#endif
+using UnityEditorInternal;
+using UnityEngine;
 
-namespace binc.PixelAnimator.Utility{
+namespace binc.PixelAnimator{
     public static class PixelAnimatorUtility{
         public delegate void PixelAnimationListener(object userData);
         public static Rect MapBoxRectToTransform(Rect rect, Sprite sprite){
@@ -12,6 +13,38 @@ namespace binc.PixelAnimator.Utility{
             var size = new Vector2(rect.width, rect.height) / sprite.pixelsPerUnit;
             return new Rect(offset, size);
         }
+        public static Action MethodDataToAction(MethodData data)
+        {
+            var parameters = data.parameters.Select(p => p.InheritData).ToArray();
+            var lambdaParam = Expression.Parameter(typeof(object[]), "parameters");
+            data.method.LoadMethodInfo();
+            var info = data.method.methodInfo;
+            var methodParams = info.GetParameters();
+            var convertedParams = new Expression[methodParams.Length];
+            for (var i = 0; i < methodParams.Length; i++)
+            {
+                var paramAccess = Expression.ArrayIndex(lambdaParam, Expression.Constant(i));
+                convertedParams[i] = Expression.Convert(paramAccess, methodParams[i].ParameterType);
+            }
+
+            var parsable= GlobalObjectId.TryParse(data.globalId, out var id);
+            object value = parsable ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id) : null;
+            if (value == null)
+            {
+                Debug.LogError("Object not found");
+                return () => { };
+            }
+            var methodCall = Expression.Call(
+                Expression.Constant(value),  
+                info,                    
+                convertedParams                
+            );
+
+            var lambda = Expression.Lambda<Action<object[]>>(methodCall, lambdaParam);
+            var compiledDelegate = lambda.Compile();
+            return ()=>compiledDelegate(parameters);
+        }
+
 #if UNITY_EDITOR
         public static void CreateTooltip(Rect rect, string tooltip){
             if (rect.Contains(Event.current.mousePosition)) {
