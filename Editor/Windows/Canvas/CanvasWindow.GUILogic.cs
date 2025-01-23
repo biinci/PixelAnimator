@@ -1,54 +1,73 @@
-using System;
 using UnityEngine;
 using UnityEditor;
-using binc.PixelAnimator.AnimationData;
 
 namespace binc.PixelAnimator.Editor.Windows
 {
     public partial class CanvasWindow
     {
-        private void MoveOperations(){
-            if(EditingBoxHandle != BoxHandleType.None) return;
+        
+        public override void ProcessWindow()
+        {
+            windowRect = new Rect(Vector2.zero,
+                new Vector2(PixelAnimatorWindow.AnimatorWindow.position.width, timelineWindow.WindowRect.y));
+            
+            var isValid = SelectedAnim && SelectedAnim.GetSpriteList() != null;
+            if(!isValid) return;
+            if(SelectedAnim.GetSpriteList().Count > 0) SetSpritePreview();
+            if(!spritePreview) return;
+            DrawCanvas();
+            
+            HandleMouseOperations();
+            SetRect();
+        }
+                private void HandleMouseOperations(){
+            if(UsingBoxHandle != BoxHandleType.None || !spritePreview) return;
             var eventCurrent = Event.current;
+            
             if(eventCurrent.button == 2)
-            {
-                MiddleClicked();
-            }
+                HandleMiddleClick();
+            
             if(eventCurrent.type == EventType.ScrollWheel)
-            {
-                ChangeZoom();
-            }
+                HandleZoom();
+            
             if(spriteScale <=0){
                 spriteScale = 1;
             }
         }
         
-        private void MiddleClicked()
+        private void HandleMiddleClick()
         {
-            var eventCurrent = Event.current;
-            switch (eventCurrent.type)
+            var currentEvent = Event.current;
+            switch (currentEvent.type)
             {
-                case EventType.MouseDown:
-                    previousMousePosition = eventCurrent.mousePosition;
+                case EventType.MouseDown when windowRect.Contains(currentEvent.mousePosition):
+                    isDraggable = true;
+                    previousMousePosition = currentEvent.mousePosition;
+                    Event.current.Use();
                     break;
-                case EventType.MouseDrag:
+                case EventType.MouseDrag when isDraggable:
                 {
-                    var delta = eventCurrent.mousePosition - previousMousePosition;
+                    var delta = currentEvent.mousePosition - previousMousePosition;
                     viewOffset += delta;
-                    previousMousePosition = eventCurrent.mousePosition;
+                    previousMousePosition = currentEvent.mousePosition;
+                    PixelAnimatorWindow.AddCursorCondition(true, MouseCursor.MoveArrow);
+                    Event.current.Use();
                     PixelAnimatorWindow.AnimatorWindow.Repaint();
                     break;
                 }
+                case EventType.MouseUp:
+                    isDraggable = false;
+                    Event.current.Use();
+                    break;
             }
         }
         
-        private void ChangeZoom()
+        private void HandleZoom()
         {
             var eventCurrent = Event.current;
             var scaleDelta = Mathf.Sign(eventCurrent.delta.y) > 0 ? -1 : 1;
             var previousScale = spriteScale;
             spriteScale += scaleDelta;
-            Event.current.Use();
             spriteScale = spriteScale switch
             {
                 <= 0 => 1,
@@ -67,9 +86,10 @@ namespace binc.PixelAnimator.Editor.Windows
             var scaledMousePos = mousePosForWindow * ratio;
             var deltaVector = mousePosForNewWindow - scaledMousePos;
             viewOffset += deltaVector;
+            Event.current.Use();
             PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
-        
+
         private void SetRect(){
             spriteRect = new Rect(Vector2.zero, canvasRect.size);
         }
@@ -80,25 +100,15 @@ namespace binc.PixelAnimator.Editor.Windows
             var index = animatorWindow.IndexOfSelectedSprite;
             var sprite = sprites[index];
             spritePreview = AssetPreview.GetAssetPreview(sprite);
-            if(spritePreview) spritePreview.filterMode = FilterMode.Point;
+            if (spritePreview) spritePreview.filterMode = FilterMode.Point;
         }
-        
-        private void FocusToCanvas(){
-            var eventCurrent = Event.current;
-            var isClicked = eventCurrent.type == EventType.MouseDown && windowRect.Contains(eventCurrent.mousePosition);
-            if(!isClicked) return;
-            PixelAnimatorWindow.AnimatorWindow.SelectFocusWindow(this);
-        }
-        
+
         private void AddCursorRect(Rect rect, MouseCursor cursor, BoxHandleType type){
             EditorGUIUtility.AddCursorRect(rect, cursor);
-            PixelAnimatorWindow.AddCursorCondition(EditingBoxHandle == type, cursor);
+            PixelAnimatorWindow.AddCursorCondition(UsingBoxHandle == type, cursor);
 
         }
 
-        public override void OnFocus(){
-            MoveOperations();
-            timelineWindow.SetShortcuts();
-        }
+
     }
 }

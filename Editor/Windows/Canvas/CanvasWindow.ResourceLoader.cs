@@ -10,7 +10,7 @@ namespace binc.PixelAnimator.Editor.Windows
         private Texture2D spritePreview;
         private int spriteScale;
 
-        private BoxHandleType EditingBoxHandle { get; set; }
+        private BoxHandleType UsingBoxHandle { get; set; }
         private Vector2 clickedMousePos; 
         private Color blackColor;
         private Color whiteColor; 
@@ -20,13 +20,14 @@ namespace binc.PixelAnimator.Editor.Windows
         
 
         private TimelineWindow timelineWindow;
+        private bool isDraggable;
 
         public override void Initialize(int id){
             Id = id;
             SetTextures();
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             spriteScale = 1;
-            EditingBoxHandle = BoxHandleType.None;
+            UsingBoxHandle = BoxHandleType.None;
             timelineWindow = animatorWindow.GetWindow<TimelineWindow>();
         }
 
@@ -41,26 +42,15 @@ namespace binc.PixelAnimator.Editor.Windows
             gridBlackTex.Apply();
             gridWhiteTex.Apply();
             spriteScale = 1;
-            EditingBoxHandle = BoxHandleType.None;
+            UsingBoxHandle = BoxHandleType.None;
+            spritePreview = new Texture2D(0,0);
         }
 
         public override void Dispose()
         {
         }
 
-        public override void ProcessWindow()
-        {
-            windowRect = new Rect(Vector2.zero,
-                new Vector2(PixelAnimatorWindow.AnimatorWindow.position.width, timelineWindow.WindowRect.y));
-            
-            var isValid = SelectedAnim && SelectedAnim.GetSpriteList() != null;
-            if(!isValid) return;
-            if(SelectedAnim.GetSpriteList().Count > 0)SetSpritePreview();
-            if(!spritePreview) return;
-            DrawCanvas();
-            SetRect();
-            FocusToCanvas(); //Bad naming
-        }
+
     }
     
 }

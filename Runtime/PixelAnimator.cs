@@ -4,7 +4,6 @@ using binc.PixelAnimator.AnimationData;
 using UnityEngine;
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace binc.PixelAnimator{
     [RequireComponent(typeof(SpriteRenderer))]

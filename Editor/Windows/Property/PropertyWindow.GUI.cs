@@ -1,32 +1,26 @@
 using System;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace binc.PixelAnimator.Editor.Windows
 {
     public partial class PropertyWindow
     {
-        private UnityEngine.Object obj;
-        public GlobalObjectId id;
         
-        public override void ProcessWindow()
-        {
-            if (!timelineWindow.IsPlaying) DrawPropertyWindow();
-        }
-
         private void DrawPropertyWindow()
         {
             const float ratio = 0.30063115f;
             var width = Math.Clamp(ratio*PixelAnimatorWindow.AnimatorWindow.position.width, 250, 450);
             windowRect = new Rect(10, 10, width, 250);
-
             GUI.Window(Id, windowRect, _ =>
             {
                 EditorGUI.DrawRect(new Rect(Vector2.zero, windowRect.size), new Color(0.2f, 0.2f, 0.2f));
-
-                selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, width/2f);
                 
+                var tempSkin = GUI.skin;
+                GUI.skin = PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin;
+                selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, width/2f);
+                GUI.skin = tempSkin;
+
                 switch (selectedTab)
                 {
                     case 0:
@@ -37,9 +31,11 @@ namespace binc.PixelAnimator.Editor.Windows
                         break;
                 }
 
-            }, GUIContent.none, GUIStyle.none);
-        }
 
+            }, GUIContent.none, GUIStyle.none);
+
+        } 
+  
         private void DrawHitboxTab()
         {
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
@@ -61,9 +57,7 @@ namespace binc.PixelAnimator.Editor.Windows
                 
                 scrollPos = GUI.BeginScrollView(positionRect,scrollPos,viewRect,false,false);
                 EditorGUI.BeginChangeCheck();
-
                 property.serializedObject.UpdateIfRequiredOrScript();
-
                 try
                 {
                     EditorGUI.PropertyField(listRect, property, GUIContent.none, true);
@@ -79,11 +73,11 @@ namespace binc.PixelAnimator.Editor.Windows
             }
             else if(targetAnimation == null)
             {
-                EditorGUILayout.LabelField("Please Select an Animation");
+                EditorGUILayout.LabelField("Please Select an Animation", PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.label);
             }
             else
             {
-                EditorGUILayout.LabelField("Please Select a BoxFrame");
+                EditorGUILayout.LabelField("Please Select a BoxFrame", PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.label);
             }
         }
 
@@ -117,11 +111,11 @@ namespace binc.PixelAnimator.Editor.Windows
             }
             else if(targetAnimation == null)
             {
-                EditorGUILayout.LabelField("Please Select an Animation");
+                EditorGUILayout.LabelField("Please Select an Animation", PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.label);
             }
             else
             {
-                EditorGUILayout.LabelField("Please Select a Sprite");
+                EditorGUILayout.LabelField("Please Select a Sprite", PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.label);
             }
         }
     }

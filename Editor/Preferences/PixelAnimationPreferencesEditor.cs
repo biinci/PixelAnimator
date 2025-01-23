@@ -132,11 +132,11 @@ namespace binc.PixelAnimator.Editor.Preferences{
 
             //Setting Tool tips
             
-            PixelAnimatorUtility.CreateTooltip(activeLayerRect, LayerMask.LayerToName(activeLayer.intValue));
-            
-            PixelAnimatorUtility.CreateTooltip(roundedRect, "Rounded");
-            
-            PixelAnimatorUtility.CreateTooltip(boxTypeRect, "Name");
+            // PixelAnimatorUtility.CreateTooltip(activeLayerRect, LayerMask.LayerToName(activeLayer.intValue));
+            //
+            // PixelAnimatorUtility.CreateTooltip(roundedRect, "Rounded");
+            //
+            // PixelAnimatorUtility.CreateTooltip(boxTypeRect, "Name");
             
             element.serializedObject.ApplyModifiedProperties();
 

@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEditor;
 using System;
-using UnityEngine.Serialization;
 
 namespace binc.PixelAnimator.Editor.Windows
 {
@@ -13,53 +12,49 @@ namespace binc.PixelAnimator.Editor.Windows
         private Rect handleRect,
             columnRect,
             rowRect,
-            groupPlaneRect,
+            groupAreaRect,
             thumbnailPlaneRect,
-            toolPanelRect;
+            toolPanelRect,
+            handleShadowRect,
+            frameAreaRect;
 
-        private Texture2D previousFrameTex,
+        private Texture2D prevFrameTex,
             playTex,
             nextFrameTex,
-            timelineBurgerTex,
+            mainMenuTex,
             pauseTex,
             playPauseTex,
-            selectedFrameTex;
+            selectedFrameTex,
+            keyFrameTex,
+            copyFrameTex,
+            emptyFrameTex;
         
 
-        public static  Color WindowPlaneColor = new Color(0.2f, 0.2f, 0.2f);
-        public static  Color DarkColor = new Color(0.16f, 0.16f, 0.16f);
-
-        public static  Color AccentColor = new Color(0.17f, 0.36f, 0.53f);
-        public static  Color InsideAccentColor = new Color(0.14f, 0.14f, 0.14f);
+        public static Color windowPlaneColor = new(0.2f, 0.2f, 0.2f);
+        public static Color darkColor = new(0.16f, 0.16f, 0.16f);
+        public static Color accentColor = new(0.17f, 0.36f, 0.53f);
+        public static Color insideAccentColor = new(0.14f, 0.14f, 0.14f);
 
         private GenericMenu burgerMenu, boxGroupMenu, boxMenu;
 
-        private const float HandleHeight = 4f;
+        private const float HandleHeight = 3f;
 
         private float GroupPanelWidth =>
             PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("BoxGroup").fixedWidth;
 
-        private float ToolPanelHeight =>
-            PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("Tool").fixedWidth;
+        private Vector2Int toolBarSize = new(32,32);
 
-        private float ColumnWidth =>
-            PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("TimelineLayout").fixedWidth;
+        private const float ColumnWidth = 3;
 
-        private float RowHeight =>
-            PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("TimelineLayout").fixedHeight;
+        private const float RowHeight = 3;
 
-        private GUIStyle groupStyle,
+        private GUIStyle
+            groupStyle,
             layerStyle,
-            keyFrameStyle,
-            emptyFrameStyle,
-            copyFrameStyle,
-            frameButtonStyle,
-            spriteThumbnailStyle,
-            animatorButtonStyle,
-            timelineStyle;
-
+            animatorButtonStyle;
+        
         private float timer;
-        private Vector2 scrollPos;
+        private Vector2 scrollPosition;
         private bool reSizing;
 
         private int loopGroupIndex, loopLayerIndex, loopFrameIndex;
@@ -68,8 +63,9 @@ namespace binc.PixelAnimator.Editor.Windows
         private ButtonData<BoxGroup> groupButton;
         private ButtonData<ValueTuple<BoxGroup, Box>> layerButton;
         private ButtonData<ValueTuple<int, int, int>> frameButton;
-        private ButtonData burgerButton, playPauseButton;
+        private ButtonData mainMenuButton, playPauseButton, pingAnimationButton;
         private ButtonData<bool> previousNextSpriteButton;
+
         #endregion
 
         #region Init
@@ -94,19 +90,23 @@ namespace binc.PixelAnimator.Editor.Windows
             groupButton.DownClick += GroupButton;
             layerButton.DownClick += BoxButton;
             frameButton.DownClick += FrameButton;
-            burgerButton.DownClick += BurgerMenuButton;
+            mainMenuButton.DownClick += BurgerMenuButton;
             playPauseButton.DownClick += PlayPauseButton;
             previousNextSpriteButton.DownClick += ChangeSpriteButton;
+            pingAnimationButton.DownClick += PingAnimationButton;
         }
 
         private void LoadTextures()
         {
-            previousFrameTex = Resources.Load<Texture2D>("Sprites/Back");
+            prevFrameTex = Resources.Load<Texture2D>("Sprites/Back");
             nextFrameTex = Resources.Load<Texture2D>("Sprites/Front");
-            timelineBurgerTex = Resources.Load<Texture2D>("Sprites/TimelineBurgerMenu");
+            mainMenuTex = Resources.Load<Texture2D>("Sprites/MainMenu");
             pauseTex = Resources.Load<Texture2D>("Sprites/Pause");
             playTex = Resources.Load<Texture2D>("Sprites/Play");
             selectedFrameTex = Resources.Load<Texture2D>("Sprites/SelectedFrame");
+            keyFrameTex = Resources.Load<Texture2D>("Sprites/Key Frame");
+            copyFrameTex = Resources.Load<Texture2D>("Sprites/Copy Frame");
+            emptyFrameTex = Resources.Load<Texture2D>("Sprites/Empty Frame");
             playPauseTex = playTex;
         }
 
@@ -115,14 +115,7 @@ namespace binc.PixelAnimator.Editor.Windows
             var mySkin = PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin;
             groupStyle = new GUIStyle(mySkin.GetStyle("BoxGroup"));
             layerStyle = new GUIStyle(mySkin.GetStyle("Layer"));
-            keyFrameStyle = new GUIStyle(mySkin.GetStyle("KeyFrame"));
-            emptyFrameStyle = new GUIStyle(mySkin.GetStyle("EmptyFrame"));
-            copyFrameStyle = new GUIStyle(mySkin.GetStyle("CopyFrame"));
-            frameButtonStyle = new GUIStyle(mySkin.GetStyle("FrameButton"));
-            spriteThumbnailStyle = new GUIStyle(mySkin.GetStyle("SpriteThumbnail"));
             animatorButtonStyle = new GUIStyle(mySkin.GetStyle("AnimatorButton"));
-            timelineStyle = new GUIStyle(mySkin.GetStyle("Timeline"));
-            hoverSpriteThumbnailStyle = new GUIStyle(spriteThumbnailStyle) { normal = spriteThumbnailStyle.hover };
         }
 
 
@@ -137,14 +130,14 @@ namespace binc.PixelAnimator.Editor.Windows
         
         public override void Dispose()
         {
-            new Color(0.1f, 0.1f, 0.1f);
             thumbnailButton.DownClick -= ThumbnailButton;
             groupButton.DownClick -= GroupButton;
             layerButton.DownClick -= BoxButton;
             frameButton.DownClick -= FrameButton;
-            burgerButton.DownClick -= BurgerMenuButton;
+            mainMenuButton.DownClick -= BurgerMenuButton;
             playPauseButton.DownClick -= PlayPauseButton;
             previousNextSpriteButton.DownClick -= ChangeSpriteButton;
+            pingAnimationButton.DownClick -= PingAnimationButton;
         }
     }
 }

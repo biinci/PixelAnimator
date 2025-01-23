@@ -18,7 +18,7 @@ namespace binc.PixelAnimator.Editor.Windows
         /// This function works when the window focus is on the window that you inherited this class from.
         /// </summary>
         /// 
-        public abstract void OnFocus();  
+        // public abstract void OnFocus();  
         
         public abstract void ProcessWindow();
         

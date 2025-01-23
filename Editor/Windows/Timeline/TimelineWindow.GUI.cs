@@ -4,116 +4,128 @@ using UnityEditor;
 using binc.PixelAnimator.AnimationData;
 using System;
 
-
 namespace binc.PixelAnimator.Editor.Windows{
 
     [Serializable]
     public partial class TimelineWindow{
 
-        private void RenderWindow()
-        {
-            windowRect.y = PixelAnimatorWindow.AnimatorWindow.position.height - windowRect.height;
-            windowRect.width = PixelAnimatorWindow.AnimatorWindow.position.width;
-            GUI.Window(Id, windowRect, _ => RenderWindowContent(), GUIContent.none, timelineStyle);
-        }
-        private Vector2 scrollPosition;
-        private void RenderWindowContent()
-        {
-            DrawBackgrounds();//ok
-            DrawGridLines();//ok
-            DrawToolButtons();//ok
-            DrawThumbnailPanel();
-            DrawGroupPanel();
 
-        }
 
         private void DrawBackgrounds()
         {
-            EditorGUI.DrawRect(handleRect, AccentColor);
-            EditorGUI.DrawRect(new Rect(0, handleRect.height, windowRect.width, windowRect.height), WindowPlaneColor);
-            EditorGUI.DrawRect(new Rect(columnRect.xMax, rowRect.yMax, windowRect.width-columnRect.xMax,windowRect.height-rowRect.yMax), DarkColor);
-            EditorGUI.DrawRect(new Rect(groupPlaneRect.position,new Vector2(columnRect.xMin, groupPlaneRect.height)), WindowPlaneColor);
+            EditorGUI.DrawRect(handleRect, accentColor);
+            EditorGUI.DrawRect(new Rect(0, handleRect.height, windowRect.width, windowRect.height), windowPlaneColor);
+            EditorGUI.DrawRect(new Rect(columnRect.xMax, rowRect.yMax, windowRect.width-columnRect.xMax,windowRect.height-rowRect.yMax), darkColor);
+            EditorGUI.DrawRect(new Rect(groupAreaRect.position,new Vector2(columnRect.xMin, groupAreaRect.height)), windowPlaneColor);
         }
         
         private void DrawGridLines(){
-            EditorGUI.DrawRect(columnRect, InsideAccentColor);
-            EditorGUI.DrawRect(rowRect, InsideAccentColor);
-            EditorGUI.DrawRect(new Rect(0,HandleHeight,windowRect.width,RowHeight/2), InsideAccentColor);
+            EditorGUI.DrawRect(columnRect, insideAccentColor);
+            EditorGUI.DrawRect(rowRect, insideAccentColor);
+            EditorGUI.DrawRect(handleShadowRect, insideAccentColor);
         }
 
-        private float spaceTool = 160;
         private void DrawToolButtons(){
             GUILayout.BeginArea(toolPanelRect);
+            GUILayout.Space(5);
             GUILayout.BeginHorizontal();
+            GUILayout.Space(3);
+            
+            var mainMenuContent = new GUIContent(mainMenuTex, "Main Menu");
+            
+            if (GUILayout.Button(mainMenuContent, animatorButtonStyle)) mainMenuButton.DownClick();
 
-            if (GUILayout.Button(timelineBurgerTex, animatorButtonStyle))
+            if (SelectedAnim)
             {
-                burgerButton.DownClick();
+                if (GUILayout.Button(mainMenuTex, animatorButtonStyle)) pingAnimationButton.DownClick();
             }
-           
-            GUILayout.Space(spaceTool);
+            
+            var lastFrame = GUILayoutUtility.GetLastRect();
+            var spaceAmount = toolPanelRect.xMax - (animatorButtonStyle.fixedWidth * 5 + lastFrame.xMax + 7);
 
-            if (GUILayout.Button(previousFrameTex, animatorButtonStyle))
-                previousNextSpriteButton.DownClick(true);
-            if (GUILayout.Button(playPauseTex, animatorButtonStyle))
-                playPauseButton.DownClick();
-            if (GUILayout.Button(nextFrameTex, animatorButtonStyle))
-                previousNextSpriteButton.DownClick(false);
-           
+            GUILayout.Space(spaceAmount);
+            
+            var prevFrameContent = new GUIContent(prevFrameTex, "Previous Frame");
+            var playContent = new GUIContent(playTex, "Play");
+            var nextFrameContent = new GUIContent(nextFrameTex, "Next Frame");
+            
+            if (GUILayout.Button(prevFrameContent, animatorButtonStyle)) previousNextSpriteButton.DownClick(true);
+            if (GUILayout.Button(playContent, animatorButtonStyle)) playPauseButton.DownClick();
+            if (GUILayout.Button(nextFrameContent, animatorButtonStyle)) previousNextSpriteButton.DownClick(false);
+            
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
 
-        private void DrawThumbnailPanel(){
-            GUILayout.BeginVertical();
-
-            GUILayout.Space(HandleHeight);
-
-            GUILayout.BeginHorizontal();
-
-            var space = columnRect.xMax;
-            GUILayout.Space(space);
+        private void DrawThumbnailPanelAndFrame()
+        {
+            var verticalSpace = HandleHeight + handleShadowRect.height;
+            var horizontalSpace = columnRect.xMax;
+            EditorGUILayout.BeginVertical();
+            GUILayout.Space(verticalSpace);
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Space(horizontalSpace);
             
-            scrollPosition = GUILayout.BeginScrollView(
+            scrollPosition.x = EditorGUILayout.BeginScrollView(
                 scrollPosition, 
-                GUI.skin.horizontalScrollbar,
-                GUIStyle.none,
-                GUILayout.Width(windowRect.width - space), 
-                GUILayout.Height(windowRect.height-HandleHeight)
+                GUI.skin.horizontalScrollbar, 
+                GUIStyle.none, 
+                GUILayout.Height(windowRect.height-HandleHeight)).x;
+            
+            EditorGUILayout.BeginHorizontal();
+            if (SelectedAnim)
+            {
+                DrawThumbnails(SelectedAnim.GetSpriteList());
+                DrawFrames();
+            } 
+            EditorGUILayout.EndHorizontal();
 
-                );
-
-            GUILayout.BeginHorizontal();           
-
-            if(SelectedAnim) DrawThumbnails(SelectedAnim.GetSpriteList()); 
-
-            GUILayout.EndHorizontal();
-
-            GUILayout.EndScrollView();
-
-            GUILayout.EndHorizontal();
-
-            GUILayout.EndVertical();
+            EditorGUILayout.EndScrollView();
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndVertical();
         }
 
-        private void DrawThumbnails(List<Sprite> sprites){
+        private void DrawThumbnails(List<Sprite> sprites)
+        {
+            if (sprites == null) return;
+            GUILayout.BeginHorizontal(); 
             
-            GUILayout.BeginHorizontal();
             for(var i = 0; i < sprites.Count; i++){
-                var clicked = DrawThumbnail($"{i+1}",i);
-                if (clicked) thumbnailButton.DownClick(i);
+                DrawThumbnail(i);
             }
             GUILayout.EndHorizontal();
-            
-            DrawFrames();
         }
 
+        private void DrawThumbnail(int index){
+            var isSelectedIndex = index == PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedSprite;
+            var sprite = SelectedAnim.PixelSprites[index].sprite;
+            var toolTip = !sprite ? "" : sprite.name;
+            if(GUILayout.Button(new GUIContent("",toolTip), GUIStyle.none,GUILayout.Width(toolBarSize.x), GUILayout.Height(toolBarSize.y))) thumbnailButton.DownClick(index);
+            var rect = GUILayoutUtility.GetLastRect();
+
+            if (Event.current.type != EventType.Repaint) return;
+            
+            var spriteRect = PixelAnimatorUtility.DrawSpriteThumb(rect,index+2, sprite);
+                
+            if (isSelectedIndex)
+            {
+                EditorGUI.DrawRect(spriteRect, new Color(1,1,1,0.3f));
+            }
+            else if (rect.Contains(Event.current.mousePosition))
+            {
+                EditorGUI.DrawRect(spriteRect, new Color(1,1,1,0.2f));
+                PixelAnimatorWindow.AnimatorWindow.Repaint();
+            }
+
+        }
+        
         private void DrawFrames()
         {
             if (!PixelAnimatorWindow.AnimatorWindow.IsValidBoxGroup()) return;
-            GUILayout.BeginArea(new Rect(0, rowRect.yMax-HandleHeight, spriteThumbnailStyle.fixedWidth*SelectedAnim.GetSpriteList().Count, groupPlaneRect.height));
+            GUILayout.BeginArea(frameAreaRect);
+
             EditorGUILayout.BeginScrollView(
-                Vector2.up * scrollPos.y,
+                Vector2.up * scrollPosition.y,
                 false,
                 false,
                 GUIStyle.none,
@@ -151,31 +163,30 @@ namespace binc.PixelAnimator.Editor.Windows{
             GUILayout.EndArea();
         }
 
-        private bool DrawThumbnail(string label, int index){
-
-            var style = GetThumbnailStyle(index);
-            return GUILayout.Button(label,style);
-        }
-
-        private GUIStyle hoverSpriteThumbnailStyle;
-        private GUIStyle GetThumbnailStyle(int index){
-            var isSameIndex = index == PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedSprite;
-            return isSameIndex ? hoverSpriteThumbnailStyle : spriteThumbnailStyle;
+        private void DrawFrame(BoxFrame boxFrame){
+            var texture = GetFrameTexture(boxFrame.GetFrameType());
+            var clicked = GUILayout.Button(new GUIContent(texture), GUIStyle.none, GUILayout.Width(toolBarSize.x), GUILayout.Height(layerStyle.fixedHeight));
+            
+            if (PixelAnimatorWindow.AnimatorWindow.IsFrameSelected(boxFrame) && Event.current.type == EventType.Repaint)
+            {
+                var rect = GUILayoutUtility.GetLastRect();
+                GUI.DrawTexture(rect,selectedFrameTex);
+            }            
+            if (clicked) frameButton.DownClick((loopGroupIndex,loopLayerIndex,loopFrameIndex));
         }
         private void DrawGroupPanel(){
-            GUILayout.BeginArea(groupPlaneRect);
+            GUILayout.BeginArea(groupAreaRect);
             EditorGUILayout.BeginVertical();
-            var position = EditorGUILayout.BeginScrollView(
-                Vector2.up * scrollPos.y,
+            
+            scrollPosition.y = EditorGUILayout.BeginScrollView(
+                Vector2.up * scrollPosition.y,
                 false,
                 false,
                 GUIStyle.none,
                 GUI.skin.verticalScrollbar,
                 GUIStyle.none
-            );
+            ).y;
 
-            scrollPos = Vector2.right * scrollPos.x + Vector2.up * position.y;
-            
             if(SelectedAnim) DrawGroups(SelectedAnim.BoxGroups);
         
             EditorGUILayout.EndScrollView();
@@ -212,33 +223,16 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void DrawBox(Box box, string label, BoxGroup boxGroup){
             if(GUILayout.Button(label, layerStyle)) layerButton.DownClick((boxGroup,box));
         }
-        
-        private float framePanelWidth;
-        
-        private void DrawFrame(BoxFrame boxFrame){
-            var style = GetFrameStyle(boxFrame.GetFrameType());
-            var clicked = GUILayout.Button("", style);
 
-            
-            if (PixelAnimatorWindow.AnimatorWindow.IsFrameSelected(boxFrame) && Event.current.type == EventType.Repaint)
+        private Texture2D GetFrameTexture(BoxFrameType type)
+        {
+            return type switch
             {
-                var rect = GUILayoutUtility.GetLastRect();
-                GUI.DrawTexture(rect,selectedFrameTex);
-            }            
-            if (clicked) frameButton.DownClick((loopGroupIndex,loopLayerIndex,loopFrameIndex));
-        }
-
-        private GUIStyle GetFrameStyle(BoxFrameType type){
-            switch (type){
-                case BoxFrameType.KeyFrame:
-                    return keyFrameStyle;
-                case BoxFrameType.CopyFrame:
-                    return copyFrameStyle;
-                case BoxFrameType.EmptyFrame:
-                    return emptyFrameStyle;
-                default:
-                    return GUIStyle.none;
-            }
+                BoxFrameType.KeyFrame => keyFrameTex,
+                BoxFrameType.CopyFrame => copyFrameTex,
+                BoxFrameType.EmptyFrame => emptyFrameTex,
+                _ => Texture2D.redTexture
+            };
         }
     }
 }

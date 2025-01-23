@@ -14,7 +14,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             ClampPosition();
             var canvasSize = new Vector2(spritePreview.width, spritePreview.height) * spriteScale;
             canvasRect = new Rect(viewOffset+screenSpriteOrigin,canvasSize);
-            GUI.Window(Id, canvasRect, _=>{WindowFunction();}, GUIContent.none, GUIStyle.none);
+            GUI.Window(Id, canvasRect, _=>{RenderWindowContent();}, GUIContent.none, Resources.Load<GUISkin>("MyGUISkin").GetStyle("window"));
             
         }
         private void ClampPosition() { 
@@ -29,10 +29,17 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         }
 
-        private void WindowFunction(){
+        private void RenderWindowContent(){
             DrawGrid();
             DrawSprite();
             DrawBoxes();
+            
+            // if (new Rect(Vector2.zero, windowRect.size).IsClickedRect(0,1,2))
+            // {
+            //     Event.current.Use();
+            //     // GUI.FocusWindow(Id);
+            // }
+            
         }
         
         private void DrawSprite() => GUI.DrawTexture(spriteRect, spritePreview, ScaleMode.ScaleToFit);
@@ -54,11 +61,13 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void DrawGrid()
         {
+            var size = new Vector2(64, 64);
+            if(spritePreview) size = new Vector2(spritePreview.width, spritePreview.height);
             var rect = spriteRect;
             var grid = new Rect(rect.x, rect.y, 16 * spriteScale, 16 * spriteScale);
 
-            for (var i = 0; i < spritePreview.width / 16; i++) {
-                for (var j = 0; j < spritePreview.height / 16; j += 2) {
+            for (var i = 0; i < size.x / 16; i++) {
+                for (var j = 0; j < size.y / 16; j += 2) {
                     var tex = i % 2 == 0 ? gridBlackTex : gridWhiteTex;
                     GUI.DrawTexture(grid, tex);
                     grid.y += grid.height; 
@@ -75,7 +84,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
             grid.width = rect.x + rect.width - grid.x; 
 
-            for (var j = 0; j < spritePreview.height / 16; j += 2) {
+            for (var j = 0; j < size.y / 16; j += 2) {
                 GUI.DrawTexture(grid, gridWhiteTex);
                 grid.y += grid.height;
                 GUI.DrawTexture(grid, gridBlackTex); 
@@ -121,7 +130,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                         EditBox(frame, scaledRect, position);
                     }
                     if (eventCurrent.type == EventType.MouseUp) {
-                        EditingBoxHandle = BoxHandleType.None;
+                        UsingBoxHandle = BoxHandleType.None;
                     }
 
                     
@@ -132,12 +141,12 @@ namespace binc.PixelAnimator.Editor.Windows{
                                         Event.current.type == EventType.MouseDown;
 
                     
-                    if (isClickedRect && EditingBoxHandle==BoxHandleType.None && !GetActiveGUIBoxRect().Contains(mousePos))
+                    if (isClickedRect && UsingBoxHandle==BoxHandleType.None && !GetActiveGUIBoxRect().Contains(mousePos))
                     {
-                        Event.current.Use();
                         animatorWindow.SelectBoxGroup(groupIndex);
                         animatorWindow.SelectBox(i);
                         boxGroup.isExpanded = true;
+                        Event.current.Use();
                     }
 
                 }
@@ -162,7 +171,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void EditBox(BoxFrame boxFrame, Rect rect, Vector2 position)
         {
             
-            switch (EditingBoxHandle) {
+            switch (UsingBoxHandle) {
                 case BoxHandleType.TopLeft:
                     boxFrame.boxRect.xMin = position.x;
                     boxFrame.boxRect.yMin = position.y;
@@ -240,33 +249,33 @@ namespace binc.PixelAnimator.Editor.Windows{
             var leftClicked = eventCurrent.button == 0 && eventCurrent.type == EventType.MouseDown;
             if (leftClicked)
             {
-                var temp = EditingBoxHandle;
+                var previousBoxHandle = UsingBoxHandle;
                 var mousePos = eventCurrent.mousePosition;
                 if (rTopLeft.Contains(mousePos))
-                    EditingBoxHandle = BoxHandleType.TopLeft;
+                    UsingBoxHandle = BoxHandleType.TopLeft;
                 else if (rTopCenter.Contains(mousePos))
-                    EditingBoxHandle = BoxHandleType.TopCenter;
+                    UsingBoxHandle = BoxHandleType.TopCenter;
                 else if (rTopRight.Contains(mousePos))
-                    EditingBoxHandle = BoxHandleType.TopRight;
+                    UsingBoxHandle = BoxHandleType.TopRight;
                 else if (rRightCenter.Contains(mousePos))
-                    EditingBoxHandle = BoxHandleType.RightCenter;
+                    UsingBoxHandle = BoxHandleType.RightCenter;
                 else if (rBottomRight.Contains(mousePos))
-                    EditingBoxHandle = BoxHandleType.BottomRight;
+                    UsingBoxHandle = BoxHandleType.BottomRight;
                 else if (rBottomCenter.Contains(mousePos))
-                    EditingBoxHandle = BoxHandleType.BottomCenter;
+                    UsingBoxHandle = BoxHandleType.BottomCenter;
                 else if (rBottomLeft.Contains(mousePos))
-                    EditingBoxHandle = BoxHandleType.BottomLeft;
+                    UsingBoxHandle = BoxHandleType.BottomLeft;
                 else if (rLeftCenter.Contains(mousePos))
-                    EditingBoxHandle = BoxHandleType.LeftCenter;
+                    UsingBoxHandle = BoxHandleType.LeftCenter;
                 else if (rAdjustedMiddle.Contains(mousePos)) {
-                    EditingBoxHandle = BoxHandleType.Middle;
+                    UsingBoxHandle = BoxHandleType.Middle;
                     clickedMousePos = mousePos;
                 }
                 else {
-                    EditingBoxHandle = BoxHandleType.None;
+                    UsingBoxHandle = BoxHandleType.None;
                 }
 
-                if (EditingBoxHandle != temp)
+                if (UsingBoxHandle != previousBoxHandle)
                 {
                     eventCurrent.Use();
                     

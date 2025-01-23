@@ -5,6 +5,7 @@ using System.Linq;
 using binc.PixelAnimator.AnimationData;
 using binc.PixelAnimator.Preferences;
 using binc.PixelAnimator.Editor.Preferences;
+using Codice.CM.Client.Differences.Graphic;
 
 namespace binc.PixelAnimator.Editor.Windows{
     [Serializable]
@@ -41,10 +42,13 @@ namespace binc.PixelAnimator.Editor.Windows{
             var icon = Resources.Load<Texture2D>("Sprites/PixelAnimatorIcon");
             AnimatorWindow.titleContent = new GUIContent("Pixel Animator", icon);
             AnimatorWindow.Show();
+            
         }
 
         private void OnEnable()
         {
+            OnSelectionChange();
+            wantsMouseMove = true;
             LoadResources();
             InitWindows();
         }
@@ -85,7 +89,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             foreach (var obj in Selection.objects)
             {
                 if (obj is not PixelAnimation anim) continue;
-                if (SelectedAnimation == anim) continue;
+                // if (SelectedAnimation == anim) continue;
 
                 SerializedSelectedAnimation = new SerializedObject(anim);
                 selectedAnimation = anim;
@@ -101,9 +105,10 @@ namespace binc.PixelAnimator.Editor.Windows{
             DrawBackground();
             
             ProcessWindows();
-            CallOnFocus();
             
             SetEditorDeltaTime();
+            if (Event.current.type == EventType.MouseMove)
+                Repaint();
         }
 
         private void DrawBackground()
@@ -132,37 +137,12 @@ namespace binc.PixelAnimator.Editor.Windows{
             EndWindows();
         }
         
-        private void CallOnFocus()
-        {
-            var mousePos = Vector2.zero;
-            var currentEvent = Event.current;
-            if (currentEvent.type != EventType.Used)
-            {
-                mousePos = Event.current.mousePosition;
-            }
-            var isLeftClicked = currentEvent.button == 0 && currentEvent.type is EventType.MouseDown or EventType.Used;
-            if (isLeftClicked)
-            {
-                foreach (var window in AnimatorPreferences.windows)
-                {
-                    var isMouseInRect = window.WindowRect.Contains(mousePos);
-                    if (!isMouseInRect) continue;
-                    FocusedWindow = window;
-                    FocusChangeable = false;
-                }
-
-                FocusChangeable = true;
-                FocusedWindow = null;
-            }
-            FocusedWindow?.OnFocus();
-        }
-        
         private void SetEditorDeltaTime()
-                {
-                    if (lifeTime == 0f) lifeTime = (float)EditorApplication.timeSinceStartup;
-                    EditorDeltaTime = (float)(EditorApplication.timeSinceStartup - lifeTime);
-                    lifeTime = (float)EditorApplication.timeSinceStartup;
-                }
+        {
+            if (lifeTime == 0f) lifeTime = (float)EditorApplication.timeSinceStartup;
+            EditorDeltaTime = (float)(EditorApplication.timeSinceStartup - lifeTime);
+            lifeTime = (float)EditorApplication.timeSinceStartup;
+        }
         
         #region Selection Methods
         public void SelectBoxGroup(int index)
@@ -235,6 +215,17 @@ namespace binc.PixelAnimator.Editor.Windows{
         {
             return selectedAnimation.BoxGroups[IndexOfSelectedBoxGroup].boxes[IndexOfSelectedBox]
                 .frames[IndexOfSelectedSprite] == boxFrame;
+        }
+
+        public int GetSpriteCount()
+        {
+            var count = 0;
+            if (selectedAnimation && selectedAnimation.PixelSprites != null)
+            {
+                count = selectedAnimation.PixelSprites.Count;
+            }
+
+            return count;
         }
         
         public static void AddCursorCondition(bool condition, MouseCursor icon)
