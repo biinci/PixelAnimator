@@ -33,19 +33,23 @@ namespace binc.PixelAnimator.Editor.Windows
 
         private void SetTextures()
         {
-            blackColor = new Color(0.5f, 0.5f, 0.5f);
-            whiteColor = new Color(0.75f, 0.75f, 0.75f);
-            gridBlackTex = new Texture2D(1,1);
-            gridWhiteTex = new Texture2D(1,1);
-            gridBlackTex.SetPixel(0,0,blackColor);
-            gridWhiteTex.SetPixel(0,0,whiteColor);
-            gridBlackTex.Apply();
-            gridWhiteTex.Apply();
+            SetGridTexture();
             spriteScale = 1;
             UsingBoxHandle = BoxHandleType.None;
             spritePreview = new Texture2D(0,0);
         }
 
+        private void SetGridTexture()
+        {
+            blackColor = new Color(0.6f, 0.6f, 0.6f, 0.5f);
+            whiteColor = new Color(1, 1, 1, 0.5f);
+            gridWhiteTex = new Texture2D(1, 1);
+            gridWhiteTex.SetPixel(0, 0, whiteColor);
+            gridWhiteTex.Apply();
+            gridBlackTex = new Texture2D(1, 1);
+            gridBlackTex.SetPixel(0, 0, blackColor);
+            gridBlackTex.Apply();
+        }
         public override void Dispose()
         {
         }

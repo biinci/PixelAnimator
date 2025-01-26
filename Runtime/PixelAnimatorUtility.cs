@@ -79,14 +79,15 @@ namespace binc.PixelAnimator
                 convertedParams[i] = Expression.Convert(paramAccess, methodParams[i].ParameterType);
             }
 
-            var parsable = GlobalObjectId.TryParse(data.globalId, out var id);
-            object value = parsable ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id) : null;
+            var parsable = GlobalObjectId.TryParse(data.GlobalId, out var id);
+            var value = parsable ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id) : null;
             if (value == null)
             {
                 Debug.LogError("Object not found");
                 return () => { };
             }
 
+            data.obj = value;
             var methodCall = Expression.Call(
                 Expression.Constant(value),
                 info,

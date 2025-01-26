@@ -36,7 +36,8 @@ namespace binc.PixelAnimator.Editor.Windows
             upTex,
             downTex,
             triggerTex,
-            colliderTex;
+            colliderTex,
+            linkFrameTex;
         
 
         public static Color windowPlaneColor = new(0.2f, 0.2f, 0.2f);
@@ -114,6 +115,7 @@ namespace binc.PixelAnimator.Editor.Windows
             downTex = Resources.Load<Texture2D>("Sprites/drop");
             triggerTex = Resources.Load<Texture2D>("Sprites/trigger");
             colliderTex = Resources.Load<Texture2D>("Sprites/collider");
+            linkFrameTex = Resources.Load<Texture2D>("Sprites/linkframe");
 
             playPauseTex = playTex;
         }

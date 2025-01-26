@@ -61,6 +61,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void DrawGrid()
         {
+            if(!gridBlackTex || !gridWhiteTex) SetGridTexture();
             var size = new Vector2(64, 64);
             if(spritePreview) size = new Vector2(spritePreview.width, spritePreview.height);
             var rect = spriteRect;
@@ -107,7 +108,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                                   selectedLayerIndex == i;
                 var frame = boxGroup.boxes[i].frames[animatorWindow.IndexOfSelectedSprite];
                 
-                if(frame.GetFrameType() == BoxFrameType.EmptyFrame) continue;
+                if(frame.Type == BoxFrameType.EmptyFrame) continue;
                 
                 var scaledRect = frame.boxRect; 
                 scaledRect.position *= spriteScale;

@@ -9,10 +9,11 @@ using Object = UnityEngine.Object;
 [Serializable]
 public class MethodData : ISerializationCallbackReceiver
 {
-    public Object instance;
+    public Object obj;
+    public string GlobalId => globalId;
+    [SerializeField] [ReadOnly] private string globalId;
     public SerializableMethodInfo method;
     [SerializeReference] public List<BaseData> parameters;
-    [ReadOnly] public string globalId;
     public void SelectMethod(MethodInfo methodInfo)
     {
         method.methodInfo = methodInfo;

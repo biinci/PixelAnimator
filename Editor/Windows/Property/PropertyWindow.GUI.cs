@@ -18,7 +18,7 @@ namespace binc.PixelAnimator.Editor.Windows
                 
                 var tempSkin = GUI.skin;
                 GUI.skin = PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin;
-                selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, width/2f);
+                // selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, width/2f);
                 GUI.skin = tempSkin;
 
                 switch (selectedTab)

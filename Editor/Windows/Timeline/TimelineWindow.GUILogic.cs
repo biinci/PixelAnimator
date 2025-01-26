@@ -24,14 +24,15 @@ namespace binc.PixelAnimator.Editor.Windows{
         
         private void RenderWindowContent()
         {
-
-
+            if(Event.current.keyCode == KeyCode.Return && Event.current.type == EventType.KeyDown){
+                GUI.FocusControl(null);
+            }
+            HandleDragScroll();
             DrawBackgrounds();
             DrawGridLines();
             DrawToolButtons();
-            // DrawThumbnailPanelAndFrame();
+            DrawThumbnailPanelAndFrame();
             if(!IsPlaying)DrawGroupPanel();
-            HandleDragScroll();
 
             if (windowRect.height == 0)
             {
@@ -46,6 +47,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void HandleDragScroll()
         {
             if (Event.current.type != EventType.MouseDrag || Event.current.button != 2) return;
+            GUI.FocusControl(null);
             scrollPosition += Event.current.delta*-1;
             if (scrollPosition.x < 0) scrollPosition.x = 0;
             if (scrollPosition.y < 0) scrollPosition.y = 0;
@@ -106,11 +108,17 @@ namespace binc.PixelAnimator.Editor.Windows{
             var frame = frames[frameIndex];            
             
             if(isSameLayerIndex && isSameGroupIndex){
-                var previousType = BoxFrameType.None;
-                if(frameIndex > 0){
-                    previousType = frames[frameIndex-1].GetFrameType();
+                BoxFrame previousFrame = null;
+                BoxFrame nextFrame = null;
+                if(frameIndex > 0)
+                {
+                    previousFrame = frames[frameIndex - 1];
                 }
-                frame.SetType(ChangeFrameType(frame.GetFrameType(), previousType, frameIndex));
+                if(frameIndex < frames.Count - 1)
+                {
+                    nextFrame = frames[frameIndex + 1];
+                }
+                layers[layerIndex].SetFrameType(frameIndex);
             } 
             
             if(isSameFrameIndex){ 
@@ -119,18 +127,19 @@ namespace binc.PixelAnimator.Editor.Windows{
             } 
             PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
-        private BoxFrameType ChangeFrameType(BoxFrameType type, BoxFrameType previousType, int index){
-            switch (type){
+        private void ChangeFrameType(BoxFrame currentFrame, BoxFrame nextFrame, BoxFrame previousFrame){
+            switch (currentFrame.Type)
+            {
                 case BoxFrameType.KeyFrame:
-                    var isValid = index > 0 && previousType != BoxFrameType.EmptyFrame && previousType != BoxFrameType.None;
-                    if(isValid)return BoxFrameType.CopyFrame;
-                    goto case BoxFrameType.CopyFrame;
+                    break;
                 case BoxFrameType.CopyFrame:
-                    return BoxFrameType.EmptyFrame;
+                    break;
                 case BoxFrameType.EmptyFrame:
-                    return BoxFrameType.KeyFrame;
+                    break;
+                case BoxFrameType.None:
+                    break;
                 default:
-                    return BoxFrameType.None;
+                    throw new ArgumentOutOfRangeException();
             }
         }
         private void BoxButton(ValueTuple<BoxGroup, Box> data){

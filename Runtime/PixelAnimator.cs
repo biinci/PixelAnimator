@@ -64,7 +64,7 @@ namespace binc.PixelAnimator{
         private void CallEvent()
         {
             var unityEvent = CurrentAnim.PixelSprites[frameIndex].methodStorage.methods;
-            unityEvent.Invoke();
+            unityEvent?.Invoke();
         }
         
 

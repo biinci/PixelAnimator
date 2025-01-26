@@ -38,6 +38,48 @@ namespace binc.PixelAnimator{
         public Box(){
             frames = new List<BoxFrame>();
         }
+
+        public void SetFrameType(int index){
+            if(index < 0 || index >= frames.Count) return;
+            var currentFrame = frames[index];
+            switch (currentFrame.Type)
+            {
+                case BoxFrameType.KeyFrame:
+                    if (index == 0)
+                    {
+                        currentFrame.SetType(BoxFrameType.EmptyFrame);
+                    }
+                    else if(frames[index-1].Type != BoxFrameType.EmptyFrame)
+                    {
+                        currentFrame.SetType(BoxFrameType.CopyFrame);
+                    }
+                    else
+                    {
+                        currentFrame.SetType(BoxFrameType.EmptyFrame);
+                        if (index+1 < frames.Count && frames[index + 1].Type == BoxFrameType.CopyFrame)
+                        {
+                            frames[index+1].SetType(BoxFrameType.KeyFrame);
+                        }
+                    }
+                    break;
+                case BoxFrameType.CopyFrame:
+                    currentFrame.SetType(BoxFrameType.EmptyFrame);
+                    if(index+2 < frames.Count && frames[index+1].Type == BoxFrameType.CopyFrame)
+                    {
+                        frames[index+1].SetType(BoxFrameType.KeyFrame);
+                    }
+                    break;
+                case BoxFrameType.EmptyFrame:
+                    currentFrame.SetType(BoxFrameType.KeyFrame);
+                    break;
+                case BoxFrameType.None:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+            
+        
     }
 }
 

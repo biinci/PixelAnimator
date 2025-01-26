@@ -10,6 +10,7 @@ namespace binc.PixelAnimator.AnimationData{
         [ReadOnly, SerializeField]
         private string guid;
         
+        public BoxFrameType Type => type;
         [SerializeField] private BoxFrameType type;
         
         public Rect boxRect;
@@ -18,11 +19,10 @@ namespace binc.PixelAnimator.AnimationData{
             this.guid = guid;
         }
 
-        public void SetType(BoxFrameType boxFrameType){
+        public void SetType(BoxFrameType boxFrameType)
+        {
             type = boxFrameType;
         }
-        
-        public BoxFrameType GetFrameType() => type;
     }
     
     

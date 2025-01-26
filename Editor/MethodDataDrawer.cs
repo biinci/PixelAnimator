@@ -73,8 +73,8 @@ namespace binc.PixelAnimator.Editor
             {
                 property.isExpanded = EditorGUI.Foldout(foldoutRect, property.isExpanded, GUIContent.none);
                 DrawInstance(objectRect, idProperty);
-                DrawMethod(methodRect, idProperty, functionTexRect,functionLabelRect, content);
-                DrawParameters(property, parametersProperty, position, methodProperty); 
+                DrawMethod(methodRect, idProperty, functionTexRect, functionLabelRect, content);
+                if(content != "No function")DrawParameters(property, parametersProperty, position, methodProperty); 
             }
             
         }
@@ -84,7 +84,8 @@ namespace binc.PixelAnimator.Editor
         {
             EditorGUI.BeginChangeCheck();
             var obj = GetUnityObject(idProperty);//TODO: performance's sake, this should be fixed
-            obj = EditorGUI.ObjectField(objectRect, obj, typeof(Object), true);
+            obj = EditorGUI.ObjectField(objectRect,obj, typeof(Object), true);
+            EditorGUI.LabelField(objectRect, new GUIContent("", idProperty.stringValue));
             if (!EditorGUI.EndChangeCheck()) return;
             idProperty.stringValue = GlobalObjectId.GetGlobalObjectIdSlow(obj).ToString();
             if (!objectListByPropertyPath.TryAdd(idProperty.propertyPath, obj))
@@ -235,7 +236,7 @@ namespace binc.PixelAnimator.Editor
             return trueObject;
         }
 
-        public static object GetParent(SerializedProperty prop)
+        private static object GetParent(SerializedProperty prop)
         {
             var path = prop.propertyPath.Replace(".Array.data[", "[");
             object obj = prop.serializedObject.targetObject;
