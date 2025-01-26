@@ -108,8 +108,7 @@ namespace binc.PixelAnimator
         public static Rect DrawSpriteThumb(Rect position, int id, Sprite sprite)
         {
             var objectFieldThumb = EditorStyles.objectFieldThumb;
-            objectFieldThumb.Draw(position, GUIContent.none, id, DragAndDrop.activeControlID == id,
-                position.Contains(Event.current.mousePosition));
+            // objectFieldThumb.Draw(position, GUIContent.none, id, DragAndDrop.activeControlID == id, position.Contains(Event.current.mousePosition));
             var padding = new RectOffset(2, 2, 2, 2);
             var spriteRect = padding.Remove(position);
             if (sprite)

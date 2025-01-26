@@ -29,33 +29,17 @@ namespace binc.PixelAnimator.Editor{
             };
             
             groupProps = serializedObject.FindProperty("boxGroups");
-            
-            pixelSpriteList.onAddCallback = reorderableList => {
-                var sp = reorderableList.serializedProperty;
-                var so = sp.serializedObject;
-                var index = reorderableList.index < pixelSpriteList.count && reorderableList.index >= 0
-                 ? reorderableList.index : pixelSpriteList.count >= 0  ? pixelSpriteList.count-1 : 0 ;
-                if(index  < 0) index = 0;
-                sp.InsertArrayElementAtIndex(index);
-                
-                so.ApplyModifiedProperties();
-                so.Update();
-                var element = sp.GetArrayElementAtIndex(index);
 
-                element.FindPropertyRelative("spriteId").stringValue = GUID.Generate().ToString();
-                so.ApplyModifiedProperties();
-                if(pixelAnimation.BoxGroups == null) return;
-                for (var i = 0; i < groupProps.arraySize; i++) {
-                    var layerProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("boxes");
-                    Add(element, layerProps, index, groupProps);
-                }
-                reorderableList.index = index;
+            pixelSpriteList.onAddCallback = reorderableList =>
+            {
+                var sp = reorderableList.serializedProperty;
+                var index = reorderableList.index < pixelSpriteList.count && reorderableList.index >= 0
+                    ? reorderableList.index : pixelSpriteList.count >= 0  ? pixelSpriteList.count-1 : 0 ;
+                AddPixelSprite(sp, index);
             };
             
             pixelSpriteList.onRemoveCallback = reorderableList => {
-                reorderableList.serializedProperty.DeleteArrayElementAtIndex(reorderableList.index);
-                if(pixelAnimation.BoxGroups == null) return;
-                Remove(groupProps, reorderableList);
+                RemovePixelSprite(reorderableList.serializedProperty, reorderableList.index);
                 if(reorderableList.index == groupProps.arraySize-1)
                     reorderableList.index -= 1;
             };
@@ -152,15 +136,36 @@ namespace binc.PixelAnimator.Editor{
             });
             serializedObject.ApplyModifiedProperties();
         }
-        
-        private static void Add(SerializedProperty element, SerializedProperty layersProps, int index, SerializedProperty groupProps){
-            AddFrames(element, layersProps, index);
+
+        public static void AddPixelSprite(SerializedProperty serializedPixelSprites, int index)
+        {
+            var so = serializedPixelSprites.serializedObject;
+            if(index  < 0) index = 0;
+            serializedPixelSprites.InsertArrayElementAtIndex(index);
+                
+            so.ApplyModifiedProperties();
+            so.Update();
+            var element = serializedPixelSprites.GetArrayElementAtIndex(index);
+
+            element.FindPropertyRelative("spriteId").stringValue = GUID.Generate().ToString();
+            so.ApplyModifiedProperties();
+
+            var serializedBoxGroups = so.FindProperty("boxGroups");
+                
+            for (var i = 0; i < serializedBoxGroups.arraySize; i++) {
+                var layerProps = serializedBoxGroups.GetArrayElementAtIndex(i).FindPropertyRelative("boxes");
+                AddFrames(element, layerProps, index);
+            }
         }
-        
-        private static void Remove(SerializedProperty groupProps, ReorderableList reorderableList){
-            RemoveFrames(groupProps, reorderableList);
-        }        
-        
+
+        public static void RemovePixelSprite(SerializedProperty serializedPixelSprites, int index)
+        {
+            var serializedBoxGroups = serializedPixelSprites.serializedObject.FindProperty("boxGroups");
+            serializedPixelSprites.DeleteArrayElementAtIndex(index);
+            RemoveFrames(serializedBoxGroups, index);
+            serializedPixelSprites.serializedObject.ApplyModifiedProperties();
+        }
+
         private static void AddFrames(SerializedProperty element, SerializedProperty layersProps, int index){
             for (var i = 0; i < layersProps.arraySize; i ++) {
                 var framesProp = layersProps.GetArrayElementAtIndex(i).FindPropertyRelative("frames");
@@ -177,14 +182,13 @@ namespace binc.PixelAnimator.Editor{
                 hitBoxRectProp.FindPropertyRelative("height").floatValue = 16;
             }
         }
-
-        private static void RemoveFrames(SerializedProperty groupProps, ReorderableList reorderableList){
-            for (var i = 0; i < groupProps.arraySize; i ++) {
-                var layersProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("boxes");
+        
+        private static void RemoveFrames(SerializedProperty serializedBoxGroups, int index){
+            for (var i = 0; i < serializedBoxGroups.arraySize; i ++) {
+                var layersProps = serializedBoxGroups.GetArrayElementAtIndex(i).FindPropertyRelative("boxes");
                 for (var l = 0; l < layersProps.arraySize; l ++) {
                     var frameProp = layersProps.GetArrayElementAtIndex(l).FindPropertyRelative("frames");
-                    frameProp.DeleteArrayElementAtIndex(reorderableList.index);
-                        
+                    frameProp.DeleteArrayElementAtIndex(index);
                 }
             }
         }

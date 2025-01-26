@@ -88,6 +88,7 @@ namespace binc.PixelAnimator.Editor.Windows
             var spriteIndex = animatorWindow.IndexOfSelectedSprite;
             if (targetAnimation != null && animatorWindow.IsValidSprite())
             {
+                targetAnimation.Update();
                 var property = targetAnimation
                     .FindProperty("pixelSprites")
                     .GetArrayElementAtIndex(spriteIndex)
@@ -101,10 +102,13 @@ namespace binc.PixelAnimator.Editor.Windows
                 try
                 {
                     EditorGUI.PropertyField(listRect, property, GUIContent.none, true);
-                    property.serializedObject.ApplyModifiedProperties();
                 }
                 finally
                 {
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        property.serializedObject.ApplyModifiedProperties();
+                    }
                     GUI.EndScrollView();
                 }
                     

@@ -22,13 +22,12 @@ namespace binc.PixelAnimator.Editor.Windows{
         public int IndexOfSelectedSprite { get; private set; }
         public int IndexOfSelectedBox { get; private set; }
         public int IndexOfSelectedBoxGroup { get; private set; }
+
         public PixelAnimation SelectedAnimation => selectedAnimation;
         [SerializeField] private PixelAnimation selectedAnimation;
         public PixelAnimationPreferences AnimationPreferences { get; private set; }
         public PixelAnimatorPreferences AnimatorPreferences { get; private set; }
         public SerializedObject SerializedSelectedAnimation { get; private set; }
-        public Window FocusedWindow { get; private set; }
-        public bool FocusChangeable { get; private set; }
         public float EditorDeltaTime { get; private set; }
         private float lifeTime;
         #endregion
@@ -42,15 +41,14 @@ namespace binc.PixelAnimator.Editor.Windows{
             var icon = Resources.Load<Texture2D>("Sprites/PixelAnimatorIcon");
             AnimatorWindow.titleContent = new GUIContent("Pixel Animator", icon);
             AnimatorWindow.Show();
-            
         }
-
         private void OnEnable()
         {
             OnSelectionChange();
             wantsMouseMove = true;
             LoadResources();
             InitWindows();
+            IndexOfSelectedBoxGroup = IndexOfSelectedBox = IndexOfSelectedSprite = 0;
         }
 
         private void OnDisable()
@@ -68,7 +66,6 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void InitWindows()
         {
             AnimatorWindow = this;
-            FocusedWindow = null;
             for (var i = 0; i < AnimatorPreferences.windows.Count; i++)
             {
                 var window = AnimatorPreferences.windows[i];
@@ -89,12 +86,13 @@ namespace binc.PixelAnimator.Editor.Windows{
             foreach (var obj in Selection.objects)
             {
                 if (obj is not PixelAnimation anim) continue;
-                // if (SelectedAnimation == anim) continue;
 
-                SerializedSelectedAnimation = new SerializedObject(anim);
                 selectedAnimation = anim;
-                IndexOfSelectedBoxGroup = IndexOfSelectedBox = IndexOfSelectedSprite = 0;
-                var spriteList = anim.GetSpriteList();
+                SerializedSelectedAnimation = new SerializedObject(selectedAnimation);
+                SelectBoxGroup(0);
+                SelectBox(0);
+                SelectSprite(0);
+                var spriteList = selectedAnimation.GetSpriteList();
                 if (spriteList != null)
                     lifeTime = 0;
             }
@@ -102,13 +100,11 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
         private void OnGUI()
         {
+            if(selectedAnimation)SerializedSelectedAnimation ??= new SerializedObject(selectedAnimation);
             DrawBackground();
-            
             ProcessWindows();
-            
             SetEditorDeltaTime();
-            if (Event.current.type == EventType.MouseMove)
-                Repaint();
+            if (Event.current.type == EventType.MouseMove) Repaint();
         }
 
         private void DrawBackground()
@@ -145,34 +141,32 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
         
         #region Selection Methods
-        public void SelectBoxGroup(int index)
+        public bool SelectBoxGroup(int index)
         {
+            if (!IsValidAnimation()) return false;
             var isValid = index >= 0 && index < SelectedAnimation.BoxGroups.Count;
-            if (!isValid) throw new IndexOutOfRangeException();
-
+            if (!isValid) return false;
             IndexOfSelectedBoxGroup = index;
+            return true;
         }
 
-        public void SelectBox(int boxIndex)
+        public bool SelectBox(int boxIndex)
         {
+            if(!IsValidAnimation() || !IsValidBoxGroup()) return false;
             var isValid = boxIndex >= 0 && boxIndex < SelectedAnimation.BoxGroups[IndexOfSelectedBoxGroup].boxes.Count;
-            if (!isValid) throw new IndexOutOfRangeException();
-
+            if (!isValid) return false;
             IndexOfSelectedBox = boxIndex;
+            return true;
         }
 
-        public void SelectSprite(int index)
+        public bool SelectSprite(int index)
         {
-            var isValid = index >= 0 && index < SelectedAnimation.GetSpriteList().Count;
-            if (!isValid) throw new IndexOutOfRangeException();
-
+            if (!IsValidAnimation() || !IsValidSprite()) return false;
+            var isValid = index >= 0 && index < GetSpriteCount();
+            if (!isValid) return false;
             IndexOfSelectedSprite = index;
-        }
-        
-        public void SelectFocusWindow(Window window)
-        {
-            if (FocusChangeable)
-                FocusedWindow = window;
+            return true;
+
         }
         
         #endregion
@@ -233,6 +227,32 @@ namespace binc.PixelAnimator.Editor.Windows{
             if (!condition) return;
             var rect = new Rect(Vector2.zero, AnimatorWindow.position.size);
             EditorGUIUtility.AddCursorRect(rect, icon);
+        }
+
+        public void AddPixelSprite(int index)
+        {
+            if (!IsValidAnimation())
+            {
+                Debug.LogWarning("No Animation Selected");
+                return;
+            }
+            SelectSprite(IndexOfSelectedSprite++);
+            PixelAnimationEditor.AddPixelSprite(SerializedSelectedAnimation.FindProperty("pixelSprites"), index);
+            SerializedSelectedAnimation.Update();
+        }
+        public void RemovePixelSprite(int index)
+        {
+            if (!IsValidAnimation())
+            {
+                Debug.LogWarning("No Animation Selected");
+                return;
+            }
+            if (IndexOfSelectedSprite == selectedAnimation.PixelSprites.Count-1 && IndexOfSelectedSprite == index)
+            {
+                SelectSprite(IndexOfSelectedSprite--);
+            }
+            PixelAnimationEditor.RemovePixelSprite(SerializedSelectedAnimation.FindProperty("pixelSprites"), index);
+            SerializedSelectedAnimation.Update();
         }
     }
 

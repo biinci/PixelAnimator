@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System;
+using System.Collections.Generic;
 
 namespace binc.PixelAnimator.Editor.Windows
 {
@@ -8,12 +9,12 @@ namespace binc.PixelAnimator.Editor.Windows
     {
         #region Variables
         public bool IsPlaying { get; private set; }
-
+        
         private Rect handleRect,
             columnRect,
             rowRect,
-            groupAreaRect,
-            thumbnailPlaneRect,
+            bottomAreaRect,
+            thumbnailPanelRect,
             toolPanelRect,
             handleShadowRect,
             frameAreaRect;
@@ -22,12 +23,20 @@ namespace binc.PixelAnimator.Editor.Windows
             playTex,
             nextFrameTex,
             mainMenuTex,
+            targetAnimTex,
             pauseTex,
             playPauseTex,
             selectedFrameTex,
             keyFrameTex,
             copyFrameTex,
-            emptyFrameTex;
+            emptyFrameTex,
+            visibleTex,
+            invisibleTex,
+            groupOptionsTex,
+            upTex,
+            downTex,
+            triggerTex,
+            colliderTex;
         
 
         public static Color windowPlaneColor = new(0.2f, 0.2f, 0.2f);
@@ -38,9 +47,6 @@ namespace binc.PixelAnimator.Editor.Windows
         private GenericMenu burgerMenu, boxGroupMenu, boxMenu;
 
         private const float HandleHeight = 3f;
-
-        private float GroupPanelWidth =>
-            PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.GetStyle("BoxGroup").fixedWidth;
 
         private Vector2Int toolBarSize = new(32,32);
 
@@ -59,12 +65,15 @@ namespace binc.PixelAnimator.Editor.Windows
 
         private int loopGroupIndex, loopLayerIndex, loopFrameIndex;
         
-        private ButtonData<int> thumbnailButton;
+        private ButtonData<Tuple<int, Sprite>> thumbnailButton;
         private ButtonData<BoxGroup> groupButton;
         private ButtonData<ValueTuple<BoxGroup, Box>> layerButton;
         private ButtonData<ValueTuple<int, int, int>> frameButton;
         private ButtonData mainMenuButton, playPauseButton, pingAnimationButton;
         private ButtonData<bool> previousNextSpriteButton;
+        private ButtonData<BoxGroup> visibilityButton;
+        private ButtonData<BoxGroup> expandGroupButton;
+        private ButtonData<BoxGroup> colliderButton;
 
         #endregion
 
@@ -75,6 +84,7 @@ namespace binc.PixelAnimator.Editor.Windows
             LoadInitResources();
             InitRect();
             LoadStyles();
+            IsPlaying = false;
         }
         
         private void LoadInitResources()
@@ -84,17 +94,6 @@ namespace binc.PixelAnimator.Editor.Windows
             LoadButtonMethods();
         }
 
-        private void LoadButtonMethods()
-        {
-            thumbnailButton.DownClick += ThumbnailButton;
-            groupButton.DownClick += GroupButton;
-            layerButton.DownClick += BoxButton;
-            frameButton.DownClick += FrameButton;
-            mainMenuButton.DownClick += BurgerMenuButton;
-            playPauseButton.DownClick += PlayPauseButton;
-            previousNextSpriteButton.DownClick += ChangeSpriteButton;
-            pingAnimationButton.DownClick += PingAnimationButton;
-        }
 
         private void LoadTextures()
         {
@@ -107,23 +106,47 @@ namespace binc.PixelAnimator.Editor.Windows
             keyFrameTex = Resources.Load<Texture2D>("Sprites/Key Frame");
             copyFrameTex = Resources.Load<Texture2D>("Sprites/Copy Frame");
             emptyFrameTex = Resources.Load<Texture2D>("Sprites/Empty Frame");
+            targetAnimTex = Resources.Load<Texture2D>("Sprites/TargetAnim");
+            visibleTex = Resources.Load<Texture2D>("Sprites/visible");
+            invisibleTex = Resources.Load<Texture2D>("Sprites/invisible");
+            groupOptionsTex = Resources.Load<Texture2D>("Sprites/groupOptions");
+            upTex = Resources.Load<Texture2D>("Sprites/up");
+            downTex = Resources.Load<Texture2D>("Sprites/drop");
+            triggerTex = Resources.Load<Texture2D>("Sprites/trigger");
+            colliderTex = Resources.Load<Texture2D>("Sprites/collider");
+
             playPauseTex = playTex;
         }
 
         private void LoadStyles()
         {
             var mySkin = PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin;
-            groupStyle = new GUIStyle(mySkin.GetStyle("BoxGroup"));
-            layerStyle = new GUIStyle(mySkin.GetStyle("Layer"));
-            animatorButtonStyle = new GUIStyle(mySkin.GetStyle("AnimatorButton"));
+            groupStyle = mySkin.GetStyle("BoxGroup");
+            layerStyle = mySkin.GetStyle("BoxLayer");
+            animatorButtonStyle = mySkin.GetStyle("AnimatorButton");
         }
-
-
+        
         private void InitRect()
         {
             var position = PixelAnimatorWindow.AnimatorWindow.position;
             windowRect.x = 0;
             windowRect.y = position.yMax - windowRect.height;
+        }
+        
+        private void LoadButtonMethods()
+        {
+            thumbnailButton.DownClick += ThumbnailButton;
+            groupButton.DownClick += GroupButton;
+            layerButton.DownClick += BoxButton;
+            frameButton.DownClick += FrameButton;
+            mainMenuButton.DownClick += BurgerMenuButton;
+            playPauseButton.DownClick += PlayPauseButton;
+            previousNextSpriteButton.DownClick += ChangeSpriteButton;
+            pingAnimationButton.DownClick += PingAnimationButton;
+            visibilityButton.DownClick += VisibilityButton;
+            expandGroupButton.DownClick += ExpandGroupButton;
+            colliderButton.DownClick += ColliderButton;
+
         }
 
         #endregion
@@ -138,6 +161,10 @@ namespace binc.PixelAnimator.Editor.Windows
             playPauseButton.DownClick -= PlayPauseButton;
             previousNextSpriteButton.DownClick -= ChangeSpriteButton;
             pingAnimationButton.DownClick -= PingAnimationButton;
+            visibilityButton.DownClick -= VisibilityButton;
+            expandGroupButton.DownClick -= ExpandGroupButton;
+            colliderButton.DownClick -= ColliderButton;
+
         }
     }
 }

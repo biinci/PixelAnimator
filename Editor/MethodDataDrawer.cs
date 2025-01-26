@@ -83,10 +83,14 @@ namespace binc.PixelAnimator.Editor
         private void DrawInstance(Rect objectRect, SerializedProperty idProperty)
         {
             EditorGUI.BeginChangeCheck();
-            var obj = GetUnityObject(idProperty);
+            var obj = GetUnityObject(idProperty);//TODO: performance's sake, this should be fixed
             obj = EditorGUI.ObjectField(objectRect, obj, typeof(Object), true);
             if (!EditorGUI.EndChangeCheck()) return;
             idProperty.stringValue = GlobalObjectId.GetGlobalObjectIdSlow(obj).ToString();
+            if (!objectListByPropertyPath.TryAdd(idProperty.propertyPath, obj))
+            {
+                objectListByPropertyPath[idProperty.propertyPath] = obj;
+            }
             ResetMethod(idProperty);
         }
 
@@ -224,7 +228,11 @@ namespace binc.PixelAnimator.Editor
 
             var isFound = objectListByPropertyPath.TryGetValue(propertyPath, out var obj);
             if (isFound) return obj;
-            return GlobalObjectId.TryParse(idProperty.stringValue, out var objectId) ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(objectId) : null;
+            var trueObject = GlobalObjectId.TryParse(idProperty.stringValue, out var objectId)
+                ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(objectId)
+                : null;
+            objectListByPropertyPath[propertyPath] = trueObject; 
+            return trueObject;
         }
 
         public static object GetParent(SerializedProperty prop)

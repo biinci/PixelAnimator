@@ -14,7 +14,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             ClampPosition();
             var canvasSize = new Vector2(spritePreview.width, spritePreview.height) * spriteScale;
             canvasRect = new Rect(viewOffset+screenSpriteOrigin,canvasSize);
-            GUI.Window(Id, canvasRect, _=>{RenderWindowContent();}, GUIContent.none, Resources.Load<GUISkin>("MyGUISkin").GetStyle("window"));
+            GUI.Window(Id, canvasRect, _=>{RenderWindowContent();}, GUIContent.none, GUIStyle.none);
             
         }
         private void ClampPosition() { 
@@ -225,12 +225,12 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void DrawBox(Rect rect, Color boxColor)
         {
             var transparentColor = new Color(boxColor.r, boxColor.g, boxColor.b, 0.2f);
-            DrawHandle(boxColor, rect);
+            DrawHandles(boxColor, rect);
             Handles.DrawSolidRectangleWithOutline(rect, transparentColor, boxColor );
 
         }
 
-        private void DrawHandle(Color color, Rect rect)
+        private void DrawHandles(Color color, Rect rect)
         {
             var eventCurrent = Event.current;
             float handleSize = spriteScale; 

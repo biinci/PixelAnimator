@@ -9,7 +9,7 @@ namespace binc.PixelAnimator.Editor
     [CustomPropertyDrawer(typeof(MethodStorage))]
     public class MethodStorageDrawer : PropertyDrawer
     {
-        private const float Spacing = 2f;
+        private const float Spacing = 0f;
         private const float PartingLineHeight = 0.1f;
         private static readonly Color PartingLineColor = new(0.14f, 0.14f, 0.14f);
 
@@ -56,7 +56,7 @@ namespace binc.PixelAnimator.Editor
             {
                 drawElementCallback = (rect, index, isActive, isFocused) => 
                     DrawListElement(rect, index, isActive, isFocused, list),
-                elementHeightCallback = (index) => 
+                elementHeightCallback = index => 
                     GetElementHeight(index, list),
                 drawElementBackgroundCallback = (rect, index, active, focused) => 
                     DrawElementBackground(rect, index, active, focused, list),
@@ -69,7 +69,7 @@ namespace binc.PixelAnimator.Editor
         }
         
         
-        #region Draw Methods
+        #region ReorderableList Methods
         private static void DrawListElement(Rect rect, int index, bool isActive, bool isFocused, ReorderableList list)
         {
             var methods = list.serializedProperty;
@@ -100,13 +100,13 @@ namespace binc.PixelAnimator.Editor
             var element = methods.GetArrayElementAtIndex(index);
             if (element == null) return EditorGUIUtility.singleLineHeight;
 
-            return EditorGUI.GetPropertyHeight(element) + EditorGUIUtility.singleLineHeight;
+            return EditorGUI.GetPropertyHeight(element) + EditorGUIUtility.standardVerticalSpacing*2 + PartingLineHeight;
         }
 
         private static void DrawElementBackground(Rect rect, int index, bool active, bool focused, ReorderableList list)
         {
             var methods = list.serializedProperty;
-            if (active)
+            if (focused)
             {
                 EditorGUI.DrawRect(rect, new Color(0.17f, 0.36f, 0.53f));
             }

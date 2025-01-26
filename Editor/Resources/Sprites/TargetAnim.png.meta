@@ -1,7 +1,10 @@
 fileFormatVersion: 2
-guid: 423c295a8ca09d26ebabb7b6d945d389
+guid: 5839dd208faaf434b9b82c8dbea8ebf9
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: -8323690779653864145
+    second: TargetAnim_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -95,7 +98,28 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: TargetAnim_0
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 4
+        width: 27
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f258982365f4c7c80800000000000000
+      internalID: -8323690779653864145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -106,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      TargetAnim_0: -8323690779653864145
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

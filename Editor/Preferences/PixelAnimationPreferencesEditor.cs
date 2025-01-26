@@ -67,7 +67,7 @@ namespace binc.PixelAnimator.Editor.Preferences{
 
             var color = element.FindPropertyRelative("color");
             var boxName = element.FindPropertyRelative("boxName");
-            var activeLayer = element.FindPropertyRelative("activeLayer");
+            var activeLayer = element.FindPropertyRelative("layer");
             var physicMaterial2D = element.FindPropertyRelative("physicMaterial");
             var rounded = element.FindPropertyRelative("rounded");
             // var detection = element.FindPropertyRelative("colliderDetection");

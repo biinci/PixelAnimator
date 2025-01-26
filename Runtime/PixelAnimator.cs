@@ -8,16 +8,13 @@ using System.Linq;
 namespace binc.PixelAnimator{
     [RequireComponent(typeof(SpriteRenderer))]
     public class PixelAnimator : MonoBehaviour{
-        public PixelAnimationPreferences Preferences => preferences;
         private PixelAnimationPreferences preferences;
-        
-        [SerializeField] private SpriteRenderer spriteRenderer;
-        public PixelAnimation PlayingAnim => playingAnim;
-        [SerializeField] private PixelAnimation playingAnim;
+        [SerializeField]private SpriteRenderer spriteRenderer;
+        private PixelAnimation CurrentAnim { get; set; }
         private PixelAnimation nextAnim;
         private int frameIndex;
         private float elapsedTime;
-        public bool isPlaying;
+        private bool isPlaying;
 
         private GameObject titleObject;
         
@@ -43,17 +40,16 @@ namespace binc.PixelAnimator{
         private void NextFrame(){
             if (!isPlaying) return;
             elapsedTime += Time.deltaTime;
-            var secondsPerFrame = 1 / (float)playingAnim.fps;
-            var sprites = playingAnim.GetSpriteList();
+            var secondsPerFrame = 1 / (float)CurrentAnim.fps;
+            var sprites = CurrentAnim.GetSpriteList();
             while (elapsedTime >= secondsPerFrame){
-                // if(frameIndex > 0)LateUpdateFrame();
                 
                 frameIndex = (frameIndex + 1) % sprites.Count;
                 spriteRenderer.sprite = sprites[frameIndex];
                 UpdateFrame();
 
                 elapsedTime -= secondsPerFrame;
-                if (frameIndex != sprites.Count - 1 || playingAnim.loop)
+                if (frameIndex != sprites.Count - 1 || CurrentAnim.loop)
                     continue;
                 isPlaying = false;
                 break;
@@ -61,16 +57,21 @@ namespace binc.PixelAnimator{
         }
         // This function is called when the current frame time has completely elapsed.
         private void UpdateFrame(){
-            // SetBoxSize();
-            var unityEvent = playingAnim.PixelSprites[frameIndex].methodStorage.methods;
+            SetBoxSize();
+            CallEvent();
+        }
+
+        private void CallEvent()
+        {
+            var unityEvent = CurrentAnim.PixelSprites[frameIndex].methodStorage.methods;
             unityEvent.Invoke();
         }
-        private void LateUpdateFrame(){
-        }
+        
+
         
         private void SetBoxSize(){
             try{
-                var groups = playingAnim.BoxGroups;
+                var groups = CurrentAnim.BoxGroups;
                 for (var g = 0; g < groups.Count; g++){
                     var group = groups[g];
                     var groupObj = titleObject.transform.GetChild(g);
@@ -92,7 +93,7 @@ namespace binc.PixelAnimator{
         }
         private Rect GetAdjustedRect(Box box, int index){
             var f = index == -1 ? 0 : index;
-            return PixelAnimatorUtility.MapBoxRectToTransform(box.frames[f].boxRect, playingAnim.GetSpriteList()[f]);
+            return PixelAnimatorUtility.MapBoxRectToTransform(box.frames[f].boxRect, CurrentAnim.GetSpriteList()[f]);
         }
 
         private GameObject CreateColliderObject(BoxData boxData){
@@ -112,13 +113,13 @@ namespace binc.PixelAnimator{
             elapsedTime = 0;
             //elapsedTime += (float)1/animation.fps; 
             isPlaying = true;
-            playingAnim = animation;
+            CurrentAnim = animation;
             RefreshColliderObjects();
-            SetBoxes(playingAnim.BoxGroups);
+            SetBoxes(CurrentAnim.BoxGroups);
         }
         
         private void RefreshColliderObjects(){
-            var names = playingAnim.GetBoxGroupsName(preferences);
+            var names = CurrentAnim.GetBoxGroupsName(preferences);
             for (var g = 0; g < colliderObjects.Count; g++){
                 if (names.Contains(colliderObjects.ElementAt(g).Key)) continue;
 
@@ -163,7 +164,7 @@ namespace binc.PixelAnimator{
             var col = colliderObj.AddComponent<BoxCollider2D>();
             col.enabled = false;
             var rect = GetAdjustedRect(box, frameIndex);
-            col.isTrigger = boxGroup.colliderTypes == ColliderTypes.Trigger;
+            col.isTrigger = boxGroup.collisionTypes == CollisionTypes.Trigger;
             col.size = rect.size;
             col.offset = new Vector2(rect.position.x, rect.position.y);
             col.enabled = true;

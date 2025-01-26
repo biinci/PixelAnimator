@@ -6,14 +6,14 @@ using UnityEngine.Serialization;
 
 namespace binc.PixelAnimator{
 
-    public enum ColliderTypes{NoTrigger = 1, Trigger = 2}
+    public enum CollisionTypes{Collider = 1, Trigger = 2}
 
     [Serializable]
     public class BoxGroup{
         public string BoxDataGuid => boxDataGuid;
         [SerializeField, ReadOnly] private string boxDataGuid;
         
-        public ColliderTypes colliderTypes = ColliderTypes.Trigger;
+        [FormerlySerializedAs("colliderTypes")] public CollisionTypes collisionTypes = CollisionTypes.Trigger;
         public List<Box> boxes;
 #if UNITY_EDITOR
         public bool isVisible = true, isExpanded = true;

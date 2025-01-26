@@ -23,7 +23,7 @@ public static class EditorTabsAPI
                 padding = new RectOffset(15, 15, 4, 4),
                 margin = new RectOffset(1, 1, 0, 0),
                 alignment = TextAnchor.MiddleCenter,
-                fontSize = 21,
+                fontSize = 24,
                 font = GUI.skin.label.font
             };
 
