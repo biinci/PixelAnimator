@@ -24,13 +24,13 @@ namespace binc.PixelAnimator.Editor
             }
             else
             {
-                var linkStyle = new GUIStyle(GUI.skin.box)
-                {
-                    alignment = TextAnchor.MiddleCenter,
-                    richText = true,
-                };
-                EditorGUI.LabelField(dataRect, new GUIContent("<color=#ff5c57><u>No data found</u></color>", "Probably you tried to use System.Object."), linkStyle);
-            
+                var tempAlignment = GUI.skin.box.alignment;
+                var tempRichText = GUI.skin.box.richText;
+                GUI.skin.box.alignment = TextAnchor.MiddleCenter;
+                GUI.skin.box.richText = true;
+                EditorGUI.LabelField(dataRect, new GUIContent("<color=#ff5c57><u>No data found</u></color>", "Probably you tried to use System.Object."), GUI.skin.box);
+                GUI.skin.box.alignment = tempAlignment;
+                GUI.skin.box.richText = tempRichText;
             }
 
         }
