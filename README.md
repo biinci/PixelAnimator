@@ -1,5 +1,8 @@
 
 # **Pixel Animator**
+
+------------------
+
 ## Bu animatörü yaparken [AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
 ### *Bu araç kesinlikle bir RetroBox değil. Bazı kendine özgün özellikleri barındıran başka bir araçtır.*
 
@@ -7,54 +10,59 @@
 
 Öncellikle şunu belirtmeliyim ki bu animatör en verimli 2D Pixel Art animasyonlar için kullanılabilir. Zira başka bir tarzda hiç test etmedim.
 
-Pixel Animator, **kare kare** animasyonu ile **BoxCollider2D**'ları senkronize etmek için Unity dahilinde geliştirdiğim bir araç. Ve yanında bi kaç ek özellik daha var.
+Pixel Animator, **kare kare** animasyonu ile **BoxCollider2D**'ları ve event'leri senkronize etmek için Unity dahilinde geliştirdiğim bir araçtır.  
 
-------------------
+
 
 ## **Pixel Animator Neyi Çözüyor?**
-* Bu [videoda](https://www.youtube.com/watch?v=nBkiSJ5z-hE) gösterildiği gibi Unity'nin dahili animatöründeki ağ karmaşıklığından kaçmanıza olanak sağlar.
+
+------------------
+
+* Bu [videoda](https://www.youtube.com/watch?v=nBkiSJ5z-hE) gösterilen Unity'nin dahili animatöründeki ağ karmaşıklığından kaçmanıza olanak sağlar.
 * BoxCollider2D objeleriyle kare kare animasyonunuzla tam nedensel bağ kurmanızı sağlar.
-* GUI tarafından ayarlayabilceğiniz UnityEvent benzeri bir veri yapısıyla animasyonunuza event(UnityEvent'den çok daha esnek) ekleyip animasyonunuzu kodunuz ile tam senkron edebilirsiniz.
+* GUI tarafından ayarlayabilceğiniz UnityEvent benzeri bir veri yapısıyla animasyonunuza event ekleyip (UnityEvent'den çok daha esnek) animasyonunuzu kodunuz ile tam senkron edebilirsiniz.
 
 Etkisini daha iyi anlayabilmek için demo projesine bakabilirsiniz:
-[demo]()
+[demo]() (yakında)
 
-
-
-------------------
-
-------------------
 
 ## **Başlarken**
+
+------------------
+
 
 ### **Kurulum**
 Bu url'yi kullanarak [Unity Package olarak indirebilirsiniz](https://docs.unity3d.com/Manual/upm-ui-giturl.html):
 ```
 https://github.com/biinci/PixelAnimator.git
 ```
-Belki ilerde Unity'nin Asset Store'unada koyabilirim.
 
-------------------
 ### **Kullanım**
-İlk önce *AssetMenu>Create>PixelAnimation>New Animation* yolunu izleyerek Pixel Animation objesini oluşturmanız gerekir.
+İlk önce *AssetMenu>Create>PixelAnimation>New Animation* yolunu izleyerek Pixel Animation objesini oluşturmanız gerekir.  
+Sonra kullanacağınız sprite'ları *Pixel Sprites* başlığına sürüklemelisiniz.  
+Ardından Animation nesnenizi özelleştirmek için *Window>PixelAnimator* yolundan pencereyi açın.  
+Pencereden nesnenizi temel özelleştirme seçenekleri:
+* Hitbox ekleme
+* Sprite veya Hitbox'a özel fonksiyon ekleme  
 
-[//]: # (<img src="https://github.com/biinci/PixelAnimator/blob/main/GIFs/Create_PixelAnimation.gif" width="350" height="400" />)
+Hitbox'lara fonksiyon eklemek için 3 seçeneğiniz var. Bunlar; OnEnter, OnStay ve OnExit.
 
-
-
-
-İlk *Pixel Animation* objenizi oluşturduktan sonra animatörü kullanmak için, kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz. 
+Animatörü kullanmak için, kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz. 
+SpriteRenderer bileşenini animatöre referans olarak vermeyi unutmayın  
+Ardından animatörün ve oluşturduğunuz animasyon objenizin referansını alarak Play fonksiyonu ile
+```
+pixelAnimator.Play(animation);
+```
+animasyonunuzu çalıştırabilirsiniz.
 
 [//]: # (![]&#40;https://github.com/biinci/PixelAnimator/blob/main/GIFs/Add_Animator_Component.gif&#41;)
-
-
-
-
-
-
 
 
 Umarım pixel art animasyonlarınızda yardımcı olur. 
 
 
 *Hangi animatör sizin için daha rahatsa onu kullanmanız çok daha iyi.*
+
+
+Katkıda Bulunmak İçin
+------------------
