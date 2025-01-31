@@ -1,8 +1,6 @@
 
 # **Pixel Animator**
 
-------------------
-
 ## Bu animatörü yaparken [AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
 ### *Bu araç kesinlikle bir RetroBox değil. Bazı kendine özgün özellikleri barındıran başka bir araçtır.*
 
@@ -16,7 +14,6 @@ Pixel Animator, **kare kare** animasyonu ile **BoxCollider2D**'ları ve event'le
 
 ## **Pixel Animator Neyi Çözüyor?**
 
-------------------
 
 * Bu [videoda](https://www.youtube.com/watch?v=nBkiSJ5z-hE) gösterilen Unity'nin dahili animatöründeki ağ karmaşıklığından kaçmanıza olanak sağlar.
 * BoxCollider2D objeleriyle kare kare animasyonunuzla tam nedensel bağ kurmanızı sağlar.
@@ -28,7 +25,6 @@ Etkisini daha iyi anlayabilmek için demo projesine bakabilirsiniz:
 
 ## **Başlarken**
 
-------------------
 
 
 ### **Kurulum**
@@ -65,4 +61,3 @@ Umarım pixel art animasyonlarınızda yardımcı olur.
 
 
 Katkıda Bulunmak İçin
-------------------
