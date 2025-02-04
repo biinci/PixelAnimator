@@ -1,11 +1,13 @@
 using System.Linq;
 using UnityEngine;
 #if UNITY_EDITOR
+using System.Collections;
 using UnityEditor;
 using UnityEditorInternal;
 #endif
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace binc.PixelAnimator
 {
@@ -65,43 +67,18 @@ namespace binc.PixelAnimator
             return tex;
         }
 
-        public static Action MethodDataToAction(MethodData data)
-        {
-            var parameters = data.parameters.Select(p => p.InheritData).ToArray();
-            var lambdaParam = Expression.Parameter(typeof(object[]), "parameters");
-            data.method.LoadMethodInfo();
-            var info = data.method.methodInfo;
-            var methodParams = info.GetParameters();
-            var convertedParams = new Expression[methodParams.Length];
-            for (var i = 0; i < methodParams.Length; i++)
-            {
-                var paramAccess = Expression.ArrayIndex(lambdaParam, Expression.Constant(i));
-                convertedParams[i] = Expression.Convert(paramAccess, methodParams[i].ParameterType);
-            }
-
-            var parsable = GlobalObjectId.TryParse(data.GlobalId, out var id);
-            var value = parsable ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id) : null;
-            if (value == null)
-            {
-                Debug.LogError("Object not found");
-                return () => { };
-            }
-
-            data.obj = value;
-            var methodCall = Expression.Call(
-                Expression.Constant(value),
-                info,
-                convertedParams
-            );
-
-            var lambda = Expression.Lambda<Action<object[]>>(methodCall, lambdaParam);
-            var compiledDelegate = lambda.Compile();
-            return () => compiledDelegate(parameters);
-        }
-
 #if UNITY_EDITOR
+        
+        public static void AddCursorCondition(Rect area, bool condition, MouseCursor icon)
+        {
+            if (!condition) return;
+            var rect = new Rect(Vector2.zero, area.size);
+            EditorGUIUtility.AddCursorRect(rect, icon);
+        }
+        
         public static bool IsClickedRect(this Rect rect, params int[] ints)
         {
+            
             return Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition) &&
                    ints.Contains(Event.current.button);
         }
@@ -138,16 +115,75 @@ namespace binc.PixelAnimator
 
             return spriteRect;
         }
-
-        public static void CreateTooltip(Rect rect, string tooltip)
+        
+        
+        /// <summary>
+        /// Gets the object reference that a SerializedProperty points to.
+        /// Handles nested properties and arrays.
+        /// </summary>
+        public static object GetReference(this SerializedProperty property)
         {
-            if (rect.Contains(Event.current.mousePosition))
-            {
-                EditorGUI.LabelField(rect,
-                    new GUIContent("", tooltip));
-            }
-        }
+            if (property == null)
+                throw new ArgumentNullException(nameof(property));
 
+            var path = property.propertyPath;
+            object obj = property.serializedObject.targetObject;
+
+            var parts = path.Split('.');
+            for (var i = 0; i < parts.Length; i++)
+            {
+                var part = parts[i];
+
+                if (part == "Array")
+                {
+                    if (i + 1 >= parts.Length || !parts[i + 1].StartsWith("data["))
+                        break;
+
+                    var nextPart = parts[i + 1];
+                    var indexStart = nextPart.IndexOf('[') + 1;
+                    var indexEnd = nextPart.IndexOf(']');
+                    var index = int.Parse(nextPart.Substring(indexStart, indexEnd - indexStart));
+
+                    if (obj is IList list)
+                    {
+                        obj = list[index];
+                    }
+                    else
+                    {
+                        obj = null;
+                        break;
+                    }
+
+                    i++;
+                }
+                else
+                {
+                    var type = obj.GetType();
+                    FieldInfo field = null;
+
+                    while (field == null && type != null)
+                    {
+                        field = type.GetField(part, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                        type = type.BaseType;
+                    }
+
+                    if (field == null)
+                    {
+                        obj = null;
+                        break;
+                    }
+
+                    obj = field.GetValue(obj);
+                }
+
+                if (obj == null)
+                    break;
+            }
+
+            return obj;
+        }
+            
+            
         public static void DropAreaGUI(Rect rect, ReorderableList list, PixelAnimationListener listener)
         {
             var evt = Event.current;
