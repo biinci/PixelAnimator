@@ -1,18 +1,18 @@
 using System;
 using UnityEngine;
 using UnityEditor;
-using binc.PixelAnimator.AnimationData;
 
 
 namespace binc.PixelAnimator.Editor.Windows{
 
     public partial class TimelineWindow{
         public override void ProcessWindow(){
-            SetRect();
+            CalculateRects();
             ClampTimelinePosition();
             SetMouseIconState();
             SetResizingState();
-            RenderWindow();
+            
+            RenderTimeline();
             FocusWindowIfClicked();
             if (!SelectedAnim) return;
             SetShortcuts();
@@ -20,28 +20,22 @@ namespace binc.PixelAnimator.Editor.Windows{
             
         }
         
-        private void RenderWindow() => GUI.Window(Id, windowRect, _ => RenderWindowContent(), GUIContent.none, GUIStyle.none);
+        private void RenderTimeline() => GUI.Window(Id, windowRect, _ => RenderWindowContent(), GUIContent.none, GUIStyle.none);
         
         private void RenderWindowContent()
         {
-            if(Event.current.keyCode == KeyCode.Return && Event.current.type == EventType.KeyDown){
-                GUI.FocusControl(null);
-            }
             HandleDragScroll();
+
             DrawBackgrounds();
             DrawGridLines();
             DrawToolButtons();
-            DrawThumbnailPanelAndFrame();
-            if(!IsPlaying)DrawGroupPanel();
-
-            if (windowRect.height == 0)
+            if (SelectedAnim)
             {
-                windowRect.height = 200;
+                DrawThumbnailPanelAndFrame();
+                if(!IsPlaying )DrawGroupPanel();
             }
 
-            if(Event.current.button == 0 && Event.current.type == EventType.MouseDown){
-                GUI.FocusControl(null);
-            }
+
         }
         
         private void HandleDragScroll()
@@ -52,7 +46,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             if (scrollPosition.x < 0) scrollPosition.x = 0;
             if (scrollPosition.y < 0) scrollPosition.y = 0;
             Event.current.Use();
-            PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
         
         private void FocusWindowIfClicked()
@@ -64,6 +57,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void ClampTimelinePosition(){
             var height = PixelAnimatorWindow.AnimatorWindow.position.height;
+            if (windowRect.height <= 0) windowRect.height = 200;
             if(windowRect.y < 200) windowRect.position = new Vector2(windowRect.x, 200);
             if(windowRect.y > height) windowRect.position = new Vector2(windowRect.x,400);
         }
@@ -80,16 +74,16 @@ namespace binc.PixelAnimator.Editor.Windows{
             var keyCode = eventCurrent.keyCode;
             switch (keyCode){
                 case KeyCode.Return:
-                    Event.current.Use();
                     playPauseButton.DownClick();
+                    Event.current.Use();
                     break;
                 case KeyCode.LeftArrow:
-                    Event.current.Use();
                     previousNextSpriteButton.DownClick(true);
+                    Event.current.Use();
                 break;
                 case KeyCode.RightArrow:
-                    Event.current.Use();
                     previousNextSpriteButton.DownClick(false);
+                    Event.current.Use();
                 break;
             }
         }
@@ -105,19 +99,8 @@ namespace binc.PixelAnimator.Editor.Windows{
             var isSameFrameIndex = frameIndex == animatorWindow.IndexOfSelectedSprite;
             var isSameLayerIndex = layerIndex == animatorWindow.IndexOfSelectedBox;
             var isSameGroupIndex = groupIndex == animatorWindow.IndexOfSelectedBoxGroup;
-            var frame = frames[frameIndex];            
             
             if(isSameLayerIndex && isSameGroupIndex){
-                BoxFrame previousFrame = null;
-                BoxFrame nextFrame = null;
-                if(frameIndex > 0)
-                {
-                    previousFrame = frames[frameIndex - 1];
-                }
-                if(frameIndex < frames.Count - 1)
-                {
-                    nextFrame = frames[frameIndex + 1];
-                }
                 layers[layerIndex].SetFrameType(frameIndex);
             } 
             
@@ -125,22 +108,6 @@ namespace binc.PixelAnimator.Editor.Windows{
                  animatorWindow.SelectBoxGroup(groupIndex);
                  animatorWindow.SelectBox(layerIndex);
             } 
-            PixelAnimatorWindow.AnimatorWindow.Repaint();
-        }
-        private void ChangeFrameType(BoxFrame currentFrame, BoxFrame nextFrame, BoxFrame previousFrame){
-            switch (currentFrame.Type)
-            {
-                case BoxFrameType.KeyFrame:
-                    break;
-                case BoxFrameType.CopyFrame:
-                    break;
-                case BoxFrameType.EmptyFrame:
-                    break;
-                case BoxFrameType.None:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
         private void BoxButton(ValueTuple<BoxGroup, Box> data){
             boxMenu = new GenericMenu();
@@ -173,23 +140,24 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void ThumbnailButton(Tuple<int, Sprite> data)
         {
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            if (Event.current.button == 1)
+            switch (Event.current.button)
             {
-                var menu = new GenericMenu();
-                if(data.Item2)menu.AddItem(new GUIContent("Go to reference"), false, () => { EditorGUIUtility.PingObject(data.Item2); });
-                menu.AddItem(new GUIContent("Delete"), false, () =>
+                case 1:
                 {
-                    animatorWindow.RemovePixelSprite(data.Item1);
-                });
+                    var menu = new GenericMenu();
+                    if(data.Item2)menu.AddItem(new GUIContent("Go to reference"), false, () => { EditorGUIUtility.PingObject(data.Item2); });
+                    menu.AddItem(new GUIContent("Delete"), false, () =>
+                    {
+                        animatorWindow.RemovePixelSprite(data.Item1);
+                    });
 
-                menu.ShowAsContext();
+                    menu.ShowAsContext();
+                    break;
+                }
+                case 0:
+                    animatorWindow.SelectSprite(data.Item1);
+                    break;
             }
-            else if (Event.current.button == 0)
-            {
-                animatorWindow.SelectSprite(data.Item1);
-                animatorWindow.Repaint();      
-            }
-
         }
 
         private void Play(){
@@ -224,7 +192,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             IsPlaying = !IsPlaying;
             playPauseTex = IsPlaying ? pauseTex : playTex;
             
-            PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
         
         private void PingAnimationButton()
@@ -252,11 +219,10 @@ namespace binc.PixelAnimator.Editor.Windows{
             index = index == -1 ? mod-1 : index;
             animatorWindow.SelectSprite(index);
             
-            PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
         
         #region Rect
-        private void SetRect(){
+        private void CalculateRects(){
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             handleShadowRect = new Rect(0, HandleHeight, windowRect.width, RowHeight / 2);
             toolPanelRect = new Rect(0,HandleHeight+handleShadowRect.height, columnRect.x, toolBarSize.y);
@@ -291,29 +257,28 @@ namespace binc.PixelAnimator.Editor.Windows{
             if(!reSizing) return;
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var animatorRect = animatorWindow.position;
-            if (!(Event.current.mousePosition.y > 100) ||
-                !(Event.current.mousePosition.y < animatorRect.height - 100)) return;
+            var mouseYPos = Event.current.mousePosition.y;
+            var isOutInterval = !(mouseYPos > 100) || !(mouseYPos < animatorRect.height - 100);
+            if (isOutInterval) return;
             windowRect.height = animatorRect.height - Event.current.mousePosition.y;
             animatorWindow.Repaint();
         }
         private void SetMouseIconState(){
-            var r = new Rect(windowRect.position, handleRect.size);
-            EditorGUIUtility.AddCursorRect(r, MouseCursor.ResizeVertical);
-            PixelAnimatorWindow.AddCursorCondition(reSizing, MouseCursor.ResizeVertical);
+            var globalHandleRect = new Rect(windowRect.position, handleRect.size);
+            EditorGUIUtility.AddCursorRect(globalHandleRect, MouseCursor.ResizeVertical);
+            PixelAnimatorUtility.AddCursorCondition(PixelAnimatorWindow.AnimatorWindow.position, reSizing, MouseCursor.ResizeVertical);
         }
         #endregion
 
         private void VisibilityButton(BoxGroup boxGroup){
             GUI.FocusControl("VisibilityButton " + $"{boxGroup.BoxDataGuid}");
             boxGroup.isVisible = !boxGroup.isVisible;
-            PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
 
         private void ExpandGroupButton(BoxGroup boxGroup)
         {
             GUI.FocusControl("ExpandGroupButton " + $"{boxGroup.BoxDataGuid}");
             boxGroup.isExpanded = !boxGroup.isExpanded;
-            PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
 
         private void ColliderButton(BoxGroup boxGroup)
@@ -325,7 +290,6 @@ namespace binc.PixelAnimator.Editor.Windows{
                 CollisionTypes.Trigger => CollisionTypes.Collider,
                 _ => throw new ArgumentOutOfRangeException()
             };
-            PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
     }
 }

@@ -5,7 +5,6 @@ namespace binc.PixelAnimator.Editor.Windows
 {
     public partial class CanvasWindow
     {
-        
         public override void ProcessWindow()
         {
             windowRect = new Rect(Vector2.zero,
@@ -13,28 +12,42 @@ namespace binc.PixelAnimator.Editor.Windows
             
             var isValid = SelectedAnim && SelectedAnim.GetSpriteList() != null;
             if(!isValid) return;
-            if(SelectedAnim.GetSpriteList().Count > 0) SetSpritePreview();
+            if(PixelAnimatorWindow.AnimatorWindow.GetSpriteCount() > 0) SetSpritePreview();
             if(!spritePreview) return;
-            DrawCanvas();
+            RenderCanvas();
             
             HandleMouseOperations();
             SetRect();
         }
-                private void HandleMouseOperations(){
+        private void HandleMouseOperations(){
             if(UsingBoxHandle != BoxHandleType.None || !spritePreview) return;
             var eventCurrent = Event.current;
-            
-            if(eventCurrent.button == 2)
-                HandleMiddleClick();
-            
-            if(eventCurrent.type == EventType.ScrollWheel)
-                HandleZoom();
-            
-            if(spriteScale <=0){
-                spriteScale = 1;
-            }
+            if(eventCurrent.button == 2) HandleMiddleClick();
+            if(eventCurrent.type == EventType.ScrollWheel) HandleZoom();
         }
-        
+        private void RenderCanvas()
+        {
+            ClampPosition();
+            var canvasSize = new Vector2(spritePreview.width, spritePreview.height) * spriteScale;
+            canvasRect = new Rect(viewOffset+screenSpriteOrigin,canvasSize);
+            GUI.Window(Id, canvasRect, _=>{RenderWindowContent();}, GUIContent.none, GUIStyle.none);
+        }
+        private void ClampPosition() { 
+            screenSpriteOrigin.x = windowRect.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
+            screenSpriteOrigin.y = windowRect.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
+            
+            if (viewOffset.x > spritePreview.width * spriteScale * 0.5f) viewOffset.x = spritePreview.width * spriteScale * 0.5f;
+            if (viewOffset.x < -spritePreview.width * spriteScale * 0.5f) viewOffset.x = -spritePreview.width * spriteScale * 0.5f;
+            
+            if (viewOffset.y > spritePreview.height * spriteScale * 0.5f) viewOffset.y= spritePreview.height * spriteScale * 0.5f;
+            if (viewOffset.y < -spritePreview.height * spriteScale * 0.5f) viewOffset.y = -spritePreview.height * spriteScale * 0.5f;
+
+        }
+        private void RenderWindowContent(){
+            DrawGrid();
+            DrawSprite();
+            DrawBoxes();
+        }
         private void HandleMiddleClick()
         {
             var currentEvent = Event.current;
@@ -52,7 +65,6 @@ namespace binc.PixelAnimator.Editor.Windows
                     previousMousePosition = currentEvent.mousePosition;
                     PixelAnimatorWindow.AddCursorCondition(true, MouseCursor.MoveArrow);
                     Event.current.Use();
-                    PixelAnimatorWindow.AnimatorWindow.Repaint();
                     break;
                 }
                 case EventType.MouseUp:
@@ -87,7 +99,7 @@ namespace binc.PixelAnimator.Editor.Windows
             var deltaVector = mousePosForNewWindow - scaledMousePos;
             viewOffset += deltaVector;
             Event.current.Use();
-            PixelAnimatorWindow.AnimatorWindow.Repaint();
+            if(spriteScale <=0) spriteScale = 1;
         }
 
         private void SetRect(){
@@ -96,19 +108,16 @@ namespace binc.PixelAnimator.Editor.Windows
         
         private void SetSpritePreview(){
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            var sprites = animatorWindow.SelectedAnimation.GetSpriteList();
+            var pixelSprites = animatorWindow.SelectedAnimation.PixelSprites;
             var index = animatorWindow.IndexOfSelectedSprite;
-            var sprite = sprites[index];
+            var sprite = pixelSprites[index].sprite;
             spritePreview = AssetPreview.GetAssetPreview(sprite);
             if (spritePreview) spritePreview.filterMode = FilterMode.Point;
         }
 
         private void AddCursorRect(Rect rect, MouseCursor cursor, BoxHandleType type){
             EditorGUIUtility.AddCursorRect(rect, cursor);
-            PixelAnimatorWindow.AddCursorCondition(UsingBoxHandle == type, cursor);
-
+            PixelAnimatorUtility.AddCursorCondition(canvasRect,UsingBoxHandle == type, cursor);
         }
-
-
     }
 }

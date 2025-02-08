@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -7,30 +6,30 @@ using UnityEngine;
 using System.Reflection;
 using Object = UnityEngine.Object;
 using binc.PixelAnimator.DataManipulations;
-using PlasticPipe.Server;
-using UnityEditor.Profiling;
+using binc.PixelAnimator.Editor.Windows;
+using PlasticPipe.PlasticProtocol.Messages;
 
 namespace binc.PixelAnimator.Editor
 {
-
-
-
-    [CustomPropertyDrawer(typeof(BaseMethodData))]
+    [CustomPropertyDrawer(typeof(BaseMethodData), true)]
     public class BaseMethodDataDrawer : PropertyDrawer
     {
         private static Texture2D _functionIcon;
-        private const float Padding = 5;
-        private readonly Dictionary<string, Object> objectListByPropertyPath = new();
+        private const float Padding = 0;
+        private static readonly Dictionary<string, Tuple<Object, string>> ObjectListByPropertyPath = new();
+        private static readonly Dictionary<string, BaseMethodData> CachedPropertyReference = new();
+        private static readonly Dictionary<string, long> CachedManagedReferenceValueId = new();
         private const string NoFunctionLabel = "No function";
-
+        private const string EmptyReferenceTip = "Reference is empty";
+    
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            if (Event.current.type == EventType.Layout) return;
-            if (property.managedReferenceValue == null) return;
-
+            SetPropertyReference(property);
+            
+            if (CachedPropertyReference[property.propertyPath] == null) return;
             _functionIcon ??= Resources.Load<Texture2D>("Sprites/function-icon");
             position.y += 2;
-            
+
             var serializedMethod = property.FindPropertyRelative("method");
             var serializedParameters = property.FindPropertyRelative("parameters");
             var serializedId = property.FindPropertyRelative("globalId");
@@ -40,23 +39,24 @@ namespace binc.PixelAnimator.Editor
             var height = EditorGUIUtility.singleLineHeight;
 
             var foldoutRect = new Rect(position.x, position.y, 16, height);
-
+            var restOfWidth = position.width - foldoutRect.width - Padding;
+            
             var objectRect = new Rect(
-                foldoutRect.xMax+Padding/3, 
+                foldoutRect.xMax+Padding, 
                 position.y,
-                position.width/2.2f, 
+                restOfWidth/2, 
                 height
                 );
             
             var methodRect = new Rect(
                 objectRect.xMax+ Padding, 
                 position.y, 
-                position.width/2.2f, 
+                restOfWidth/2, 
                 objectRect.height
                 );
             
             var functionTexRect = new Rect(
-                methodRect.x + Padding/2, 
+                methodRect.x + Padding, 
                 methodRect.y+1, 
                 _functionIcon.width,
                 _functionIcon.height
@@ -73,25 +73,36 @@ namespace binc.PixelAnimator.Editor
             using (propertyScope)
             {
                 property.isExpanded = EditorGUI.Foldout(foldoutRect, property.isExpanded, GUIContent.none);
-                DrawObjectReference(objectRect, serializedId);
+                DrawObjectReference(objectRect, serializedId, property);
                 DrawMethod(methodRect, serializedId, functionTexRect, functionLabelRect, functionLabel, property);
                 var showParameters = functionLabel != NoFunctionLabel && property.isExpanded;
-                if(showParameters)DrawParameters(property, serializedParameters, position, serializedMethod); 
+                if(showParameters)DrawParameters(property, serializedParameters, position); 
             }
+
+            if (ObjectListByPropertyPath.TryGetValue(serializedId.propertyPath, out var tuple) && tuple.Item2 != serializedId.stringValue)
+            {
+                OnObjectIdChanged(property,serializedId);
+            }
+
             
         }
+        
 
         #region DrawingMethods
-        private void DrawObjectReference(Rect objectRect, SerializedProperty serializedId)
+        private void DrawObjectReference(Rect objectRect, SerializedProperty serializedId, SerializedProperty serializedMethodData)
         {
             var obj = GetUnityObject(serializedId);//TODO: performance's sake, this should be fixed
             EditorGUI.BeginChangeCheck();
             obj = EditorGUI.ObjectField(objectRect, obj, typeof(Object), true);
             if (EditorGUI.EndChangeCheck())
             {
-                OnObjectReferenceChanged(serializedId, obj);   
+                OnObjectReferenceChanged(serializedMethodData,serializedId, obj);   
             }
-            EditorGUI.LabelField(objectRect, new GUIContent("", serializedId.stringValue));
+            
+            var idToolTip = string.IsNullOrEmpty(serializedId.stringValue)
+                ? EmptyReferenceTip
+                : serializedId.stringValue;
+            EditorGUI.LabelField(objectRect, new GUIContent("", idToolTip));
 
         }
 
@@ -106,15 +117,13 @@ namespace binc.PixelAnimator.Editor
             GUI.Label(functionLabelRect, content);
         }
 
-        private static void DrawParameters(SerializedProperty serializedMethodData, SerializedProperty serializedParameters, Rect position, SerializedProperty methodProperty)
+        private static void DrawParameters(SerializedProperty serializedMethodData, SerializedProperty serializedParameters, Rect position)
         {
             EditorGUI.indentLevel++;
-            var parameterCount = serializedParameters.arraySize;
             var yPos = position.y + EditorGUIUtility.standardVerticalSpacing+EditorGUIUtility.singleLineHeight;
-            var isGeneric = serializedMethodData.managedReferenceValue.GetType().IsGenericType;
-            var startIndex = isGeneric ? 1 : 0;
-            var methodData = (BaseMethodData)GetParent(methodProperty);
-            for (var i = startIndex; i < parameterCount; i++)
+            var methodData = CachedPropertyReference[serializedMethodData.propertyPath];
+            var isGeneric = methodData.GetType().IsGenericType;
+            for (var i = 0; i < serializedParameters.arraySize; i++)
             {
                 var paramProperty = serializedParameters.GetArrayElementAtIndex(i);
                 var paramHeight = EditorGUI.GetPropertyHeight(paramProperty, true);
@@ -127,29 +136,65 @@ namespace binc.PixelAnimator.Editor
                 var name = "";
                 try
                 {
-                    name = methodData?.method.methodInfo.GetParameters()[i].Name;
+                    name = methodData.method.methodInfo.GetParameters()[i].Name;
                 }
                 catch (Exception e)
                 {
                     Debug.LogError(e);
                 }
 
-                EditorGUI.PropertyField(paramRect, paramProperty, new GUIContent(name),true);
+                if (isGeneric && i == 0)
+                {
+                    EditorGUI.BeginDisabledGroup(true);
+                    EditorGUI.PropertyField(paramRect, paramProperty, new GUIContent(name),true);
+                    EditorGUI.EndDisabledGroup();
+                    EditorGUI.LabelField(paramRect, new GUIContent("", "This parameter will be passing at runtime."));
+                }
+                else
+                {
+                    EditorGUI.PropertyField(paramRect, paramProperty, new GUIContent(name),true);
+                }
+                    
                 yPos += paramHeight;
             }
 
             EditorGUI.indentLevel--;
-
         }
         
         #endregion
         
         #region SetData
 
-        private void SelectMethod(SerializedProperty serializedMethodData,SerializedProperty serializedID)
+        private void SetPropertyReference(SerializedProperty serializedMethodData)
         {
+            var key = serializedMethodData.propertyPath;
+
+            if (serializedMethodData.propertyType == SerializedPropertyType.ManagedReference)
+            {
+                if (CachedManagedReferenceValueId.TryGetValue(key, out var id))
+                {
+                    if (id == serializedMethodData.managedReferenceId) return;
+                    CachedManagedReferenceValueId[key] = serializedMethodData.managedReferenceId;
+                    CachedPropertyReference[key] = serializedMethodData.GetReference() as BaseMethodData;
+                }
+                else
+                {
+                    CachedManagedReferenceValueId[key] = serializedMethodData.managedReferenceId;
+                    CachedPropertyReference[key] = serializedMethodData.GetReference() as BaseMethodData;
+                }
+                return;
+            }
+            
+            
+            if (CachedPropertyReference.ContainsKey(key)) return;
+            CachedPropertyReference[key] = serializedMethodData.GetReference() as BaseMethodData;
+        }
+        
+        private void SelectMethod(SerializedProperty serializedMethodData, SerializedProperty serializedID)
+        {
+            serializedMethodData.serializedObject.Update();
             var functionMenu = new GenericMenu();
-            functionMenu.AddItem(new GUIContent("No function"), false, ()=>ResetMethod(serializedID));
+            functionMenu.AddItem(new GUIContent("No function"), false, ()=>ResetMethod(serializedMethodData));
             var referenceValue = GetUnityObject(serializedID);
 
             if (referenceValue == null)
@@ -158,37 +203,30 @@ namespace binc.PixelAnimator.Editor
             }
             
             var allMethods = referenceValue.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public);
-            
-            var methods = allMethods.Where(m=>WhereMethods(serializedMethodData,m)).ToArray();
-            
-            var data = (BaseMethodData)GetParent(serializedID);
+
+            var data = CachedPropertyReference[serializedMethodData.propertyPath];
+            var methods = allMethods.Where(m=>WhereMethods(m,data.GetType())).ToArray();
+
             foreach (var method in methods)
             {
                 functionMenu.AddItem(new GUIContent(method.Name), false, userData =>
                 {
                     var methodInfo = userData as MethodInfo;
                     data.SelectMethod(methodInfo);
-                    serializedID.serializedObject.Update();
-
+                    serializedMethodData.serializedObject.Update();
                 }, method);
 
                 functionMenu.ShowAsContext();
             }
         }
 
-        private static bool WhereMethods(SerializedProperty serializedMethodData, MethodInfo methodInfo)
+        private static bool WhereMethods(MethodInfo methodInfo, Type type)
         {
-            var type = serializedMethodData.managedReferenceValue.GetType();
             var parameters = methodInfo.GetParameters();
-            bool methodKeeper;
             if (type.IsGenericType)
             {
                 if (parameters.Length <= 0) return false;
-                methodKeeper = parameters[0].ParameterType != type.GetGenericArguments()[0];
-            }
-            else
-            {
-                methodKeeper = false;
+                if (parameters[0].ParameterType != type.GetGenericArguments()[0]) return false;
             }
             
             return methodInfo.ReturnType == typeof(void) &&
@@ -197,13 +235,12 @@ namespace binc.PixelAnimator.Editor
                        p.IsDefined(typeof(ParamArrayAttribute), false)) &&
                    !(methodInfo.IsSpecialName &&
                      (methodInfo.Name.StartsWith("get_") || methodInfo.Name.StartsWith("set_"))) &&
-                   !methodInfo.IsGenericMethod &&
-                   !methodKeeper;
+                   !methodInfo.IsGenericMethod;
         }
         
-        private static void ResetMethod(SerializedProperty property)
+        private static void ResetMethod(SerializedProperty serializedMethodData)
         {
-            if (GetParent(property) is not BaseMethodData data)
+            if (CachedPropertyReference[serializedMethodData.propertyPath] is not { } data)
             {
                 Debug.LogWarning("BaseMethodData is null. Cannot reset method.");
                 return;
@@ -211,21 +248,22 @@ namespace binc.PixelAnimator.Editor
             data.SelectMethod(null);
         }
 
-        private void OnObjectReferenceChanged(SerializedProperty serializedId, Object obj)
+        
+        private void OnObjectReferenceChanged(SerializedProperty serializedMethodData, SerializedProperty serializedId, Object obj)
         {
             Debug.Log("object is changed");
             serializedId.stringValue = GlobalObjectId.GetGlobalObjectIdSlow(obj).ToString();
-            objectListByPropertyPath[serializedId.propertyPath] = obj;
-            ResetMethod(serializedId);
+            ObjectListByPropertyPath[serializedId.propertyPath] = new Tuple<Object, string>(obj, serializedId.stringValue);
+            ResetMethod(serializedMethodData);
         }
 
-        private void OnObjectIdChanged(SerializedProperty serializedId)
+        private void OnObjectIdChanged(SerializedProperty serializedMethodData, SerializedProperty serializedId)
         {
             Debug.Log("id is changed");
             var idString = serializedId.stringValue;
             var obj = GlobalObjectId.TryParse(idString, out var id) ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id) : null;
-            objectListByPropertyPath[serializedId.propertyPath] = obj;
-            ResetMethod(serializedId);
+            ObjectListByPropertyPath[serializedId.propertyPath] = new Tuple<Object, string>(obj, serializedId.stringValue);
+            ResetMethod(serializedMethodData);
         }
         
         
@@ -235,90 +273,46 @@ namespace binc.PixelAnimator.Editor
         public override float GetPropertyHeight(SerializedProperty serializedMethodData, GUIContent label)
         {
             var height = EditorGUIUtility.singleLineHeight;
-            if (!serializedMethodData.isExpanded || serializedMethodData.managedReferenceValue == null) return height;
-            height += GetParametersHeight(serializedMethodData,serializedMethodData.FindPropertyRelative("parameters"));
+            if (!serializedMethodData.isExpanded) return height;
+            var serializedParameters = serializedMethodData.FindPropertyRelative("parameters");
+            height += GetParametersHeight(serializedParameters);
             return height;
         }
 
-        private static float GetParametersHeight(SerializedProperty serializedMethodData,SerializedProperty parametersProperty)
+        private static float GetParametersHeight(SerializedProperty parametersProperty)
         {
-
             var height = EditorGUIUtility.standardVerticalSpacing;
-            var isGeneric = serializedMethodData.managedReferenceValue.GetType().IsGenericType;
-            var startIndex = isGeneric ? 1 : 0;
-            for (var i = startIndex; i< parametersProperty.arraySize; i++)
+            
+            for (var i = 0; i< parametersProperty.arraySize; i++)
             {
                 var element = parametersProperty.GetArrayElementAtIndex(i);
                 height += EditorGUI.GetPropertyHeight(element);
             }
             return height;                
         }
-        #endregion
         
-        #region GetValues
+
+        #endregion
+
+        #region GetMethods
 
         private static string GetFunctionLabel(SerializedProperty serializedMethod)
         {
             var methodName = serializedMethod.FindPropertyRelative("methodName").stringValue;
             return !string.IsNullOrEmpty(methodName) ? methodName : NoFunctionLabel;
         }
-        
+
         private Object GetUnityObject(SerializedProperty serializedID)
         {
             var propertyPath = serializedID.propertyPath;
 
-            var isFound = objectListByPropertyPath.TryGetValue(propertyPath, out var obj);
-            if (isFound) return obj;
-            var trueObject = GlobalObjectId.TryParse(serializedID.stringValue, out var objectId)
-                ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(objectId)
-                : null;
-            objectListByPropertyPath[propertyPath] = trueObject; 
-            return trueObject;
-        }
-
-        private static object GetParent(SerializedProperty prop)
-        {
-            var path = prop.propertyPath.Replace(".Array.data[", "[");
-            object obj = prop.serializedObject.targetObject;
-            var elements = path.Split('.');
-            foreach(var element in elements.Take(elements.Length-1))
-            {
-                if(element.Contains("["))
-                {
-                    var elementName = element[..element.IndexOf("[", StringComparison.Ordinal)];
-                    var index = Convert.ToInt32(element[element.IndexOf("[", StringComparison.Ordinal)..].Replace("[","").Replace("]",""));
-                    obj = GetValue(obj, elementName, index);
-                }
-                else
-                {
-                    obj = GetValue(obj, element);
-                }
-            }
+            var isFound = ObjectListByPropertyPath.TryGetValue(propertyPath, out var tuple);
+            if (isFound) return tuple.Item1;
+            var obj = GlobalObjectId.TryParse(serializedID.stringValue, out var objectId) ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(objectId) : null;
+            ObjectListByPropertyPath[propertyPath] = new Tuple<Object, string>(obj, serializedID.stringValue); 
             return obj;
         }
-
-        private static object GetValue(object source, string name)
-        {
-            if(source == null)
-                return null;
-            var type = source.GetType();
-            var f = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-            if (f != null) return f.GetValue(source);
-            var p = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-            return p == null ? null : p.GetValue(source, null);
-        }
-
-        private static object GetValue(object source, string name, int index)
-        {
-            if (GetValue(source, name) is not IEnumerable enumerable) return null;
-            var enm = enumerable.GetEnumerator();
-            using var enm1 = enm as IDisposable;
-
-            while(index-- >= 0)
-                enm.MoveNext();
-            return enm.Current;
-
-        }
+        
         #endregion
     }
 }

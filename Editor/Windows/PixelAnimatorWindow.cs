@@ -12,12 +12,27 @@ namespace binc.PixelAnimator.Editor.Windows{
     public class PixelAnimatorWindow : EditorWindow
     {
         #region Singleton
-        public static PixelAnimatorWindow AnimatorWindow { get; private set; }
+
+        private static PixelAnimatorWindow animatorWindow;
+
+        public static PixelAnimatorWindow AnimatorWindow
+        {
+            get
+            {
+                if (animatorWindow is not null) return animatorWindow;
+                animatorWindow = GetWindow<PixelAnimatorWindow>(false, "", true);
+                SetWindowContent();
+                animatorWindow.Show();
+                return animatorWindow;
+            }
+        }
         #endregion
         
         #region Variables
+
         public static readonly Color BackgroundColor = new(0.1f, 0.1f, 0.1f);
         public static readonly Vector2 MinSize = new(800, 450);
+        public static GUIContent TitleContent { get; private set; }
         public GUISkin PixelAnimatorSkin { get; private set; }
         public int IndexOfSelectedSprite { get; private set; }
         public int IndexOfSelectedBox { get; private set; }
@@ -34,25 +49,30 @@ namespace binc.PixelAnimator.Editor.Windows{
         
         #region Initialize
         [MenuItem("Window/Pixel Animator")]
-        private static void InitWindow()
+        private static void InitWindow() => AnimatorWindow.Focus();
+        
+
+        private static void SetWindowContent()
         {
-            AnimatorWindow = CreateInstance<PixelAnimatorWindow>();
-            AnimatorWindow.minSize = MinSize;
+            animatorWindow.minSize = MinSize;
             var icon = Resources.Load<Texture2D>("Sprites/PixelAnimatorIcon");
-            AnimatorWindow.titleContent = new GUIContent("Pixel Animator", icon);
-            AnimatorWindow.Show();
+            TitleContent = new GUIContent("Pixel Animator", icon);
+            animatorWindow.titleContent = TitleContent;
         }
+        
         private void OnEnable()
         {
+            animatorWindow = this;
             OnSelectionChange();
             wantsMouseMove = true;
             LoadResources();
             InitWindows();
             IndexOfSelectedBoxGroup = IndexOfSelectedBox = IndexOfSelectedSprite = 0;
         }
-
+        
         private void OnDisable()
         {
+            animatorWindow = null;
             DisposeWindows();
         }
         
@@ -65,13 +85,13 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void InitWindows()
         {
-            AnimatorWindow = this;
-            for (var i = 0; i < AnimatorPreferences.windows.Count; i++)
+            var windows = AnimatorPreferences.windows;
+            for (var i = 0; i < windows.Count; i++)
             {
-                var window = AnimatorPreferences.windows[i];
-                window?.Initialize(i);
+                windows[i]?.Initialize(i);
             }
         }
+        
         
         private void DisposeWindows()
         {
@@ -98,13 +118,18 @@ namespace binc.PixelAnimator.Editor.Windows{
             }
             Repaint();
         }
+        
         private void OnGUI()
         {
+
             if(selectedAnimation)SerializedSelectedAnimation ??= new SerializedObject(selectedAnimation);
             DrawBackground();
             ProcessWindows();
             SetEditorDeltaTime();
-            if (Event.current.type == EventType.MouseMove) Repaint();
+            // if (Event.current.type == EventType.MouseMove) Repaint();
+            if(Event.current.button == 0 && Event.current.type == EventType.MouseDown){
+                GUI.FocusControl(null);
+            }
         }
 
         private void DrawBackground()
@@ -118,9 +143,10 @@ namespace binc.PixelAnimator.Editor.Windows{
             BeginWindows();
             try
             {
-                for (var i = 0; i < AnimatorPreferences.windows.Count; i++)
+                var windows = AnimatorPreferences.windows;
+                for (var i = 0; i < windows.Count; i++)
                 {
-                    var window = AnimatorPreferences.windows[i];
+                    var window = windows[i];
                     if (window == null) continue;
                     window.ProcessWindow();
                     GUI.BringWindowToBack(i);
@@ -170,11 +196,45 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
         
         #endregion
-        public new T GetWindow<T>() where T : Window
+
+        public BoxGroup GetActiveBoxGroup()
         {
-            return AnimatorPreferences.windows.Find(w => w.GetType() == typeof(T)) as T;
+            if (IsValidBoxGroup())
+            {
+                return SelectedAnimation.BoxGroups[IndexOfSelectedBoxGroup];
+            }
+            throw new InvalidOperationException("No valid box group selected.");
         }
 
+        public Box GetActiveBox()
+        {
+            if (IsValidBox())
+            {
+                return GetActiveBoxGroup().boxes[IndexOfSelectedBox];
+            }
+
+            throw new InvalidOperationException("No valid box selected");
+        }
+
+        public BoxFrame GetActiveFrame()
+        {
+            if (IsValidFrame())
+            {
+                return GetActiveBox().frames[IndexOfSelectedSprite];
+            }
+
+            throw new InvalidOperationException("No valid frame selected");
+        }
+        
+        public T GetPixelWindow<T>() where T : Window
+        {
+            var window = AnimatorPreferences.windows.Find(w => w.GetType() == typeof(T)) as T;
+            if(window == null)
+            {
+                Debug.LogWarning($"Window of type {typeof(T)} does not exist in AnimatorPreferences.");
+            }
+            return window;
+        }
         public bool IsValidAnimation()
         {
             return SelectedAnimation;
@@ -193,6 +253,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             return IndexOfSelectedBox < SelectedAnimation.BoxGroups[IndexOfSelectedBoxGroup].boxes.Count;
         }
 
+        
         public bool IsValidFrame()
         {
             if (!IsValidBox()) return false;
@@ -214,11 +275,11 @@ namespace binc.PixelAnimator.Editor.Windows{
         public int GetSpriteCount()
         {
             var count = 0;
-            if (selectedAnimation && selectedAnimation.PixelSprites != null)
+            var pixelSprites = selectedAnimation?.PixelSprites;
+            if (selectedAnimation && pixelSprites != null)
             {
-                count = selectedAnimation.PixelSprites.Count;
+                count = pixelSprites.Count;
             }
-
             return count;
         }
         

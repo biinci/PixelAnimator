@@ -1,5 +1,6 @@
 
-# **Pixel Animator**
+Pixel Animator
+------------------
 
 ## Bu animatörü yaparken [AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
 ### *Bu araç kesinlikle bir RetroBox değil. Bazı kendine özgün özellikleri barındıran başka bir araçtır.*
@@ -61,3 +62,4 @@ Umarım pixel art animasyonlarınızda yardımcı olur.
 
 
 Katkıda Bulunmak İçin
+------------------

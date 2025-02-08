@@ -7,6 +7,8 @@ namespace binc.PixelAnimator.Editor
     [CustomPropertyDrawer(typeof(BaseData))]
     public class BaseDataDrawer : PropertyDrawer
     {
+        private const string NoDataText = "<color=#FFC107><u>Data not shown</u></color>";
+        private const string NoDataTip = "This data probably is not serializable";
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label){
         
             position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Keyboard), GUIContent.none);
@@ -20,7 +22,6 @@ namespace binc.PixelAnimator.Editor
             {
                 EditorGUI.PropertyField(dataRect, mData, label, true);
                 property.serializedObject.ApplyModifiedProperties();
-
             }
             else
             {
@@ -28,7 +29,8 @@ namespace binc.PixelAnimator.Editor
                 var tempRichText = GUI.skin.box.richText;
                 GUI.skin.box.alignment = TextAnchor.MiddleCenter;
                 GUI.skin.box.richText = true;
-                EditorGUI.LabelField(dataRect, new GUIContent("<color=#ff5c57><u>No data found</u></color>", "Probably you tried to use System.Object."), GUI.skin.box);
+                var content = new GUIContent(NoDataText, NoDataTip);
+                EditorGUI.LabelField(dataRect, content, GUI.skin.box);
                 GUI.skin.box.alignment = tempAlignment;
                 GUI.skin.box.richText = tempRichText;
             }

@@ -64,7 +64,7 @@ namespace binc.PixelAnimator.Editor.Windows
         private Vector2 scrollPosition;
         private bool reSizing;
 
-        private int loopGroupIndex, loopLayerIndex, loopFrameIndex;
+        private int loopBoxGroupIndex, loopBoxIndex, loopFrameIndex;
         
         private ButtonData<Tuple<int, Sprite>> thumbnailButton;
         private ButtonData<BoxGroup> groupButton;

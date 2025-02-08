@@ -6,42 +6,6 @@ namespace binc.PixelAnimator.Editor.Windows{
 
     public partial class CanvasWindow
     {
-
-        private Vector2 screenSpriteOrigin, viewOffset = new (0, 0);
-
-        private void DrawCanvas()
-        {
-            ClampPosition();
-            var canvasSize = new Vector2(spritePreview.width, spritePreview.height) * spriteScale;
-            canvasRect = new Rect(viewOffset+screenSpriteOrigin,canvasSize);
-            GUI.Window(Id, canvasRect, _=>{RenderWindowContent();}, GUIContent.none, GUIStyle.none);
-            
-        }
-        private void ClampPosition() { 
-            screenSpriteOrigin.x = windowRect.width * 0.5f - spritePreview.width * 0.5f * spriteScale;
-            screenSpriteOrigin.y = windowRect.height * 0.5f - spritePreview.height * 0.5f * spriteScale;
-            
-            if (viewOffset.x > spritePreview.width * spriteScale * 0.5f) viewOffset.x = spritePreview.width * spriteScale * 0.5f;
-            if (viewOffset.x < -spritePreview.width * spriteScale * 0.5f) viewOffset.x = -spritePreview.width * spriteScale * 0.5f;
-            
-            if (viewOffset.y > spritePreview.height * spriteScale * 0.5f) viewOffset.y= spritePreview.height * spriteScale * 0.5f;
-            if (viewOffset.y < -spritePreview.height * spriteScale * 0.5f) viewOffset.y = -spritePreview.height * spriteScale * 0.5f;
-
-        }
-
-        private void RenderWindowContent(){
-            DrawGrid();
-            DrawSprite();
-            DrawBoxes();
-            
-            // if (new Rect(Vector2.zero, windowRect.size).IsClickedRect(0,1,2))
-            // {
-            //     Event.current.Use();
-            //     // GUI.FocusWindow(Id);
-            // }
-            
-        }
-        
         private void DrawSprite() => GUI.DrawTexture(spriteRect, spritePreview, ScaleMode.ScaleToFit);
 
         private void DrawBoxes(){
@@ -61,39 +25,38 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void DrawGrid()
         {
-            if(!gridBlackTex || !gridWhiteTex) SetGridTexture();
-            var size = new Vector2(64, 64);
+            var size = Vector2.one * 64;
             if(spritePreview) size = new Vector2(spritePreview.width, spritePreview.height);
             var rect = spriteRect;
             var grid = new Rect(rect.x, rect.y, 16 * spriteScale, 16 * spriteScale);
-
+            
             for (var i = 0; i < size.x / 16; i++) {
                 for (var j = 0; j < size.y / 16; j += 2) {
-                    var tex = i % 2 == 0 ? gridBlackTex : gridWhiteTex;
-                    GUI.DrawTexture(grid, tex);
+                    var color = i % 2 == 0 ? blackColor : whiteColor;
+                    EditorGUI.DrawRect(grid,color);
                     grid.y += grid.height; 
-                    var texTwo = tex == gridBlackTex ? gridWhiteTex : gridBlackTex;
-                    GUI.DrawTexture(grid, texTwo);
+                    var contrastColor = color == blackColor ? whiteColor : blackColor;
+                    EditorGUI.DrawRect(grid, contrastColor);
                     grid.y += grid.height;
                 }
-
+            
                 grid.y = rect.y;
                 grid.x += grid.width;
             }
-
+            
             if (!(rect.x + rect.width - grid.x > 0)) return;
-
+            
             grid.width = rect.x + rect.width - grid.x; 
-
+            
             for (var j = 0; j < size.y / 16; j += 2) {
-                GUI.DrawTexture(grid, gridWhiteTex);
+                EditorGUI.DrawRect(grid, whiteColor);
                 grid.y += grid.height;
-                GUI.DrawTexture(grid, gridBlackTex); 
+                EditorGUI.DrawRect(grid, blackColor);
                 grid.y += grid.height;
             }
-
+            
             grid.height = rect.y + rect.height - grid.y;
-            if (rect.y + rect.height - grid.y > 0) GUI.DrawTexture(grid, gridBlackTex); 
+            if (rect.y + rect.height - grid.y > 0) EditorGUI.DrawRect(grid, blackColor); 
         }
         
         private void ProcessBoxes(int groupIndex, BoxGroup boxGroup, BoxData boxData){
@@ -118,7 +81,6 @@ namespace binc.PixelAnimator.Editor.Windows{
                     var eventCurrent = Event.current;
                     var isDragging = eventCurrent.type == EventType.MouseDrag && eventCurrent.type != EventType.MouseUp;
                     
-                    
                     scaledRect.width = Mathf.Clamp(scaledRect.width, 0, int.MaxValue);
                     scaledRect.height = Mathf.Clamp(scaledRect.height, 0, int.MaxValue);
                     
@@ -129,6 +91,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                         var yPos = (int)eventCurrent.mousePosition.y/spriteScale;
                         var position = new Vector2(xPos, yPos);
                         EditBox(frame, scaledRect, position);
+                        animatorWindow.Repaint();
                     }
                     if (eventCurrent.type == EventType.MouseUp) {
                         UsingBoxHandle = BoxHandleType.None;
@@ -138,10 +101,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 }else{
                     Handles.DrawSolidRectangleWithOutline(scaledRect, new Color(0.5f,0.5f,0.5f,0f), boxData.color );
                     var mousePos = Event.current.mousePosition;
-                    var isClickedRect = scaledRect.Contains(mousePos) && Event.current.button == 0 &&
-                                        Event.current.type == EventType.MouseDown;
-
-                    
+                    var isClickedRect = scaledRect.IsClickedRect(0);
                     if (isClickedRect && UsingBoxHandle==BoxHandleType.None && !GetActiveGUIBoxRect().Contains(mousePos))
                     {
                         animatorWindow.SelectBoxGroup(groupIndex);
@@ -149,21 +109,16 @@ namespace binc.PixelAnimator.Editor.Windows{
                         boxGroup.isExpanded = true;
                         Event.current.Use();
                     }
-
                 }
-
-                
             }
-                
         }
 
         private Rect GetActiveGUIBoxRect()
         {
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            var rect =  SelectedAnim
-                .BoxGroups[animatorWindow.IndexOfSelectedBoxGroup]
-                .boxes[animatorWindow.IndexOfSelectedBox]
-                .frames[animatorWindow.IndexOfSelectedSprite].boxRect;
+            var boxGroup = animatorWindow.GetActiveBoxGroup();
+            if (!boxGroup.isExpanded) return new Rect(-1, -1, -1, -1);
+            var rect = animatorWindow.GetActiveFrame().boxRect;
             rect.position *= spriteScale;
             rect.size *= spriteScale;
             return rect;
@@ -171,7 +126,6 @@ namespace binc.PixelAnimator.Editor.Windows{
         
         private void EditBox(BoxFrame boxFrame, Rect rect, Vector2 position)
         {
-            
             switch (UsingBoxHandle) {
                 case BoxHandleType.TopLeft:
                     boxFrame.boxRect.xMin = position.x;
@@ -220,7 +174,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             }
 
             PixelAnimatorWindow.AnimatorWindow.SerializedSelectedAnimation?.ApplyModifiedProperties();
-            PixelAnimatorWindow.AnimatorWindow.Repaint();
         }
         
         private void DrawBox(Rect rect, Color boxColor)
@@ -228,7 +181,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             var transparentColor = new Color(boxColor.r, boxColor.g, boxColor.b, 0.2f);
             DrawHandles(boxColor, rect);
             Handles.DrawSolidRectangleWithOutline(rect, transparentColor, boxColor );
-
         }
 
         private void DrawHandles(Color color, Rect rect)
@@ -275,13 +227,10 @@ namespace binc.PixelAnimator.Editor.Windows{
                 else {
                     UsingBoxHandle = BoxHandleType.None;
                 }
-
                 if (UsingBoxHandle != previousBoxHandle)
                 {
                     eventCurrent.Use();
-                    
                 }
-                
             }
             EditorGUI.DrawRect(rTopLeft, color);
             EditorGUI.DrawRect(rTopCenter, color);
@@ -300,7 +249,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             AddCursorRect(rBottomLeft, MouseCursor.ResizeUpRight, BoxHandleType.BottomLeft);
             AddCursorRect(rLeftCenter, MouseCursor.ResizeHorizontal, BoxHandleType.LeftCenter);
             AddCursorRect(rAdjustedMiddle, MouseCursor.MoveArrow, BoxHandleType.Middle);
-            
         }
     }
 }

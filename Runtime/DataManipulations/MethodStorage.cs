@@ -1,47 +1,41 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using binc.PixelAnimator;
+using binc.PixelAnimator.DataManipulations;
 using UnityEngine;
 using UnityEngine.Events;
 
+public class BaseMethodStorage
+{
+    
+}
 
 [Serializable]
-public class MethodStorage 
+public class MethodStorage : BaseMethodStorage
 {
-
     [SerializeField] public UnityEvent methods;
     [SerializeField] public List<MethodData> methodData;
     public void OnEnable()
     { 
         methods = new UnityEvent();
-        foreach (var method in methodData.Select(PixelAnimatorUtility.MethodDataToAction))
+        foreach (var method in methodData.Select(m => m.CompileFunction()))
         {
             methods.AddListener(method.Invoke);
         }
     }
-    
-    #if UNITY_EDITOR
-    
-    
-    public void AddMethod(MethodData method)
-    {
-        methodData.Add(method);
-    }
-    
-    public void RemoveMethod(MethodData method)
-    {
-        var index = methodData.IndexOf(method);
-        if (index == -1) return;
-        methodData.RemoveAt(index);
-    }
-
-    #endif
-    
-    public void Call()
-    {
-        methods.Invoke();
-    }
-
 }
 
+[Serializable]
+public class MethodStorage<T> : BaseMethodStorage
+{
+    [SerializeField] public UnityEvent<T> methods;
+    [SerializeField] public List<MethodData<T>> methodData;
+    public void OnEnable()
+    { 
+        methods = new UnityEvent<T>();
+        foreach (var method in methodData.Select(m => m.CompileFunction()))
+        {
+            methods.AddListener(method.Invoke);
+        }
+    }
+}

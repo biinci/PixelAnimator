@@ -7,9 +7,9 @@ namespace binc.PixelAnimator.DataManipulations
     [System.Serializable]
     public class SerializableMethodInfo : ISerializationCallbackReceiver
     {
-        public SerializableMethodInfo(MethodInfo aMethodInfo)
+        public SerializableMethodInfo(MethodInfo methodInfo)
         {
-            methodInfo = aMethodInfo;
+            this.methodInfo = methodInfo;
         }
         public MethodInfo methodInfo;
         public SerializableType serializableType;

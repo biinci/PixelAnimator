@@ -18,7 +18,7 @@ namespace binc.PixelAnimator.Editor.Windows
                 
                 var tempSkin = GUI.skin;
                 GUI.skin = PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin;
-                // selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, width/2f);
+                selectedTab = EditorTabsAPI.DrawTabs(selectedTab, _tabTitles, width/2f);
                 GUI.skin = tempSkin;
 
                 switch (selectedTab)
@@ -43,33 +43,61 @@ namespace binc.PixelAnimator.Editor.Windows
 
             if (targetAnimation != null && animatorWindow.IsValidFrame())
             {
-                var property = targetAnimation
+                var collisionType = animatorWindow.GetActiveBoxGroup().collisionTypes;
+                var serializedFrame = targetAnimation
                     .FindProperty("boxGroups")
                     .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedBoxGroup)
                     .FindPropertyRelative("boxes")
                     .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedBox)
                     .FindPropertyRelative("frames")
-                    .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedSprite)
-                    .FindPropertyRelative("methodStorage");
-                var positionRect = new Rect(0,20, windowRect.width, windowRect.height);
-                var viewRect = new Rect(0, 20, windowRect.width-30, EditorGUI.GetPropertyHeight(property)+20);
-                var listRect = new Rect(10,30, windowRect.width-30, windowRect.height - 30);
+                    .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedSprite);
+                var isCollisionTrigger = collisionType == CollisionTypes.Trigger;
+
+
+                SerializedProperty enterProperty;
+                SerializedProperty stayProperty;
+                SerializedProperty exitProperty;
                 
+
+                if (isCollisionTrigger)
+                {
+                    enterProperty = serializedFrame.FindPropertyRelative("triggerEnterMethodStorage");
+                    stayProperty = serializedFrame.FindPropertyRelative("triggerStayMethodStorage");
+                    exitProperty = serializedFrame.FindPropertyRelative("triggerExitMethodStorage");
+                }
+                else
+                {
+                    enterProperty = serializedFrame.FindPropertyRelative("collisionEnterMethodStorage");
+                    stayProperty = serializedFrame.FindPropertyRelative("collisionStayMethodStorage");
+                    exitProperty = serializedFrame.FindPropertyRelative("collisionExitMethodStorage");
+                }
+
+                var enterHeight = EditorGUI.GetPropertyHeight(enterProperty);
+                var stayHeight = EditorGUI.GetPropertyHeight(stayProperty);
+                var exitHeight = EditorGUI.GetPropertyHeight(exitProperty);
+
+
+                const int initYPos = 30;
+                const float padding = 20f;
+
+                var enterRect = new Rect(10,initYPos, windowRect.width-30, enterHeight);
+                var stayRect = new Rect(10,enterRect.yMax+padding, windowRect.width-30, stayHeight);
+                var exitRect = new Rect(10,stayRect.yMax+padding, windowRect.width-30, exitHeight);
+                
+                var positionRect = new Rect(0,30, windowRect.width-1, windowRect.height);
+                var viewRect = new Rect(0, positionRect.y, windowRect.width, exitRect.yMax);
+                
+                serializedFrame.serializedObject.UpdateIfRequiredOrScript();
                 scrollPos = GUI.BeginScrollView(positionRect,scrollPos,viewRect,false,false);
-                EditorGUI.BeginChangeCheck();
-                property.serializedObject.UpdateIfRequiredOrScript();
-                try
-                {
-                    EditorGUI.PropertyField(listRect, property, GUIContent.none, true);
-                }
-                finally
-                {
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        property.serializedObject.ApplyModifiedProperties();
-                    }
-                    GUI.EndScrollView();
-                }
+                
+
+                EditorGUI.PropertyField(enterRect, enterProperty, GUIContent.none, true);
+                EditorGUI.PropertyField(stayRect, stayProperty, GUIContent.none, true);
+                EditorGUI.PropertyField(exitRect, exitProperty, GUIContent.none, true);
+
+                serializedFrame.serializedObject.ApplyModifiedProperties();
+                GUI.EndScrollView();
+                
             }
             else if(targetAnimation == null)
             {

@@ -10,9 +10,6 @@ namespace binc.PixelAnimator.AnimationData
         
         public Sprite sprite;
         public MethodStorage methodStorage;
-
-        
-        
         
         public PixelSprite(Sprite sprite, string guid){
             methodStorage = new MethodStorage();

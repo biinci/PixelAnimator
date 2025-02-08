@@ -15,6 +15,17 @@ namespace binc.PixelAnimator.AnimationData{
         
         public Rect boxRect;
         public MethodStorage methodStorage;
+
+        
+        
+        public MethodStorage<Collider> triggerEnterMethodStorage;
+        public MethodStorage<Collider> triggerStayMethodStorage;
+        public MethodStorage<Collider> triggerExitMethodStorage;
+
+        public MethodStorage<Collision> collisionEnterMethodStorage;
+        public MethodStorage<Collision> collisionStayMethodStorage;
+        public MethodStorage<Collision> collisionExitMethodStorage;
+        
         public BoxFrame(string guid){
             this.guid = guid;
         }

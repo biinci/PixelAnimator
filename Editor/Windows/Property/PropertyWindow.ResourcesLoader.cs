@@ -13,7 +13,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         public override void Initialize(int id)
         {
             Id = id;
-            timelineWindow = PixelAnimatorWindow.AnimatorWindow.GetWindow<TimelineWindow>();
+            timelineWindow = PixelAnimatorWindow.AnimatorWindow.GetPixelWindow<TimelineWindow>();
         }
         public override void Dispose()
         {

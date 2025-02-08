@@ -14,7 +14,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             var groupPanelRect = new Rect(bottomAreaRect.x, bottomAreaRect.y, columnRect.xMin,
                 windowRect.width - rowRect.yMax);
             var framePanelRect = new Rect(columnRect.xMax, rowRect.yMax, thumbnailPanelRect.width, groupPanelRect.height);
-            EditorGUI.DrawRect(handleRect, accentColor);
             EditorGUI.DrawRect(toolPanelRect, windowPlaneColor);
             EditorGUI.DrawRect(thumbnailPanelRect, windowPlaneColor);
             EditorGUI.DrawRect(groupPanelRect, windowPlaneColor);
@@ -22,6 +21,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
         
         private void DrawGridLines(){
+            EditorGUI.DrawRect(handleRect, accentColor);
             EditorGUI.DrawRect(columnRect, insideAccentColor);
             EditorGUI.DrawRect(rowRect, insideAccentColor);
             EditorGUI.DrawRect(handleShadowRect, insideAccentColor);
@@ -32,38 +32,44 @@ namespace binc.PixelAnimator.Editor.Windows{
             GUILayout.Space(5);
             GUILayout.BeginHorizontal();
             GUILayout.Space(3);
-            
-            var mainMenuContent = new GUIContent(mainMenuTex, "Main Menu");
-            
-            if (GUILayout.Button(mainMenuContent, animatorButtonStyle)) mainMenuButton.DownClick();
-
-            if (SelectedAnim)
+            try
             {
-                if (GUILayout.Button(targetAnimTex, animatorButtonStyle)) pingAnimationButton.DownClick();
+                
+                var mainMenuContent = new GUIContent(mainMenuTex, "Main Menu");
+            
+                if (GUILayout.Button(mainMenuContent, animatorButtonStyle)) mainMenuButton.DownClick();
+
+                if (SelectedAnim)
+                {
+                    if (GUILayout.Button(targetAnimTex, animatorButtonStyle)) pingAnimationButton.DownClick();
+                }
+            
+                var lastFrame = GUILayoutUtility.GetLastRect();
+                var spaceAmount = toolPanelRect.xMax - (animatorButtonStyle.fixedWidth * 5 + lastFrame.xMax + 7);
+
+                GUILayout.Space(spaceAmount);
+
+                var playPauseToolTip = IsPlaying ? "Pause" : "Play";
+            
+                var prevFrameContent = new GUIContent(prevFrameTex, "Previous Frame");
+                var playContent = new GUIContent(playPauseTex, playPauseToolTip);
+                var nextFrameContent = new GUIContent(nextFrameTex, "Next Frame");
+            
+
+                GUI.SetNextControlName("PreviousFrameButton");
+                if (GUILayout.Button(prevFrameContent, animatorButtonStyle)) previousNextSpriteButton.DownClick(true);
+
+                GUI.SetNextControlName("PlayButton");
+                if (GUILayout.Button(playContent, animatorButtonStyle)) playPauseButton.DownClick();
+
+            
+                GUI.SetNextControlName("NextFrameButton");
+                if (GUILayout.Button(nextFrameContent, animatorButtonStyle)) previousNextSpriteButton.DownClick(false);
             }
-            
-            var lastFrame = GUILayoutUtility.GetLastRect();
-            var spaceAmount = toolPanelRect.xMax - (animatorButtonStyle.fixedWidth * 5 + lastFrame.xMax + 7);
-
-            GUILayout.Space(spaceAmount);
-
-            var playPauseToolTip = IsPlaying ? "Pause" : "Play";
-            
-            var prevFrameContent = new GUIContent(prevFrameTex, "Previous Frame");
-            var playContent = new GUIContent(playPauseTex, playPauseToolTip);
-            var nextFrameContent = new GUIContent(nextFrameTex, "Next Frame");
-            
-
-            GUI.SetNextControlName("PreviousFrameButton");
-            if (GUILayout.Button(prevFrameContent, animatorButtonStyle)) previousNextSpriteButton.DownClick(true);
-
-            GUI.SetNextControlName("PlayButton");
-            if (GUILayout.Button(playContent, animatorButtonStyle)) playPauseButton.DownClick();
-
-            
-            GUI.SetNextControlName("NextFrameButton");
-            if (GUILayout.Button(nextFrameContent, animatorButtonStyle)) previousNextSpriteButton.DownClick(false);
-            
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
@@ -76,19 +82,28 @@ namespace binc.PixelAnimator.Editor.Windows{
             GUILayout.Space(verticalSpace);
             EditorGUILayout.BeginHorizontal();
             GUILayout.Space(horizontalSpace);
-            
-            scrollPosition.x = EditorGUILayout.BeginScrollView(
-                scrollPosition, 
-                GUI.skin.horizontalScrollbar, 
-                GUIStyle.none, 
-                GUILayout.Height(windowRect.height-HandleHeight)).x;
-            
-            EditorGUILayout.BeginHorizontal();
-            if (SelectedAnim)
+
+            try
             {
-                DrawThumbnails(SelectedAnim.GetSpriteList());
-                if(!IsPlaying)DrawFrames();
-            } 
+                
+                scrollPosition.x = EditorGUILayout.BeginScrollView(
+                    scrollPosition, 
+                    GUI.skin.horizontalScrollbar, 
+                    GUIStyle.none, 
+                    GUILayout.Height(windowRect.height-HandleHeight)).x;
+            
+                EditorGUILayout.BeginHorizontal();
+                if (SelectedAnim)
+                {
+                    DrawThumbnails(SelectedAnim.GetSpriteList());
+                    if(!IsPlaying)DrawFrames();
+                } 
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.EndScrollView();
@@ -99,10 +114,16 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void DrawThumbnails(List<Sprite> sprites)
         {
             if (sprites == null) return;
-            GUILayout.BeginHorizontal(); 
-            
-            for(var i = 0; i < sprites.Count; i++){
-                DrawThumbnail(i);
+            GUILayout.BeginHorizontal();
+            try
+            {
+                for(var i = 0; i < sprites.Count; i++){
+                    DrawThumbnail(i);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
             }
             GUILayout.EndHorizontal();
         }
@@ -125,7 +146,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             else if (rect.Contains(Event.current.mousePosition))
             {
                 EditorGUI.DrawRect(spriteRect, new Color(1,1,1,0.2f));
-                PixelAnimatorWindow.AnimatorWindow.Repaint();
             }
 
         }
@@ -148,14 +168,14 @@ namespace binc.PixelAnimator.Editor.Windows{
 
             for (var i = 0; i < SelectedAnim.BoxGroups.Count; i++)
             {
-                loopGroupIndex = i;
+                loopBoxGroupIndex = i;
                 GUILayout.Space(groupStyle.fixedHeight);
                 var group = SelectedAnim.BoxGroups[i];
                 if (!group.isExpanded) continue;
                 GUILayout.BeginVertical();
                 for (var j = 0; j < group.boxes.Count; j++)
                 {
-                    loopLayerIndex = j;
+                    loopBoxIndex = j;
                     var layer = group.boxes[j];
                     GUILayout.BeginHorizontal();
                     for (var k = 0; k < layer.frames.Count; k++)
@@ -183,12 +203,12 @@ namespace binc.PixelAnimator.Editor.Windows{
                 GUI.DrawTexture(rect,selectedFrameTex);
             }  
             
-            if (clicked) frameButton.DownClick((loopGroupIndex,loopLayerIndex,loopFrameIndex));
+            if (clicked) frameButton.DownClick((loopBoxGroupIndex, loopBoxIndex,loopFrameIndex));
             
             if(index == 0) return;
-
+            
             if (boxFrame.Type != BoxFrameType.CopyFrame || box.frames[index - 1].Type == BoxFrameType.EmptyFrame) return;
-            var linkRect = new Rect(rect.x - rect.width + linkFrameTex.width/2, rect.y, linkFrameTex.width, linkFrameTex.height);
+            var linkRect = new Rect(rect.x - rect.width + linkFrameTex.width/2f, rect.y, linkFrameTex.width, linkFrameTex.height);
             GUI.DrawTexture(linkRect, linkFrameTex);
         }
         
@@ -205,7 +225,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 GUIStyle.none
             ).y;
 
-            if(SelectedAnim) DrawGroups(SelectedAnim.BoxGroups);
+            DrawGroups(SelectedAnim.BoxGroups);
         
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
@@ -236,7 +256,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             
             EditorGUI.DrawRect(colorRect, data.color);
             var groupBurgerRect = new Rect(colorRect.position + Vector2.one*padding, new Vector2(animatorButtonStyle.fixedWidth, animatorButtonStyle.fixedHeight));            
-            if(GUI.Button(groupBurgerRect, new GUIContent(groupOptionsTex), animatorButtonStyle))
+            if(GUI.Button(groupBurgerRect, new GUIContent(groupOptionsTex,"Options"), animatorButtonStyle))
                 groupButton.DownClick(boxGroup);
 
             GUILayout.BeginVertical();
@@ -279,34 +299,43 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void DrawBoxes(int groupIndex, List<Box> boxes){
             for(var i = 0; i < boxes.Count; i++){
-                DrawBox(i, $"Box {i+1}", groupIndex);
+                DrawBoxLayer(i, $"Box {i+1}", groupIndex);
             }
         }
 
-        private void DrawBox(int boxIndex, string label, int groupIndex){
+        private void DrawBoxLayer(int boxIndex, string label, int groupIndex){
             GUILayout.BeginHorizontal(GUIContent.none, layerStyle);
-            GUILayout.Label(label, PixelAnimatorWindow.AnimatorWindow.PixelAnimatorSkin.label, GUILayout.Width(50));
-            var serializedRect = PixelAnimatorWindow.AnimatorWindow.SerializedSelectedAnimation
-                .FindProperty("boxGroups")
-                .GetArrayElementAtIndex(groupIndex)
-                .FindPropertyRelative("boxes")
-                .GetArrayElementAtIndex(boxIndex)
-                .FindPropertyRelative("frames")
-                .GetArrayElementAtIndex(PixelAnimatorWindow.AnimatorWindow.IndexOfSelectedSprite)
-                .FindPropertyRelative("boxRect");
-            var serializedX = serializedRect.FindPropertyRelative("x");
-            var serializedY = serializedRect.FindPropertyRelative("y");
-            var serializedWidth = serializedRect.FindPropertyRelative("width");
-            var serializedHeight = serializedRect.FindPropertyRelative("height");
+            try
+            {
+                var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
+                GUILayout.Label(label, animatorWindow.PixelAnimatorSkin.label, GUILayout.Width(50));
+                var serializedRect = animatorWindow.SerializedSelectedAnimation
+                    .FindProperty("boxGroups")
+                    .GetArrayElementAtIndex(groupIndex)
+                    .FindPropertyRelative("boxes")
+                    .GetArrayElementAtIndex(boxIndex)
+                    .FindPropertyRelative("frames")
+                    .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedSprite)
+                    .FindPropertyRelative("boxRect");
+                var serializedX = serializedRect.FindPropertyRelative("x");
+                var serializedY = serializedRect.FindPropertyRelative("y");
+                var serializedWidth = serializedRect.FindPropertyRelative("width");
+                var serializedHeight = serializedRect.FindPropertyRelative("height");
 
-            const int width = 35;
-            EditorGUILayout.PropertyField(serializedX, GUIContent.none,GUILayout.Width(width));
-            EditorGUILayout.PropertyField(serializedY, GUIContent.none, GUILayout.Width(width));
-            EditorGUILayout.PropertyField(serializedWidth, GUIContent.none, GUILayout.Width(width));
-            EditorGUILayout.PropertyField(serializedHeight, GUIContent.none, GUILayout.Width(width));
+                const int width = 35;
+                EditorGUILayout.PropertyField(serializedX, GUIContent.none,GUILayout.Width(width));
+                EditorGUILayout.PropertyField(serializedY, GUIContent.none, GUILayout.Width(width));
+                EditorGUILayout.PropertyField(serializedWidth, GUIContent.none, GUILayout.Width(width));
+                EditorGUILayout.PropertyField(serializedHeight, GUIContent.none, GUILayout.Width(width));
             
-            serializedRect.serializedObject.ApplyModifiedProperties();
+                serializedRect.serializedObject.ApplyModifiedProperties();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
             GUILayout.EndHorizontal();
+
         }
 
         private Texture2D GetFrameTexture(BoxFrameType type)

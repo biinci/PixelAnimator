@@ -3,10 +3,12 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using binc.PixelAnimator.Editor.Windows;
 
 namespace binc.PixelAnimator.Editor
 {
-    [CustomPropertyDrawer(typeof(MethodStorage))]
+    [CustomPropertyDrawer(typeof(BaseMethodStorage), true)]
     public class MethodStorageDrawer : PropertyDrawer
     {
         private const float Spacing = 0f;
@@ -23,9 +25,17 @@ namespace binc.PixelAnimator.Editor
             {
                 property.serializedObject.UpdateIfRequiredOrScript();
                 var methods = property.FindPropertyRelative("methodData");
+                if (methods == null) return;
                 var list = GetReorderableList(property, methods);
-                list.DoList(position);
-
+                var foldoutRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+                property.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(foldoutRect, property.isExpanded,GetFoldoutLabel(property) );
+                position.y += EditorGUIUtility.singleLineHeight;
+                if (property.isExpanded)
+                {
+                    list.DoList(position);
+                }
+                EditorGUI.EndFoldoutHeaderGroup();
+                
                 property.serializedObject.ApplyModifiedProperties();
             }
             catch (Exception e)
@@ -95,12 +105,12 @@ namespace binc.PixelAnimator.Editor
         private static float GetElementHeight(int index, ReorderableList list)
         {
             var methods = list.serializedProperty;
-            if (methods.arraySize <= index) return EditorGUIUtility.singleLineHeight;
+            if (methods.arraySize <= index) return EditorGUIUtility.singleLineHeight*2;
 
             var element = methods.GetArrayElementAtIndex(index);
             if (element == null) return EditorGUIUtility.singleLineHeight;
 
-            return EditorGUI.GetPropertyHeight(element) + EditorGUIUtility.standardVerticalSpacing*2 + PartingLineHeight;
+            return EditorGUI.GetPropertyHeight(element) + EditorGUIUtility.standardVerticalSpacing*2 + PartingLineHeight + EditorGUIUtility.singleLineHeight;
         }
 
         private static void DrawElementBackground(Rect rect, int index, bool active, bool focused, ReorderableList list)
@@ -114,7 +124,7 @@ namespace binc.PixelAnimator.Editor
 
             var partingRect = new Rect(
                 rect.x,
-                rect.yMax - (EditorGUIUtility.singleLineHeight * PartingLineHeight),
+                rect.yMax - EditorGUIUtility.singleLineHeight * PartingLineHeight,
                 rect.width,
                 EditorGUIUtility.singleLineHeight * PartingLineHeight
             );
@@ -127,7 +137,6 @@ namespace binc.PixelAnimator.Editor
             var index = list.serializedProperty.arraySize;
             list.serializedProperty.InsertArrayElementAtIndex(index);
             list.serializedProperty.serializedObject.ApplyModifiedProperties();
-
         }
 
         private static void RemoveCallback(ReorderableList list)
@@ -137,17 +146,25 @@ namespace binc.PixelAnimator.Editor
             list.serializedProperty.serializedObject.ApplyModifiedProperties();
         }
         
-        
-        
         #endregion
         
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             var methods = property.FindPropertyRelative("methodData");
-            if (methods == null) return EditorGUIUtility.singleLineHeight;
+            if (methods == null || !property.isExpanded) return EditorGUIUtility.singleLineHeight;
 
             var list = GetReorderableList(property, methods);
-            return EditorGUIUtility.singleLineHeight + list.GetHeight() + EditorGUIUtility.singleLineHeight*2;
+            return list.GetHeight();
+        }
+
+        private string GetFoldoutLabel(SerializedProperty property)
+        {
+            var name = property.name;
+            if (string.IsNullOrEmpty(name))
+                return name;
+            
+            var result = Regex.Replace(name, "(?<!^)([A-Z])", " $1");
+            return char.ToUpper(result[0]) + result[1..];
         }
     }
 }
