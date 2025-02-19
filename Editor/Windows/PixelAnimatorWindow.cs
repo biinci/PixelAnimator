@@ -1,11 +1,9 @@
 using UnityEngine;
 using UnityEditor;
 using System;
-using System.Linq;
 using binc.PixelAnimator.AnimationData;
 using binc.PixelAnimator.Preferences;
 using binc.PixelAnimator.Editor.Preferences;
-using Codice.CM.Client.Differences.Graphic;
 
 namespace binc.PixelAnimator.Editor.Windows{
     [Serializable]

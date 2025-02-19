@@ -19,7 +19,8 @@ namespace binc.PixelAnimator{
 
         private void OnEnable()
         {
-            if (pixelSprites != null && EditorApplication.isPlayingOrWillChangePlaymode) //TODO: use another bool for build.
+#if UNITY_EDITOR
+            if (pixelSprites != null) //TODO: use another bool for build.
             {
                 foreach (var pixelSprite in pixelSprites)
                 {
@@ -32,6 +33,7 @@ namespace binc.PixelAnimator{
             {
                 frame.methodStorage?.OnEnable();
             }
+#endif
 
         }
 
@@ -57,17 +59,15 @@ namespace binc.PixelAnimator{
             }
             return sprites;
         }
+        
+        
+        // public void AddPixelSprite(Sprite sprite){
+        //     pixelSprites.Add(new PixelSprite(sprite, GUID.Generate().ToString()));
+        // }
 
-        public void AddPixelSprite(Sprite sprite){
-            pixelSprites.Add(new PixelSprite(sprite, GUID.Generate().ToString()));
-        }
-
-        public List<string> GetBoxGroupsName(PixelAnimationPreferences preferences){
-            var names = new List<string>();
-            foreach (var boxGroup in boxGroups) {
-                names.Add(preferences.GetBoxData(boxGroup.BoxDataGuid).boxName);
-            }
-            return names;
+        public List<string> GetBoxGroupsName(PixelAnimationPreferences preferences)
+        {
+            return boxGroups.Select(boxGroup => preferences.GetBoxData(boxGroup.BoxDataGuid).boxName).ToList();
         }
     }
 }

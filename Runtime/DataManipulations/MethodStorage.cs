@@ -15,6 +15,8 @@ public class MethodStorage : BaseMethodStorage
 {
     [SerializeField] public UnityEvent methods;
     [SerializeField] public List<MethodData> methodData;
+    
+    #if UNITY_EDITOR
     public void OnEnable()
     { 
         methods = new UnityEvent();
@@ -23,6 +25,7 @@ public class MethodStorage : BaseMethodStorage
             methods.AddListener(method.Invoke);
         }
     }
+    #endif
 }
 
 [Serializable]
@@ -30,6 +33,8 @@ public class MethodStorage<T> : BaseMethodStorage
 {
     [SerializeField] public UnityEvent<T> methods;
     [SerializeField] public List<MethodData<T>> methodData;
+    
+    #if UNITY_EDITOR
     public void OnEnable()
     { 
         methods = new UnityEvent<T>();
@@ -38,4 +43,5 @@ public class MethodStorage<T> : BaseMethodStorage
             methods.AddListener(method.Invoke);
         }
     }
+    #endif
 }

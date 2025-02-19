@@ -4,12 +4,11 @@ using UnityEditorInternal;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using binc.PixelAnimator.Editor.Windows;
 
 namespace binc.PixelAnimator.Editor
 {
     [CustomPropertyDrawer(typeof(BaseMethodStorage), true)]
-    public class MethodStorageDrawer : PropertyDrawer
+    public class BaseMethodStorageDrawer : PropertyDrawer
     {
         private const float Spacing = 0f;
         private const float PartingLineHeight = 0.1f;
@@ -28,13 +27,13 @@ namespace binc.PixelAnimator.Editor
                 if (methods == null) return;
                 var list = GetReorderableList(property, methods);
                 var foldoutRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
-                property.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(foldoutRect, property.isExpanded,GetFoldoutLabel(property) );
+                // property.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(foldoutRect, property.isExpanded,GetFoldoutLabel(property) );
                 position.y += EditorGUIUtility.singleLineHeight;
-                if (property.isExpanded)
+                if (true)
                 {
                     list.DoList(position);
                 }
-                EditorGUI.EndFoldoutHeaderGroup();
+                // EditorGUI.EndFoldoutHeaderGroup();
                 
                 property.serializedObject.ApplyModifiedProperties();
             }
@@ -151,7 +150,8 @@ namespace binc.PixelAnimator.Editor
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             var methods = property.FindPropertyRelative("methodData");
-            if (methods == null || !property.isExpanded) return EditorGUIUtility.singleLineHeight;
+            //|| !property.isExpanded
+            if (methods == null ) return EditorGUIUtility.singleLineHeight;
 
             var list = GetReorderableList(property, methods);
             return list.GetHeight();

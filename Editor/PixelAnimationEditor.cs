@@ -11,7 +11,6 @@ namespace binc.PixelAnimator.Editor{
     {
         private PixelAnimation pixelAnimation;
         private ReorderableList pixelSpriteList;
-        private bool pixelSpriteFoldout;
         private Rect lastRect;
         private SerializedProperty groupProps;
 
@@ -25,7 +24,6 @@ namespace binc.PixelAnimator.Editor{
             pixelSpriteList = new ReorderableList(serializedObject, serializedObject.FindProperty("pixelSprites"),
                 true, false, true, true){
                 drawElementCallback = DrawPixelSprite,
-                elementHeight = 170
             };
             
             groupProps = serializedObject.FindProperty("boxGroups");
@@ -44,6 +42,7 @@ namespace binc.PixelAnimator.Editor{
                     reorderableList.index -= 1;
             };
             
+            
             pixelSpriteList.onReorderCallbackWithDetails = (_, index, newIndex) => {
                 for (var i = 0; i < groupProps.arraySize; i ++) {
                     var layersProps = groupProps.GetArrayElementAtIndex(i).FindPropertyRelative("boxes");
@@ -54,12 +53,13 @@ namespace binc.PixelAnimator.Editor{
                 }
             };
             
-            pixelSpriteList.elementHeightCallback = index => {
-                var height = EditorGUIUtility.standardVerticalSpacing*2;
-                var methodStorageProp = pixelSpriteList.serializedProperty.GetArrayElementAtIndex(index).FindPropertyRelative("methodStorage");
-                if (methodStorageProp != null)
+            pixelSpriteList.elementHeightCallback = index =>
+            {
+                var height = EditorGUIUtility.standardVerticalSpacing*4+EditorGUIUtility.singleLineHeight*2;
+                var serializedMethodStorage = pixelSpriteList.serializedProperty.GetArrayElementAtIndex(index).FindPropertyRelative("methodStorage");
+                if (serializedMethodStorage != null)
                 {
-                    height += EditorGUI.GetPropertyHeight(methodStorageProp);
+                    height += EditorGUI.GetPropertyHeight(serializedMethodStorage);
                 }
                 return height;
             };
@@ -73,7 +73,7 @@ namespace binc.PixelAnimator.Editor{
             var spriteIdRect = new Rect(rect.x+48+EditorGUIUtility.standardVerticalSpacing, rect.y+5, spriteIdWidth, EditorGUIUtility.singleLineHeight);
             var spriteRect = new Rect(spriteIdRect.x, spriteIdRect.yMax+EditorGUIUtility.standardVerticalSpacing, spriteWidth, EditorGUIUtility.singleLineHeight);
             var spritePreviewRect = new Rect(rect.x, rect.y, 48, 48);
-            var methodStorageRect =new Rect(spriteIdRect.x,spritePreviewRect.yMax+EditorGUIUtility.standardVerticalSpacing*2, spriteWidth, EditorGUIUtility.singleLineHeight);
+            var methodStorageRect = new Rect(spriteIdRect.x,spriteIdRect.yMax+EditorGUIUtility.standardVerticalSpacing*2, spriteWidth, EditorGUIUtility.singleLineHeight);
             EditorGUI.BeginProperty(rect,GUIContent.none, element);
             EditorGUI.PropertyField(
                 spriteRect,
@@ -106,12 +106,12 @@ namespace binc.PixelAnimator.Editor{
         public override void OnInspectorGUI(){
             serializedObject.Update();
             DrawPropertiesExcluding(serializedObject,  "m_Script", "pixelSprites");
-            
+            var serializedList = pixelSpriteList.serializedProperty;
             GUILayout.Space(10);
             
-            pixelSpriteFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(pixelSpriteFoldout, "Pixel Sprites");
+            serializedList.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(serializedList.isExpanded, "Pixel Sprites");
             lastRect = GUILayoutUtility.GetLastRect();
-            if(pixelSpriteFoldout) pixelSpriteList.DoLayoutList();
+            if(serializedList.isExpanded) pixelSpriteList.DoLayoutList();
             EditorGUILayout.EndFoldoutHeaderGroup();
             
             PixelAnimatorUtility.DropAreaGUI(lastRect, pixelSpriteList, obj =>
@@ -130,7 +130,7 @@ namespace binc.PixelAnimator.Editor{
                         Debug.LogWarning("No sprites found in texture. Make sure the texture is set up as a sprite sheet.");
                 }
     
-                pixelSpriteList.serializedProperty
+                serializedList
                     .GetArrayElementAtIndex(pixelSpriteList.serializedProperty.arraySize-1)
                     .FindPropertyRelative("sprite").objectReferenceValue = sprite;
             });

@@ -6,8 +6,6 @@ using UnityEngine;
 using System.Reflection;
 using Object = UnityEngine.Object;
 using binc.PixelAnimator.DataManipulations;
-using binc.PixelAnimator.Editor.Windows;
-using PlasticPipe.PlasticProtocol.Messages;
 
 namespace binc.PixelAnimator.Editor
 {

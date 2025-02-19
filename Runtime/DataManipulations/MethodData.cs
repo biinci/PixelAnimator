@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -44,23 +46,29 @@ namespace binc.PixelAnimator.DataManipulations
                 parameters = new List<BaseData>();
             }
         }
-
+        
         public void OnAfterDeserialize()
         {
         }
+#if UNITY_EDITOR
 
         protected Object GetTargetObject()
         {
+            Debug.Log("Global Id: " + GlobalId);
             return GlobalObjectId.TryParse(GlobalId, out var id)
                 ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id)
                 : null;
+
         }
-        
+#endif
+
     }
 
     [Serializable]
     public class MethodData : BaseMethodData
     {
+#if UNITY_EDITOR        
+
         public Action CompileFunction()
         {
             var methodInfo = method.methodInfo;
@@ -89,13 +97,18 @@ namespace binc.PixelAnimator.DataManipulations
             var compiledDelegate = lambda.Compile();
             return () => compiledDelegate(editorParameters);
         }
+#endif        
+
     }
 
     [Serializable]
     public class MethodData<T> : BaseMethodData
     {
+#if UNITY_EDITOR 
+
         public Action<T> CompileFunction()
         {
+
             var methodInfo = method.methodInfo;
             var reference = GetTargetObject();
             if(!reference) return _ => { Debug.LogError("Reference not found"); };
@@ -122,7 +135,8 @@ namespace binc.PixelAnimator.DataManipulations
             var compiledDelegate = lambda.Compile();
             return obj => compiledDelegate(CombineParameters(obj, editorParameters));
         }
-        
+#endif
+
         private object[] CombineParameters(T firstParam, object[] additional)
         {
             var combined = new object[additional.Length + 1];

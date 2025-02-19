@@ -1,6 +1,8 @@
 using binc.PixelAnimator;
 using binc.PixelAnimator.DataManipulations;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -25,7 +27,7 @@ public class Test : MonoBehaviour
     private void Start()
     {
         DontDestroyOnLoad(this);
-        id = GlobalObjectId.GetGlobalObjectIdSlow(gameObject).ToString();
+        // id = GlobalObjectId.GetGlobalObjectIdSlow(gameObject).ToString();
         animator.Play(run);
         var id2 = run.PixelSprites[0].methodStorage.methodData[0].GlobalId;
         Debug.Log(id == id2);
@@ -38,8 +40,8 @@ public class Test : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            var id2 = GlobalObjectId.GetGlobalObjectIdSlow(gameObject).ToString();
-            Debug.Log(id == id2);
+            // var id2 = GlobalObjectId.GetGlobalObjectIdSlow(gameObject).ToString();
+            // Debug.Log(id == id2);
             SceneManager.LoadScene(1);
             Debug.Log(obj);
 
@@ -76,7 +78,7 @@ public class Test : MonoBehaviour
 
     }
 }
-
+#if UNITY_EDITOR
 [CustomEditor(typeof(Test))]
 public class TestEditor : Editor
 {
@@ -101,3 +103,4 @@ public class TestEditor : Editor
         }
     }
 }
+#endif

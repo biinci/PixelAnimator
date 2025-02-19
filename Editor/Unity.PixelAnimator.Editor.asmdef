@@ -1,14 +1,16 @@
 {
-    "name": "com.binc.pixel-animator.Editor",
-    "rootNamespace": "",
+    "name": "Unity.PixelAnimator.Editor",
+    "rootNamespace": "binc.PixelAnimator.Editor",
     "references": [
-        "GUID:a29a0dd676108dc4590d2e825a191ab9",
-        "GUID:d528c8c98d269ca44a06cd9624a03945",
-        "GUID:b93f844d45cfcc44fa2b0eed5c9ec6bb",
+        "Unity.PixelAnimator",
+        "Unity.Rider.Editor",
+        "Unity.VisualStudio.Editor",
         "GUID:ffbcea5d3fff9564693849c5b4b92f43",
         "GUID:d525ad6bd40672747bde77962f1c401e"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

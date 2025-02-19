@@ -9,8 +9,9 @@ namespace binc.PixelAnimator{
     [RequireComponent(typeof(SpriteRenderer))]
     public class PixelAnimator : MonoBehaviour{
         private PixelAnimationPreferences preferences;
-        [SerializeField]private SpriteRenderer spriteRenderer;
-        private PixelAnimation CurrentAnim { get; set; }
+        [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] private PixelAnimationController animationController;
+        public PixelAnimation PlayingAnimation { get; private set; }
         private PixelAnimation nextAnim;
         private int frameIndex;
         private float elapsedTime;
@@ -40,38 +41,38 @@ namespace binc.PixelAnimator{
         private void NextFrame(){
             if (!isPlaying) return;
             elapsedTime += Time.deltaTime;
-            var secondsPerFrame = 1 / (float)CurrentAnim.fps;
-            var sprites = CurrentAnim.GetSpriteList();
+            var secondsPerFrame = 1 / (float)PlayingAnimation.fps;
+            var spriteCount = PlayingAnimation.PixelSprites.Count;
+            
             while (elapsedTime >= secondsPerFrame){
                 
-                frameIndex = (frameIndex + 1) % sprites.Count;
-                spriteRenderer.sprite = sprites[frameIndex];
-                UpdateFrame();
-
+                frameIndex = (frameIndex + 1) % spriteCount;
+                ApplyFrame();
                 elapsedTime -= secondsPerFrame;
-                if (frameIndex != sprites.Count - 1 || CurrentAnim.loop)
+                if (frameIndex != spriteCount - 1 || PlayingAnimation.loop)
                     continue;
                 isPlaying = false;
                 break;
             }
         }
-        // This function is called when the current frame time has completely elapsed.
-        private void UpdateFrame(){
-            SetBoxSize();
+
+        
+        private void ApplyFrame()
+        {
+            spriteRenderer.sprite = PlayingAnimation.PixelSprites[frameIndex].sprite;
             CallEvent();
+            SetBoxSize();
         }
 
         private void CallEvent()
         {
-            var unityEvent = CurrentAnim.PixelSprites[frameIndex].methodStorage.methods;
+            var unityEvent = PlayingAnimation.PixelSprites[frameIndex].methodStorage.methods;
             unityEvent?.Invoke();
         }
         
-
-        
         private void SetBoxSize(){
             try{
-                var groups = CurrentAnim.BoxGroups;
+                var groups = PlayingAnimation.BoxGroups;
                 for (var g = 0; g < groups.Count; g++){
                     var group = groups[g];
                     var groupObj = titleObject.transform.GetChild(g);
@@ -93,7 +94,7 @@ namespace binc.PixelAnimator{
         }
         private Rect GetAdjustedRect(Box box, int index){
             var f = index == -1 ? 0 : index;
-            return PixelAnimatorUtility.MapBoxRectToTransform(box.frames[f].boxRect, CurrentAnim.GetSpriteList()[f]);
+            return PixelAnimatorUtility.MapBoxRectToTransform(box.frames[f].boxRect, PlayingAnimation.GetSpriteList()[f]);
         }
 
         private GameObject CreateColliderObject(BoxData boxData){
@@ -108,18 +109,18 @@ namespace binc.PixelAnimator{
             return gameObj;
         }
         
-        public void Play(PixelAnimation animation){//TODO: need to fix
+        public void Play(PixelAnimation nextAnimation){//TODO: need to fix
             frameIndex = 0;
             elapsedTime = 0;
-            //elapsedTime += (float)1/animation.fps; 
             isPlaying = true;
-            CurrentAnim = animation;
+            PlayingAnimation = nextAnimation;
             RefreshColliderObjects();
-            SetBoxes(CurrentAnim.BoxGroups);
+            SetBoxes(PlayingAnimation.BoxGroups);
+            ApplyFrame();
         }
         
         private void RefreshColliderObjects(){
-            var names = CurrentAnim.GetBoxGroupsName(preferences);
+            var names = PlayingAnimation.GetBoxGroupsName(preferences);
             for (var g = 0; g < colliderObjects.Count; g++){
                 if (names.Contains(colliderObjects.ElementAt(g).Key)) continue;
 

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Animator Preferences
   m_EditorClassIdentifier: 
   windows:
-  - rid: 4272411501442629694
-  - rid: 4272411501442629696
-  - rid: 4272411501442629695
+  - rid: 8428581573893029987
+  - rid: 8428581573893029986
+  - rid: 8428581573893029985
   windowScripts:
   - {fileID: 11500000, guid: 9f915ddaac9934a3b9ba2bc25ee6054a, type: 3}
   - {fileID: 11500000, guid: a57b1bc73750cc24a8cd720e3f8aea15, type: 3}
@@ -23,26 +23,17 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 4272411501442629694
-      type: {class: TimelineWindow, ns: binc.PixelAnimator.Editor.Windows, asm: com.binc.pixel-animator.Editor}
-      data:
-        windowRect:
-          serializedVersion: 2
-          x: 0
-          y: 284.8
-          width: 594.8
-          height: 166.20001
-    - rid: 4272411501442629695
-      type: {class: CanvasWindow, ns: binc.PixelAnimator.Editor.Windows, asm: com.binc.pixel-animator.Editor}
+    - rid: 8428581573893029985
+      type: {class: CanvasWindow, ns: binc.PixelAnimator.Editor.Windows, asm: Unity.PixelAnimator.Editor}
       data:
         windowRect:
           serializedVersion: 2
           x: 0
           y: 0
-          width: 594.8
-          height: 284.8
-    - rid: 4272411501442629696
-      type: {class: PropertyWindow, ns: binc.PixelAnimator.Editor.Windows, asm: com.binc.pixel-animator.Editor}
+          width: 640.4
+          height: 272.8
+    - rid: 8428581573893029986
+      type: {class: PropertyWindow, ns: binc.PixelAnimator.Editor.Windows, asm: Unity.PixelAnimator.Editor}
       data:
         windowRect:
           serializedVersion: 2
@@ -50,3 +41,12 @@ MonoBehaviour:
           y: 10
           width: 250
           height: 250
+    - rid: 8428581573893029987
+      type: {class: TimelineWindow, ns: binc.PixelAnimator.Editor.Windows, asm: Unity.PixelAnimator.Editor}
+      data:
+        windowRect:
+          serializedVersion: 2
+          x: 0
+          y: 272.8
+          width: 640.4
+          height: 173.40002
