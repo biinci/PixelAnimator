@@ -2,7 +2,7 @@
 <p align="center">
   <a href="https://github.com/biinci/PixelAnimator">
     <picture>
-      <img width="180" alt="Pixel Animator logo" src="https://raw.githubusercontent.com/biinci/PixelAnimator/refs/heads/main/Github%20Resources/PixelAnimatorIcon.png?token=GHSAT0AAAAAAC43ML2A2FNOI4BPSDB7KF54Z5XM37A">
+      <img width="180" alt="Pixel Animator logo" src="https://raw.githubusercontent.com/biinci/PixelAnimator/refs/heads/main/Github%20Resources/PixelAnimatorIcon.png?token=GHSAT0AAAAAAC7JURKOE52FWTIPPXBLKI3WZ5XQVDA">
     </picture>
   </a>
 </p>
