@@ -1,15 +1,31 @@
+<br/>
+<p align="center">
+  <a href="https://github.com/biinci/PixelAnimator">
+    <picture>
+      <img width="180" alt="Pixel Animator logo" src="https://raw.githubusercontent.com/biinci/PixelAnimator/refs/heads/main/Github%20Resources/PixelAnimatorIcon.png?token=GHSAT0AAAAAAC43ML2A2FNOI4BPSDB7KF54Z5XM37A">
+    </picture>
+  </a>
+</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/Unity-2023.2.7f1%2B-blue?logo=unity" alt="Unity">
+</p>
+<br/>
+
+
+
+
 
 Pixel Animator
 ------------------
 
 ## Bu animatörü yaparken [AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
-### *Bu araç kesinlikle bir RetroBox değil. Bazı kendine özgün özellikleri barındıran başka bir araçtır.*
+### *Bu araç kesinlikle bir RetroBox değil fakat benzer bir UI tasarımına        sahiptir*
 
 
 
 Öncellikle şunu belirtmeliyim ki bu animatör en verimli 2D Pixel Art animasyonlar için kullanılabilir. Zira başka bir tarzda hiç test etmedim.
 
-Pixel Animator, **kare kare** animasyonu ile **BoxCollider2D**'ları ve event'leri senkronize etmek için Unity dahilinde geliştirdiğim bir araçtır.  
+Pixel Animator, **kare kare** animasyonu ile **BoxCollider2D**'ları ve event'leri senkronize etmek için Unity dahilinde geliştirdiğim bir araçtır.
 
 
 
@@ -40,11 +56,11 @@ Sonra kullanacağınız sprite'ları *Pixel Sprites* başlığına sürüklemeli
 Ardından Animation nesnenizi özelleştirmek için *Window>PixelAnimator* yolundan pencereyi açın.  
 Pencereden nesnenizi temel özelleştirme seçenekleri:
 * Hitbox ekleme
-* Sprite veya Hitbox'a özel fonksiyon ekleme  
+* Sprite veya Hitbox'a özel fonksiyon ekleme
 
 Hitbox'lara fonksiyon eklemek için 3 seçeneğiniz var. Bunlar; OnEnter, OnStay ve OnExit.
 
-Animatörü kullanmak için, kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz. 
+Animatörü kullanmak için, kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz.
 SpriteRenderer bileşenini animatöre referans olarak vermeyi unutmayın  
 Ardından animatörün ve oluşturduğunuz animasyon objenizin referansını alarak Play fonksiyonu ile
 ```
@@ -55,7 +71,7 @@ animasyonunuzu çalıştırabilirsiniz.
 [//]: # (![]&#40;https://github.com/biinci/PixelAnimator/blob/main/GIFs/Add_Animator_Component.gif&#41;)
 
 
-Umarım pixel art animasyonlarınızda yardımcı olur. 
+Umarım pixel art animasyonlarınızda yardımcı olur.
 
 
 *Hangi animatör sizin için daha rahatsa onu kullanmanız çok daha iyi.*
