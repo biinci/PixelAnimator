@@ -20,7 +20,7 @@ Pixel Animator
 ------------------
 
 ## Bu animatörü yaparken [AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
-<span style="color:gray">### *Bu araç kesinlikle bir RetroBox değil fakat benzer bir UI tasarımına sahiptir*</span>
+<span style="color:gray"> ### *Bu araç kesinlikle bir RetroBox değil fakat benzer bir UI tasarımına sahiptir*</span>
 
 
 
