@@ -20,7 +20,9 @@ Pixel Animator
 ------------------
 
 ## Bu animatörü yaparken [AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
-<span style="color:gray"> ### *Bu araç kesinlikle bir RetroBox değil fakat benzer bir UI tasarımına sahiptir*</span>
+<style> .soluk { color: gray; } </style>  
+<h3 class="soluk"><em>Bu araç kesinlikle bir RetroBox değil fakat benzer bir UI tasarımına sahiptir</em></h3>
+
 
 
 
