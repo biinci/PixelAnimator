@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using binc.PixelAnimator.DataManipulations;
 
 namespace binc.PixelAnimator.AnimationData{
     
@@ -15,16 +16,16 @@ namespace binc.PixelAnimator.AnimationData{
         
         public Rect boxRect;
         public MethodStorage methodStorage;
-
         
         
-        public MethodStorage<Collider> triggerEnterMethodStorage;
-        public MethodStorage<Collider> triggerStayMethodStorage;
-        public MethodStorage<Collider> triggerExitMethodStorage;
+        
+        public MethodStorage<Collider2D> triggerEnterMethodStorage;
+        public MethodStorage<Collider2D> triggerStayMethodStorage;
+        public MethodStorage<Collider2D> triggerExitMethodStorage;
 
-        public MethodStorage<Collision> collisionEnterMethodStorage;
-        public MethodStorage<Collision> collisionStayMethodStorage;
-        public MethodStorage<Collision> collisionExitMethodStorage;
+        public MethodStorage<Collision2D> collisionEnterMethodStorage;
+        public MethodStorage<Collision2D> collisionStayMethodStorage;
+        public MethodStorage<Collision2D> collisionExitMethodStorage;
         
         public BoxFrame(string guid){
             this.guid = guid;

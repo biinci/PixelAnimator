@@ -14,17 +14,17 @@ namespace binc.PixelAnimator{
         [SerializeField, ReadOnly] private string boxDataGuid;
         
         [FormerlySerializedAs("colliderTypes")] public CollisionTypes collisionTypes = CollisionTypes.Trigger;
-        public List<Box> boxes;
+        public List<BoxLayer> boxes;
 #if UNITY_EDITOR
         public bool isVisible = true, isExpanded = true;
 #endif
         public BoxGroup(string boxDataGuid){
-            boxes = new List<Box>();
+            boxes = new List<BoxLayer>();
             this.boxDataGuid = boxDataGuid;
         }
         
         public void AddBox(List<PixelSprite> pixelSprites){
-            boxes.Add(new Box());
+            boxes.Add(new BoxLayer());
             var index = boxes.Count -1;
             foreach (var pixelSprite in pixelSprites) {
                 boxes[index].frames.Add(new BoxFrame(pixelSprite.spriteId){boxRect = new Rect(0,0,16,16)});
@@ -32,10 +32,10 @@ namespace binc.PixelAnimator{
         }
     }
     [Serializable]
-    public class Box{
+    public class BoxLayer{
         public List<BoxFrame> frames;
         
-        public Box(){
+        public BoxLayer(){
             frames = new List<BoxFrame>();
         }
 

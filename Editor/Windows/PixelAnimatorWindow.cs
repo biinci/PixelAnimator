@@ -127,9 +127,20 @@ namespace binc.PixelAnimator.Editor.Windows{
             // if (Event.current.type == EventType.MouseMove) Repaint();
             if(Event.current.button == 0 && Event.current.type == EventType.MouseDown){
                 GUI.FocusControl(null);
+                Event.current.Use();
             }
         }
 
+        private void UpdateSelectedIndex()
+        {
+            if (SelectedAnimation == null) return;
+            if (!IsValidFrame())
+            {
+                IndexOfSelectedSprite = 0;
+                IndexOfSelectedBoxGroup = 0;
+                IndexOfSelectedBox = 0;
+            }
+        }
         private void DrawBackground()
         {
             var rect = new Rect(Vector2.zero, position.size);
@@ -204,7 +215,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             throw new InvalidOperationException("No valid box group selected.");
         }
 
-        public Box GetActiveBox()
+        public BoxLayer GetActiveBox()
         {
             if (IsValidBox())
             {

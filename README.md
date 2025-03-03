@@ -1,9 +1,26 @@
+<br/>
+<p align="center">
+  <a href="https://github.com/biinci/PixelAnimator">
+    <picture>
+      <img width="180" alt="Pixel Animator logo" src="https://raw.githubusercontent.com/biinci/PixelAnimator/refs/heads/main/Github%20Resources/PixelAnimatorIcon.png?token=GHSAT0AAAAAAC43ML2A2FNOI4BPSDB7KF54Z5XM37A">
+    </picture>
+  </a>
+</p>
+<p align="center">
+  <a href="https://www.npmjs.com/package/@motion-canvas/core"><img src="https://img.shields.io/npm/v/@motion-canvas/core?style=flat" alt="npm package version"></a>
+  <a href="https://chat.motioncanvas.io"><img src="https://img.shields.io/discord/1071029581009657896?style=flat&logo=discord&logoColor=fff&color=404eed" alt="discord"></a>
+</p>
+<br/>
+
+![Unity](https://img.shields.io/badge/Unity-2023.2.7f1%2B-blue?logo=unity)
+
+
 
 Pixel Animator
 ------------------
 
 ## Bu animatörü yaparken [AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
-### *Bu araç kesinlikle bir RetroBox değil. Bazı kendine özgün özellikleri barındıran başka bir araçtır.*
+### *Bu araç kesinlikle bir RetroBox değil fakat benzer bir UI tasarımına        sahiptir*
 
 
 

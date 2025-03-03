@@ -52,6 +52,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         {
             if (!windowRect.IsClickedRect(0)) return;
             Event.current.Use();
+            GUI.FocusControl(null);
             GUI.FocusWindow(Id);
         }
 
@@ -109,7 +110,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                  animatorWindow.SelectBox(layerIndex);
             } 
         }
-        private void BoxButton(ValueTuple<BoxGroup, Box> data){
+        private void BoxButton(ValueTuple<BoxGroup, BoxLayer> data){
             boxMenu = new GenericMenu();
             
             boxMenu.AddItem(new GUIContent("Delete Box"), false, ()=>{data.Item1.boxes.Remove(data.Item2);});

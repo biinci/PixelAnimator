@@ -43,7 +43,9 @@ namespace binc.PixelAnimator.Editor.Windows
             if (viewOffset.y < -spritePreview.height * spriteScale * 0.5f) viewOffset.y = -spritePreview.height * spriteScale * 0.5f;
 
         }
-        private void RenderWindowContent(){
+        private void RenderWindowContent()
+        {
+            // if (!PixelAnimatorWindow.AnimatorWindow.IsValidFrame()) return;
             DrawGrid();
             DrawSprite();
             DrawBoxes();

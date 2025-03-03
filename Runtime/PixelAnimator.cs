@@ -24,8 +24,24 @@ namespace binc.PixelAnimator{
         private void Awake(){
             preferences = Resources.Load<PixelAnimationPreferences>("Animation Preferences");
             CreateTitle();
+            CompileFunctions();
         }
 
+        private void CompileFunctions()
+        {
+            foreach (var pixelAnimation in animationController.Animations)
+            {
+                foreach (var methodStorage in pixelAnimation.PixelSprites.Select(pixelSprite => pixelSprite.methodStorage))
+                {
+                    methodStorage.CompileAllFunctions(gameObject);
+                }
+
+                // foreach (var methodStorage in from boxGroup in pixelAnimation.BoxGroups from box in boxGroup.boxes from frame in box.frames from )
+                // {
+                //     methodStorage.
+                // }
+            }
+        }
         private void CreateTitle(){
             titleObject = new GameObject("---PixelAnimator Colliders---"){ transform ={
                     parent = transform,
@@ -92,7 +108,7 @@ namespace binc.PixelAnimator{
                 Debug.LogError(e);
             }
         }
-        private Rect GetAdjustedRect(Box box, int index){
+        private Rect GetAdjustedRect(BoxLayer box, int index){
             var f = index == -1 ? 0 : index;
             return PixelAnimatorUtility.MapBoxRectToTransform(box.frames[f].boxRect, PlayingAnimation.GetSpriteList()[f]);
         }
@@ -161,7 +177,7 @@ namespace binc.PixelAnimator{
             return colliderObj;
         }
         
-        private void SetCollider(GameObject colliderObj, Box box, BoxGroup boxGroup){
+        private void SetCollider(GameObject colliderObj, BoxLayer box, BoxGroup boxGroup){
             var col = colliderObj.AddComponent<BoxCollider2D>();
             col.enabled = false;
             var rect = GetAdjustedRect(box, frameIndex);

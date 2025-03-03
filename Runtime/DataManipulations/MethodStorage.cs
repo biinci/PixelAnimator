@@ -1,47 +1,46 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using binc.PixelAnimator.DataManipulations;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class BaseMethodStorage
+namespace binc.PixelAnimator.DataManipulations
 {
-    
-}
+    public abstract class BaseMethodStorage
+    {
 
-[Serializable]
-public class MethodStorage : BaseMethodStorage
-{
-    [SerializeField] public UnityEvent methods;
-    [SerializeField] public List<MethodData> methodData;
-    
-    #if UNITY_EDITOR
-    public void OnEnable()
-    { 
-        methods = new UnityEvent();
-        foreach (var method in methodData.Select(m => m.CompileFunction()))
+    }
+
+    [Serializable]
+    public class MethodStorage : BaseMethodStorage
+    {
+        [SerializeField] public UnityEvent methods;
+        [SerializeField] public List<MethodData> methodData;
+
+        public void CompileAllFunctions(GameObject gameObject)
         {
-            methods.AddListener(method.Invoke);
+            methods = new UnityEvent();
+            foreach (var data in methodData)
+            {
+
+                methods.AddListener(data.CompileFunction(gameObject).Invoke );
+            }
         }
     }
-    #endif
-}
 
-[Serializable]
-public class MethodStorage<T> : BaseMethodStorage
-{
-    [SerializeField] public UnityEvent<T> methods;
-    [SerializeField] public List<MethodData<T>> methodData;
-    
-    #if UNITY_EDITOR
-    public void OnEnable()
-    { 
-        methods = new UnityEvent<T>();
-        foreach (var method in methodData.Select(m => m.CompileFunction()))
+    [Serializable]
+    public class MethodStorage<T> : BaseMethodStorage
+    {
+        [SerializeField] public UnityEvent<T> methods;
+        [SerializeField] public List<MethodData<T>> methodData;
+        
+        public void CompileAllFunctions(GameObject gameObject)
         {
-            methods.AddListener(method.Invoke);
+            methods = new UnityEvent<T>();
+            foreach (var data in methodData)
+            {
+                methods.AddListener(data.CompileFunction(gameObject).Invoke);
+            }
         }
+        
     }
-    #endif
 }
