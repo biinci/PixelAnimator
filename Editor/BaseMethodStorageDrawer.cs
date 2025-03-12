@@ -4,6 +4,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using binc.PixelAnimator.DataManipulations;
 
 namespace binc.PixelAnimator.Editor
 {
@@ -20,8 +21,8 @@ namespace binc.PixelAnimator.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
-            try
-            {
+            // try
+            // {
                 property.serializedObject.UpdateIfRequiredOrScript();
                 var methods = property.FindPropertyRelative("methodData");
                 if (methods == null) return;
@@ -36,16 +37,17 @@ namespace binc.PixelAnimator.Editor
                 // EditorGUI.EndFoldoutHeaderGroup();
                 
                 property.serializedObject.ApplyModifiedProperties();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Error in MethodStorageDrawer.OnGUI: {e.Message}");
-                EditorGUI.LabelField(position, "Error drawing property. Check console for details.");
-            }
-            finally
-            {
-                EditorGUI.EndProperty();
-            }
+            // }
+            // catch (Exception e)
+            // {
+            //     Debug.LogError($"Error in MethodStorageDrawer.OnGUI: {e.Message}");
+            //     EditorGUI.LabelField(position, "Error drawing property. Check console for details.");
+            // }
+            // finally
+            // {
+            //     EditorGUI.EndProperty();
+            // }
+            EditorGUI.EndProperty();
 
         }
         

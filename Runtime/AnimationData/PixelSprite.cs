@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-
+using binc.PixelAnimator.DataManipulations;
 namespace binc.PixelAnimator.AnimationData
 {
     [Serializable]

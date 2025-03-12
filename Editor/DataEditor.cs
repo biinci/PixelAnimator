@@ -8,31 +8,42 @@ namespace binc.PixelAnimator.Editor
     public class BaseDataDrawer : PropertyDrawer
     {
         private const string NoDataText = "<color=#FFC107><u>Data not shown</u></color>";
-        private const string NoDataTip = "This data probably is not serializable";
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label){
-        
-            position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Keyboard), GUIContent.none);
+        private const string NoDataTip = "This data probably is not serializable.";
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            
             var mData = property.FindPropertyRelative("data");
             var referenceValue = property.managedReferenceValue;
             if (referenceValue == null) return;
-        
-        
-            var dataRect = new Rect(position.x, position.y, position.width, position.height );
+
+            // EditorGUI.DrawRect(prefixRect, Color.red);
+            // var dataRect = prefixRect;
             if (mData != null)
             {
-                EditorGUI.PropertyField(dataRect, mData, label, true);
+                EditorGUI.PropertyField(position, mData, label, true);
                 property.serializedObject.ApplyModifiedProperties();
             }
             else
             {
-                var tempAlignment = GUI.skin.box.alignment;
-                var tempRichText = GUI.skin.box.richText;
-                GUI.skin.box.alignment = TextAnchor.MiddleCenter;
-                GUI.skin.box.richText = true;
-                var content = new GUIContent(NoDataText, NoDataTip);
-                EditorGUI.LabelField(dataRect, content, GUI.skin.box);
-                GUI.skin.box.alignment = tempAlignment;
-                GUI.skin.box.richText = tempRichText;
+                var tempRichText = GUI.skin.label.richText;
+                GUI.skin.label.richText = true;
+                label.text = "<color=#FFC107><u>" + label.text + "</u></color>";
+                // Debug.Log(label.tooltip);
+                // Debug.Log(property.tooltip);
+                label.tooltip = NoDataTip + "\n" + label.tooltip;
+                var prefixRect = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Keyboard), label, GUI.skin.label);
+                GUI.skin.label.richText = tempRichText;
+                
+                // var content = new GUIContent(NoDataText, NoDataTip);
+                // label.tooltip = NoDataTip;
+                // EditorGUI.LabelField(dataRect, label);
+                EditorGUI.LabelField(prefixRect,"", GUI.skin.textField);
+                // var tempAlignment = GUI.skin.box.alignment;
+                // var tempRichText = GUI.skin.box.richText;
+                // GUI.skin.box.alignment = TextAnchor.MiddleCenter;
+                // EditorGUI.LabelField(dataRect, content, GUI.skin.box);
+                // GUI.skin.box.alignment = tempAlignment;
+                // GUI.skin.box.richText = tempRichText;
             }
 
         }

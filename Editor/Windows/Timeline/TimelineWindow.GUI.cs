@@ -193,7 +193,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             GUILayout.EndVertical();
             GUILayout.EndArea();
         }
-        private void DrawFrame(Box box, int index){
+        private void DrawFrame(BoxLayer box, int index){
             var boxFrame = box.frames[index];
             var texture = GetFrameTexture(boxFrame.Type);
             var clicked = GUILayout.Button(new GUIContent(texture), GUIStyle.none, GUILayout.Width(toolBarSize.x), GUILayout.Height(layerStyle.fixedHeight));
@@ -297,7 +297,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 
         }
 
-        private void DrawBoxes(int groupIndex, List<Box> boxes){
+        private void DrawBoxes(int groupIndex, List<BoxLayer> boxes){
             for(var i = 0; i < boxes.Count; i++){
                 DrawBoxLayer(i, $"Box {i+1}", groupIndex);
             }

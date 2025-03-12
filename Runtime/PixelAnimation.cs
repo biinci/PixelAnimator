@@ -3,7 +3,6 @@ using System.Linq;
 using UnityEngine;
 using binc.PixelAnimator.AnimationData;
 using binc.PixelAnimator.Preferences;
-using UnityEditor;
 
 namespace binc.PixelAnimator{
 
@@ -16,26 +15,7 @@ namespace binc.PixelAnimator{
         [SerializeField] private List<PixelSprite> pixelSprites;
         public List<BoxGroup> BoxGroups => boxGroups;
         [SerializeField] private List<BoxGroup> boxGroups;
-
-        private void OnEnable()
-        {
-#if UNITY_EDITOR
-            if (pixelSprites != null) //TODO: use another bool for build.
-            {
-                foreach (var pixelSprite in pixelSprites)
-                {
-                    pixelSprite.methodStorage?.OnEnable();
-                }
-            }
-
-            if (boxGroups == null) return;
-            foreach (var frame in boxGroups.Where(group => group.boxes != null).SelectMany(group => group.boxes.Where(box => box.frames != null).SelectMany(box => box.frames)))
-            {
-                frame.methodStorage?.OnEnable();
-            }
-#endif
-
-        }
+        
 
         public void AddGroup(string boxDataGuid){
             boxGroups.Add(new BoxGroup(boxDataGuid));

@@ -29,11 +29,6 @@ public class Test : MonoBehaviour
         DontDestroyOnLoad(this);
         // id = GlobalObjectId.GetGlobalObjectIdSlow(gameObject).ToString();
         animator.Play(run);
-        var id2 = run.PixelSprites[0].methodStorage.methodData[0].GlobalId;
-        Debug.Log(id == id2);
-        Debug.Log("burasi" + id);
-        Debug.Log(id2);
-        Debug.Log("obj: " + obj);
     }
     
     private void Update()

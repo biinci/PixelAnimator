@@ -14,31 +14,61 @@ namespace binc.PixelAnimator{
         [SerializeField, ReadOnly] private string boxDataGuid;
         
         [FormerlySerializedAs("colliderTypes")] public CollisionTypes collisionTypes = CollisionTypes.Trigger;
-        public List<Box> boxes;
+        public List<BoxLayer> boxes;
 #if UNITY_EDITOR
         public bool isVisible = true, isExpanded = true;
 #endif
         public BoxGroup(string boxDataGuid){
-            boxes = new List<Box>();
+            boxes = new List<BoxLayer>();
             this.boxDataGuid = boxDataGuid;
         }
         
         public void AddBox(List<PixelSprite> pixelSprites){
-            boxes.Add(new Box());
+            boxes.Add(new BoxLayer());
             var index = boxes.Count -1;
             foreach (var pixelSprite in pixelSprites) {
                 boxes[index].frames.Add(new BoxFrame(pixelSprite.spriteId){boxRect = new Rect(0,0,16,16)});
             }
         }
+
+        public void ChangeCollisionType(CollisionTypes collisionType){
+            collisionTypes = collisionType;
+            foreach (var box in boxes)
+            {
+                box.ChangeFrameMethodType(collisionTypes);
+            }
+        }
+
+        
+        
     }
     [Serializable]
-    public class Box{
+    public class BoxLayer{
         public List<BoxFrame> frames;
         
-        public Box(){
+        public BoxLayer(){
             frames = new List<BoxFrame>();
         }
 
+        public void ChangeFrameMethodType(CollisionTypes collisionTypes){
+            foreach (var frame in frames)
+            {
+                switch (collisionTypes)
+                {
+                    case CollisionTypes.Collider:
+                        frame.ChangeMethodType<Collision2D>();
+                        break;
+                    case CollisionTypes.Trigger:
+                        frame.ChangeMethodType<Collider2D>();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+        }
+
+        
         public void SetFrameType(int index){
             if(index < 0 || index >= frames.Count) return;
             var currentFrame = frames[index];
@@ -78,7 +108,8 @@ namespace binc.PixelAnimator{
                     throw new ArgumentOutOfRangeException();
             }
         }
-            
+        
+        
         
     }
 }

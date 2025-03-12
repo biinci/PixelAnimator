@@ -3,19 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace binc.PixelAnimator.DataManipulations
 {
     [Serializable]
     public abstract class BaseMethodData : ISerializationCallbackReceiver
     {
-        public string GlobalId => globalId;
-        [SerializeField, ReadOnly] private string globalId;
+        public SerializableType componentType;
         public SerializableMethodInfo method = new(null);
         [SerializeReference] public List<BaseData> parameters = new();
 
@@ -50,29 +45,17 @@ namespace binc.PixelAnimator.DataManipulations
         public void OnAfterDeserialize()
         {
         }
-#if UNITY_EDITOR
 
-        protected Object GetTargetObject()
-        {
-            Debug.Log("Global Id: " + GlobalId);
-            return GlobalObjectId.TryParse(GlobalId, out var id)
-                ? GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id)
-                : null;
-
-        }
-#endif
 
     }
 
     [Serializable]
     public class MethodData : BaseMethodData
     {
-#if UNITY_EDITOR        
-
-        public Action CompileFunction()
+        public Action CompileFunction(GameObject gameObject)
         {
             var methodInfo = method.methodInfo;
-            var reference = GetTargetObject();
+            var reference = gameObject.GetComponent(componentType.SystemType);
             if(!reference) return () => { Debug.LogError("Reference not found"); };
             
             var editorParameters = parameters.Select(p => p.InheritData).ToArray();
@@ -97,20 +80,18 @@ namespace binc.PixelAnimator.DataManipulations
             var compiledDelegate = lambda.Compile();
             return () => compiledDelegate(editorParameters);
         }
-#endif        
 
     }
 
     [Serializable]
     public class MethodData<T> : BaseMethodData
     {
-#if UNITY_EDITOR 
 
-        public Action<T> CompileFunction()
+        public Action<T> CompileFunction(GameObject gameObject)
         {
 
             var methodInfo = method.methodInfo;
-            var reference = GetTargetObject();
+            var reference = gameObject.GetComponent(componentType.SystemType);
             if(!reference) return _ => { Debug.LogError("Reference not found"); };
             
             var editorParameters = parameters.Skip(1).Select(p => p.InheritData).ToArray();
@@ -135,7 +116,6 @@ namespace binc.PixelAnimator.DataManipulations
             var compiledDelegate = lambda.Compile();
             return obj => compiledDelegate(CombineParameters(obj, editorParameters));
         }
-#endif
 
         private object[] CombineParameters(T firstParam, object[] additional)
         {

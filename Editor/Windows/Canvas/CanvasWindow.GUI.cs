@@ -12,13 +12,12 @@ namespace binc.PixelAnimator.Editor.Windows{
             var groups = SelectedAnim.BoxGroups;
             if (groups == null) return;
             var animationPreferences = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences;
-
             for (var i = 0; i < groups.Count; i++)
             {
                 var group = groups[i];
                 var boxData = animationPreferences.GetBoxData(group.BoxDataGuid);
                 if (!group.isVisible) continue;
-
+                
                 ProcessBoxes(i, group, boxData);
             }
         }

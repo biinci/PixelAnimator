@@ -43,7 +43,6 @@ namespace binc.PixelAnimator.Editor.Windows
 
             if (targetAnimation != null && animatorWindow.IsValidFrame())
             {
-                var collisionType = animatorWindow.GetActiveBoxGroup().collisionTypes;
                 var serializedFrame = targetAnimation
                     .FindProperty("boxGroups")
                     .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedBoxGroup)
@@ -51,27 +50,11 @@ namespace binc.PixelAnimator.Editor.Windows
                     .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedBox)
                     .FindPropertyRelative("frames")
                     .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedSprite);
-                var isCollisionTrigger = collisionType == CollisionTypes.Trigger;
 
 
-                SerializedProperty enterProperty;
-                SerializedProperty stayProperty;
-                SerializedProperty exitProperty;
-                
-
-                if (isCollisionTrigger)
-                {
-                    enterProperty = serializedFrame.FindPropertyRelative("triggerEnterMethodStorage");
-                    stayProperty = serializedFrame.FindPropertyRelative("triggerStayMethodStorage");
-                    exitProperty = serializedFrame.FindPropertyRelative("triggerExitMethodStorage");
-                }
-                else
-                {
-                    enterProperty = serializedFrame.FindPropertyRelative("collisionEnterMethodStorage");
-                    stayProperty = serializedFrame.FindPropertyRelative("collisionStayMethodStorage");
-                    exitProperty = serializedFrame.FindPropertyRelative("collisionExitMethodStorage");
-                }
-
+                var enterProperty = serializedFrame.FindPropertyRelative("enterMethodStorage");
+                var stayProperty = serializedFrame.FindPropertyRelative("stayMethodStorage");
+                var exitProperty = serializedFrame.FindPropertyRelative("exitMethodStorage");
                 var enterHeight = EditorGUI.GetPropertyHeight(enterProperty);
                 var stayHeight = EditorGUI.GetPropertyHeight(stayProperty);
                 var exitHeight = EditorGUI.GetPropertyHeight(exitProperty);
@@ -121,8 +104,8 @@ namespace binc.PixelAnimator.Editor.Windows
                     .FindProperty("pixelSprites")
                     .GetArrayElementAtIndex(spriteIndex)
                     .FindPropertyRelative("methodStorage");
-                var positionRect = new Rect(0,20, windowRect.width, windowRect.height);
-                var viewRect = new Rect(0, 20, windowRect.width-30, EditorGUI.GetPropertyHeight(property)+20);
+                var positionRect = new Rect(0,24, windowRect.width, windowRect.height);
+                var viewRect = new Rect(0, 24, windowRect.width-30, EditorGUI.GetPropertyHeight(property));
                 var listRect = new Rect(10,30, windowRect.width-30, windowRect.height - 30);
                     
                 scrollPos = GUI.BeginScrollView(positionRect,scrollPos,viewRect,false,false);

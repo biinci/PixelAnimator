@@ -8,9 +8,10 @@ namespace binc.PixelAnimator.Editor.Windows
         public override void ProcessWindow()
         {
             if (!timelineWindow.IsPlaying) DrawPropertyWindow();
-            if (windowRect.IsClickedRect(0,1,2))
+            if (windowRect.IsClickedRect(0))
             {
                 Event.current.Use();
+                GUI.FocusControl(null);
                 GUI.FocusWindow(Id);
             }
         }

@@ -68,7 +68,7 @@ namespace binc.PixelAnimator.Editor.Windows
         
         private ButtonData<Tuple<int, Sprite>> thumbnailButton;
         private ButtonData<BoxGroup> groupButton;
-        private ButtonData<ValueTuple<BoxGroup, Box>> layerButton;
+        private ButtonData<ValueTuple<BoxGroup, BoxLayer>> layerButton;
         private ButtonData<ValueTuple<int, int, int>> frameButton;
         private ButtonData mainMenuButton, playPauseButton, pingAnimationButton;
         private ButtonData<bool> previousNextSpriteButton;
