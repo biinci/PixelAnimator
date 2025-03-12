@@ -54,9 +54,9 @@ https://github.com/biinci/PixelAnimator.git
 
 ### **Nesneler**
 
-PixelAnimation (Scriptable Object)  
-PixelAnimationController (Scriptable Object)  
-PixelAnimator (MonoBehaviour)  
+* PixelAnimation (Scriptable Object)  
+* PixelAnimationController (Scriptable Object)  
+* PixelAnimator (MonoBehaviour)  
 
 Animator bu 3 temel nesne ile çalışır. PixelAnimation ile animasyonunuzu oluşturur ve PixelAnimator ile bu animasyonu oynatırsınız.
 PixelAnimationController ise performans arttırmak için kullanılır(ilerde başka amaçlar getirilebilir). Bu nesne ile animasyonlarınızı gruplayabilir ve bir animatorde hangi animasyonların kullanılcağını önceden belirlemiş olursunuz, bu da performans için önemlidir.
@@ -76,22 +76,18 @@ PixelAnimationController ise performans arttırmak için kullanılır(ilerde ba�
       *  Kutu tipinin ismi (hem editörde hem runtime'da)
       *  Kutu tipinin hangi [Layer](https://docs.unity3d.com/Manual/Layers.html)'da olacağı, BoxCollider2D'in gameobject'tini etkiler. (sadece runtime'da)
       *  Kutu tipinde eğer olacaksa hangi [PhysicsMaterial2D](https://docs.unity3d.com/Manual/class-PhysicsMaterial2D.html)'nin kullanılcağı, BoxCollider2D'lerin *Material* etkiler. (sadece runtime'da)
-    * Tekrar burger menu'den animasyonunuza **kutu grubu** ekleyin.
+    * Tekrar burger menu'den animasyonunuza **kutu grubu** ekleyin (verileri Preferences kısmındaki kutu tipinden alır).
     * **Kutu grubunun** üzerindeki butonlarla grubu özelleştirin.
     * Kutulara event eklemek istiyorsanız sol üst köşeden *Hitbox* kısmını açın. Event eklemek için 3 seçeneğiniz var, bunlar; OnEnter, OnStay ve OnExit.
       * **Kutu grubunun** _isTrigger_ özelliğine göre event ekleyebilirsiniz. Eğer **isTrigger** özelliği açıksa ilk paremetresi **Collider2D** olan, kapalıysa **Collision2D** olan fonksiyonları ekleyebilirsiniz.
-* Animasyonunuzu kullanmak için bir sahne objesine **PixelAnimator** bileşenini ekleyin.
+* Animasyonunuzu kullanmak için bir gameobject'e **PixelAnimator** bileşenini ekleyin.
   * SpriteRenderer bileşenini animatöre referans olarak verin.
-  * Animatörün ve oluşturduğunuz animasyon objenizin referansını alarak Play fonksiyonu ile animasyonunuzu çalıştırabilirsiniz.
-  ```
-  pixelAnimator.Play(animation);
-  ```
+  * Animatörün ve oluşturduğunuz animasyon objenizin referansını alarak Play fonksiyonu ile animasyonunuzu çalıştırın. `pixelAnimator.Play(idle)`
+
 
 * *AssetMenu>Create>PixelAnimator>New Animation Controller* yolunu izleyerek Pixel Animation Controller nesnesini oluşturun.
 
 Umarım frame by frame animasyonlarınızda yardımcı olur.
-
-
 
 
 Katkıda Bulunmak İçin
