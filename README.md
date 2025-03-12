@@ -52,31 +52,46 @@ Bu url'yi kullanarak [Unity Package olarak indirebilirsiniz](https://docs.unity3
 https://github.com/biinci/PixelAnimator.git
 ```
 
+### **Nesneler**
+
+PixelAnimation (Scriptable Object)  
+PixelAnimationController (Scriptable Object)  
+PixelAnimator (MonoBehaviour)  
+
+Animator bu 3 temel nesne ile çalışır. PixelAnimation ile animasyonunuzu oluşturur ve PixelAnimator ile bu animasyonu oynatırsınız.
+PixelAnimationController ise performans arttırmak için kullanılır(ilerde başka amaçlar getirilebilir). Bu nesne ile animasyonlarınızı gruplayabilir ve bir animatorde hangi animasyonların kullanılcağını önceden belirlemiş olursunuz, bu da performans için önemlidir.
+
+
 ### **Kullanım**
-İlk önce *AssetMenu>Create>PixelAnimation>New Animation* yolunu izleyerek Pixel Animation objesini oluşturmanız gerekir.  
-Sonra kullanacağınız sprite'ları *Pixel Sprites* başlığına sürüklemelisiniz.  
-Ardından Animation nesnenizi özelleştirmek için *Window>PixelAnimator* yolundan pencereyi açın.  
-Pencereden nesnenizi temel özelleştirme seçenekleri:
-* Hitbox ekleme
-* Sprite veya Hitbox'a özel fonksiyon ekleme
 
-Hitbox'lara fonksiyon eklemek için 3 seçeneğiniz var. Bunlar; OnEnter, OnStay ve OnExit.
+* ***AssetMenu>Create>PixelAnimator>New Animation*** yolunu izleyerek Pixel Animation nesnesini oluşturun.
+  * Kullanacağınız sprite'ları PixelAnimation'daki ***Pixel Sprites*** başlığına sürükleyin.
+* Animasyonlarınızı özelleştirmek için ***Window>PixelAnimator*** yolundan pencereyi açın.
+  * Sprite tabanlı event eklemek istiyorsanız (animator, o sprite'a geldiğide event çalışır) sol üst köşeden Sprite kısma gelin
+    * "+" ile Event ekleyin. İlk değişken, hangi tip bileşeni kullancağınızı belirler. İkinci değişken ise seçilen bileşenin içindeki hangi fonksiyonun çalışacağını belirler. 
+  * Eğer BoxCollıder2D kullanacaksanız:
+    * Timeline'daki Sol üstteki burger menu'den *Go to preferences* seçeneğine tıklayın.
+    * Buradan kutu tiplerinin özelliklerini ayarlayın, seçenekleriniz:
+      *  Kutu tipinin rengi (sadece editörde)
+      *  Kutu tipinin ismi (hem editörde hem runtime'da)
+      *  Kutu tipinin hangi [Layer](https://docs.unity3d.com/Manual/Layers.html)'da olacağı, BoxCollider2D'in gameobject'tini etkiler. (sadece runtime'da)
+      *  Kutu tipinde eğer olacaksa hangi [PhysicsMaterial2D](https://docs.unity3d.com/Manual/class-PhysicsMaterial2D.html)'nin kullanılcağı, BoxCollider2D'lerin *Material* etkiler. (sadece runtime'da)
+    * Tekrar burger menu'den animasyonunuza **kutu grubu** ekleyin.
+    * **Kutu grubunun** üzerindeki butonlarla grubu özelleştirin.
+    * Kutulara event eklemek istiyorsanız sol üst köşeden *Hitbox* kısmını açın. Event eklemek için 3 seçeneğiniz var, bunlar; OnEnter, OnStay ve OnExit.
+      * **Kutu grubunun** _isTrigger_ özelliğine göre event ekleyebilirsiniz. Eğer **isTrigger** özelliği açıksa ilk paremetresi **Collider2D** olan, kapalıysa **Collision2D** olan fonksiyonları ekleyebilirsiniz.
+* Animasyonunuzu kullanmak için bir sahne objesine **PixelAnimator** bileşenini ekleyin.
+  * SpriteRenderer bileşenini animatöre referans olarak verin.
+  * Animatörün ve oluşturduğunuz animasyon objenizin referansını alarak Play fonksiyonu ile animasyonunuzu çalıştırabilirsiniz.
+  ```
+  pixelAnimator.Play(animation);
+  ```
 
-Animatörü kullanmak için, kullanmak istediğiniz *sahne objesine* **PixelAnimator** bileşenini eklemelisiniz.
-SpriteRenderer bileşenini animatöre referans olarak vermeyi unutmayın  
-Ardından animatörün ve oluşturduğunuz animasyon objenizin referansını alarak Play fonksiyonu ile
-```
-pixelAnimator.Play(animation);
-```
-animasyonunuzu çalıştırabilirsiniz.
+* *AssetMenu>Create>PixelAnimator>New Animation Controller* yolunu izleyerek Pixel Animation Controller nesnesini oluşturun.
 
-[//]: # (![]&#40;https://github.com/biinci/PixelAnimator/blob/main/GIFs/Add_Animator_Component.gif&#41;)
+Umarım frame by frame animasyonlarınızda yardımcı olur.
 
 
-Umarım pixel art animasyonlarınızda yardımcı olur.
-
-
-*Hangi animatör sizin için daha rahatsa onu kullanmanız çok daha iyi.*
 
 
 Katkıda Bulunmak İçin
