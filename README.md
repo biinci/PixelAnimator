@@ -7,8 +7,8 @@
   </a>
 </p>
 <p align="center">
-  <a href="https://unity.com/releases/editor/whats-new/2023.2.20#installs"><img src="https://img.shields.io/badge/Unity-2023.2.7f1-blue?logo=unity" alt="Unity"></a>
-  <a href="https://unity.com/releases/editor/archive"><img src="https://img.shields.io/badge/Unity-6000.0.23f1%2b-blue?logo=unity" alt="Unity"></a>
+  <a href="https://unity.com/releases/editor/whats-new/2023.2.20#installs"><img src="https://img.shields.io/badge/Unity-2023.2.7f1%2b-blue?logo=unity" alt="Unity"></a>
+<!--   <a href="https://unity.com/releases/editor/archive"><img src="https://img.shields.io/badge/Unity-6000.0.23f1%2b-blue?logo=unity" alt="Unity"></a> -->
 
 </p>
 <br/>
