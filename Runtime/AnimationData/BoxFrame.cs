@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using binc.PixelAnimator.DataManipulations;
+using UnityEditor;
 
 namespace binc.PixelAnimator.AnimationData{
     
@@ -15,18 +16,20 @@ namespace binc.PixelAnimator.AnimationData{
         [SerializeField] private BoxFrameType type;
         
         public Rect boxRect;
-        public MethodStorage methodStorage;
-        
-        
-        
-        public MethodStorage<Collider2D> triggerEnterMethodStorage;
-        public MethodStorage<Collider2D> triggerStayMethodStorage;
-        public MethodStorage<Collider2D> triggerExitMethodStorage;
 
-        public MethodStorage<Collision2D> collisionEnterMethodStorage;
-        public MethodStorage<Collision2D> collisionStayMethodStorage;
-        public MethodStorage<Collision2D> collisionExitMethodStorage;
+        [SerializeReference] public BaseMethodStorage enterMethodStorage;
+        [SerializeReference] public BaseMethodStorage stayMethodStorage;
+        [SerializeReference] public BaseMethodStorage exitMethodStorage;
+
+        public void ChangeMethodType<T>()
+        {
+            var genericType = typeof(MethodStorage<>).MakeGenericType(typeof(T));
+            enterMethodStorage = (BaseMethodStorage) Activator.CreateInstance(genericType);
+            stayMethodStorage = (BaseMethodStorage) Activator.CreateInstance(genericType);
+            exitMethodStorage = (BaseMethodStorage) Activator.CreateInstance(genericType);
+        }
         
+
         public BoxFrame(string guid){
             this.guid = guid;
         }

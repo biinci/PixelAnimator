@@ -30,6 +30,17 @@ namespace binc.PixelAnimator{
                 boxes[index].frames.Add(new BoxFrame(pixelSprite.spriteId){boxRect = new Rect(0,0,16,16)});
             }
         }
+
+        public void ChangeCollisionType(CollisionTypes collisionType){
+            collisionTypes = collisionType;
+            foreach (var box in boxes)
+            {
+                box.ChangeFrameMethodType(collisionTypes);
+            }
+        }
+
+        
+        
     }
     [Serializable]
     public class BoxLayer{
@@ -39,6 +50,25 @@ namespace binc.PixelAnimator{
             frames = new List<BoxFrame>();
         }
 
+        public void ChangeFrameMethodType(CollisionTypes collisionTypes){
+            foreach (var frame in frames)
+            {
+                switch (collisionTypes)
+                {
+                    case CollisionTypes.Collider:
+                        frame.ChangeMethodType<Collision2D>();
+                        break;
+                    case CollisionTypes.Trigger:
+                        frame.ChangeMethodType<Collider2D>();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+        }
+
+        
         public void SetFrameType(int index){
             if(index < 0 || index >= frames.Count) return;
             var currentFrame = frames[index];
@@ -78,7 +108,8 @@ namespace binc.PixelAnimator{
                     throw new ArgumentOutOfRangeException();
             }
         }
-            
+        
+        
         
     }
 }

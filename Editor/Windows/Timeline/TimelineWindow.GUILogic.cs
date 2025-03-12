@@ -285,12 +285,13 @@ namespace binc.PixelAnimator.Editor.Windows{
         private void ColliderButton(BoxGroup boxGroup)
         {
             GUI.FocusControl("ColliderButton " + $"{boxGroup.BoxDataGuid}");
-            boxGroup.collisionTypes = boxGroup.collisionTypes switch
+            var type = boxGroup.collisionTypes switch
             {
                 CollisionTypes.Collider => CollisionTypes.Trigger,
                 CollisionTypes.Trigger => CollisionTypes.Collider,
                 _ => throw new ArgumentOutOfRangeException()
             };
+            boxGroup.ChangeCollisionType(type);
         }
     }
 }

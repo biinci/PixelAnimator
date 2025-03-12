@@ -9,6 +9,7 @@ using binc.PixelAnimator.DataManipulations;
 
 namespace binc.PixelAnimator.Editor
 {
+    
     [CustomPropertyDrawer(typeof(BaseMethodData), true)]
     public class BaseMethodDataDrawer : PropertyDrawer
     {
@@ -146,19 +147,6 @@ namespace binc.PixelAnimator.Editor
                     break;
             }
             
-            // var obj = GetUnityObject(serializedComponentType, serializedMethodData);//TODO: performance's sake, this should be fixed
-            // EditorGUI.BeginChangeCheck();
-            // obj = EditorGUI.ObjectField(objectRect, obj, typeof(Component), true);
-            // if (EditorGUI.EndChangeCheck())
-            // {
-            //     OnObjectReferenceChanged(serializedMethodData,serializedComponentType, obj);   
-            // }
-            //
-            // var name = CachedPropertyReference.TryGetValue(serializedMethodData.propertyPath, out var data) ? data.componentType.Name : string.Empty;
-            // var serializedType = string.IsNullOrEmpty(name)
-            //     ? EmptyReferenceTip
-            //     : name;
-            // EditorGUI.LabelField(objectRect, new GUIContent("", serializedType));
 
         }
 
@@ -380,6 +368,11 @@ namespace binc.PixelAnimator.Editor
         }
         
         #endregion
-    }
-}
 
+
+    }
+
+    
+    
+    
+}
