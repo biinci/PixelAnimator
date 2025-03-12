@@ -85,7 +85,8 @@ PixelAnimationController ise performans arttırmak için kullanılır(ilerde ba�
   * Animatörün ve oluşturduğunuz animasyon objenizin referansını alarak Play fonksiyonu ile animasyonunuzu çalıştırın. `pixelAnimator.Play(idle)`
 
 
-* *AssetMenu>Create>PixelAnimator>New Animation Controller* yolunu izleyerek Pixel Animation Controller nesnesini oluşturun.
+* *AssetMenu>Create>PixelAnimator>New Animation Controller* yolunu izleyerek Pixel Animation Controller nesnesini oluşturun ve içine hangi animasyonları kullanacaksanız onları ekleyin.
+  * Controller'ı kullancağınız animator'e referans olarak verin. 
 
 Umarım frame by frame animasyonlarınızda yardımcı olur.
 
