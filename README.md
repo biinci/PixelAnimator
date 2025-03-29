@@ -1,205 +1,296 @@
-# Pixel Animator Documentation
+# Pixel Animator
+## Complete Documentation
 
-## Overview
+<img width="180" alt="Pixel Animator logo" src="https://github.com/user-attachments/assets/bfd74fa0-289d-459a-9a33-fec06b99d303">
 
-Pixel Animator is a Unity tool designed specifically for frame-by-frame 2D pixel art animations. It offers a specialized alternative to Unity's default animation system, focusing on synchronizing frame-by-frame animations with BoxCollider2D components and events. The tool is particularly useful for game developers who want precise control over hitboxes and events during animation playback.
+[![Unity](https://img.shields.io/badge/Unity-2023.2.7f1%2b-blue?logo=unity)](https://unity.com/releases/editor/whats-new/2023.2.20#installs)
+
+---
+
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Key Features](#key-features)
+3. [Getting Started](#getting-started)
+    - [Installation](#installation)
+    - [Core Components](#core-components)
+4. [Creating Animations](#creating-animations)
+    - [Setting Up a Pixel Animation](#setting-up-a-pixel-animation)
+    - [Working with Sprite Events](#working-with-sprite-events)
+    - [Using Box Colliders](#using-box-colliders)
+    - [Box Types and Properties](#box-types-and-properties)
+5. [Animation Controller](#animation-controller)
+6. [Runtime Implementation](#runtime-implementation)
+    - [Setting Up the Animator](#setting-up-the-animator)
+    - [Playing Animations](#playing-animations)
+7. [Event System](#event-system)
+    - [Sprite Events](#sprite-events)
+    - [Box Collision Events](#box-collision-events)
+8. [Technical Architecture](#technical-architecture)
+    - [Animation Data Structure](#animation-data-structure)
+    - [Box Collider System](#box-collider-system)
+    - [Event Handling](#event-handling)
+9. [Best Practices](#best-practices)
+10. [Troubleshooting](#troubleshooting)
+
+---
+
+## Introduction
+
+Pixel Animator is a specialized Unity tool designed for frame-by-frame 2D pixel art animations. Inspired by AdamCYounis's RetroBox, this tool focuses on synchronizing frame animations with BoxCollider2D components and events, providing a more intuitive and less complex alternative to Unity's built-in animator.
+
+The primary goal of Pixel Animator is to create a direct causal relationship between sprite animations and collision boxes while adding flexible event triggering that works in perfect sync with your animation frames.
 
 ## Key Features
 
-- **Frame-by-frame animation**: Create and manage sprite-based animations with precise timing control
-- **BoxCollider2D integration**: Synchronize collision boxes with specific animation frames
-- **Event system**: Trigger Unity events at specific frames of the animation
-- **Custom editor**: A dedicated editor window for visualizing and editing animations
-- **Performance optimization**: Group animations using controllers to improve runtime performance
-
-## Core Components
-
-### Scriptable Objects
-
-1. **PixelAnimation**
-   - Stores animation data including sprites, frame rate, and loop settings
-   - Contains BoxGroup data that defines collision shapes for each frame
-   - Handles sprite-based events
-
-2. **PixelAnimationController**
-   - Groups multiple PixelAnimation objects for better performance
-   - Acts as a container for related animations used by a specific animator
-
-### MonoBehaviours
-
-1. **PixelAnimator**
-   - Main component responsible for playing animations
-   - Manages the creation and updating of collision boxes
-   - Handles event triggering at specific frames
-   - Requires a SpriteRenderer component
-
-2. **ColliderInfo/CollisionInfo**
-   - Manage trigger/collision events for BoxCollider2D components
-   - Handle method invocation for OnEnter, OnStay, and OnExit events
-
-## Animation Data Structure
-
-### PixelSprite
-Represents a single frame in an animation with:
-- Sprite reference
-- Unique identifier
-- Method storage for frame-specific events
-
-### BoxGroup
-Represents a collection of collision boxes with:
-- Reference to BoxData (name, color, layer, physics material)
-- Collision type (Trigger or Collider)
-- List of BoxLayers
-
-### BoxLayer
-Represents a single collision box across all frames with:
-- List of BoxFrames for each animation frame
-- Methods to manage frame types (KeyFrame, CopyFrame, EmptyFrame)
-
-### BoxFrame
-Represents the state of a collision box on a specific frame with:
-- Rect data (position, size)
-- Frame type (KeyFrame, CopyFrame, EmptyFrame)
-- Event method storage for OnEnter, OnStay, and OnExit events
-
-## Event System
-
-Pixel Animator provides a flexible event system that allows:
-
-1. **Sprite-based events**: Execute methods when a specific sprite is displayed
-2. **Collision-based events**: Trigger methods during collision/trigger interactions (Enter, Stay, Exit)
-
-The event system uses:
-- **MethodStorage**: Stores and manages Unity events
-- **MethodData**: Serializes method information and parameters
-- **SerializableData**: Handles serialization of different data types
+- **Simplified Animation Workflow**: Avoids the complexity of Unity's animation state machine for frame-by-frame animations
+- **Box Collider Synchronization**: Automatically updates BoxCollider2D objects in sync with animation frames
+- **Flexible Event System**: Add events to specific frames or box colliders that trigger at precise moments
+- **Visual Editor**: User-friendly editor window for creating and managing animations
+- **Performance Optimization**: Group animations with controllers for more efficient resource usage
 
 ## Getting Started
 
 ### Installation
 
-Add the package to your Unity project using the Package Manager with this Git URL:
-```
-https://github.com/biinci/PixelAnimator.git
-```
+You can add this package to your Unity project in two ways:
 
-### Creating an Animation
+1. **Using Unity Package Manager**:
+   - Open Window > Package Manager
+   - Click the "+" button > "Add package from git URL..."
+   - Enter: `https://github.com/biinci/PixelAnimator.git`
+
+2. **Manual Installation**:
+   - Clone or download the repository
+   - Copy the files into your Unity project's Assets folder
+
+### Core Components
+
+Pixel Animator works with three primary components:
+
+1. **PixelAnimation** (ScriptableObject)
+   - Contains the animation data including sprites, frame rate, and collider information
+   - Created via Assets > Create > Pixel Animation > New Animation
+
+2. **PixelAnimationController** (ScriptableObject)
+   - Groups animations for performance optimization
+   - Created via Assets > Create > Pixel Animation > New Animation Controller
+
+3. **PixelAnimator** (MonoBehaviour)
+   - The runtime component that plays animations and handles collisions
+   - Attached to GameObjects with SpriteRenderer components
+
+## Creating Animations
+
+### Setting Up a Pixel Animation
 
 1. Create a new PixelAnimation asset:
-   - Navigate to `Assets > Create > Pixel Animation > New Animation`
-   - Add sprites to the "Pixel Sprites" field
-   
-2. Open the PixelAnimator window:
-   - Go to `Window > PixelAnimator`
-   
-3. Configure your animation:
-   - Set animation properties (FPS, loop)
-   - Add sprite-based events if needed
-   - Configure collision boxes through the timeline interface
+   - Right-click in the Project window
+   - Select Create > Pixel Animation > New Animation
+   - Name your animation (e.g., "PlayerIdle")
 
-### Setting Up Collision Boxes
-
-1. Open animation preferences:
-   - Click the burger menu in the timeline and select "Go to preferences"
-   - Configure box types (name, color, layer, physics material)
+2. Configure basic settings:
+   - **Loop**: Toggle whether the animation should loop
+   - **FPS**: Set the frames per second rate
    
+3. Add sprites:
+   - Drag your sprite frames to the **Pixel Sprites** section
+   - Ensure sprites are in correct sequential order
+
+### Working with Sprite Events
+
+You can add events that trigger when specific frames are displayed:
+
+1. Open the Pixel Animator window:
+   - Navigate to Window > Pixel Animator
+   
+2. Select your animation asset
+
+3. Add sprite-based events:
+   - In the editor window, select the "Sprite" tab
+   - Click "+" to add a new event
+   - First dropdown: Select the component type (script) to call a method from
+   - Second dropdown: Select the method to call when the sprite is shown
+
+### Using Box Colliders
+
+Pixel Animator allows you to create and manage BoxCollider2D objects that sync with animation frames:
+
+1. Configure box types:
+   - In the Pixel Animator window, click the burger menu (☰) and select "Go to preferences"
+   - Set up box types with their properties (color, name, layer, physics material)
+
 2. Add a box group to your animation:
-   - Use the burger menu to add a box group
-   - Configure the collision type (Trigger or Collider)
+   - Return to the animation editor
+   - Click the burger menu again and select "Add Box Group"
+   - Choose the box type you want to use
+
+3. Configure the box group:
+   - Set the collision type (Trigger or Collider)
+   - Use the box group buttons to customize its behavior
+
+4. Edit box colliders:
+   - Select frames in the timeline
+   - Adjust the size and position of box colliders in the editor
+   - Use frame type options (KeyFrame, CopyFrame, EmptyFrame) to control how boxes behave across frames
+
+### Box Types and Properties
+
+Each box type can have the following properties:
+
+- **Color**: Visual color in the editor (not visible during runtime)
+- **Name**: Identifier for the box type
+- **Layer**: Unity layer the BoxCollider2D GameObject will use
+- **Physics Material**: Optional PhysicsMaterial2D to apply to the colliders
+
+Frame types for boxes:
+- **KeyFrame**: A frame with a defined box position/size
+- **CopyFrame**: Inherits box properties from the previous KeyFrame
+- **EmptyFrame**: No box collider appears on this frame
+
+## Animation Controller
+
+The PixelAnimationController improves performance by grouping animations:
+
+1. Create a controller:
+   - Create > Pixel Animation > New Animation Controller
    
-3. Design hitboxes:
-   - Adjust box positions and sizes for each keyframe
-   - Set frame types (KeyFrame, CopyFrame, EmptyFrame)
-   - Add collision events if needed
+2. Add animations:
+   - Drag your PixelAnimation assets to the controller's list
 
-### Using the Animation
+3. Set the controller:
+   - Assign the controller to your PixelAnimator component
 
-1. Create a new PixelAnimationController:
-   - Navigate to `Assets > Create > Pixel Animation > New Animation Controller`
-   - Add your animations to the controller
-   
-2. Set up a GameObject:
-   - Add a SpriteRenderer component
-   - Add the PixelAnimator component
-   - Assign the SpriteRenderer reference
-   - Assign the PixelAnimationController reference
-   
-3. Play animations in code:
-   ```csharp
-   [SerializeField] private PixelAnimator animator;
-   [SerializeField] private PixelAnimation idleAnimation;
-   
-   void Start() {
-       animator.Play(idleAnimation);
-   }
-   ```
+## Runtime Implementation
 
-## Advanced Features
+### Setting Up the Animator
 
-### Frame Types
+1. Add the PixelAnimator component:
+   - Attach to a GameObject with a SpriteRenderer
+   - Assign the SpriteRenderer to the component's reference
+   - Assign a PixelAnimationController containing your animations
 
-- **KeyFrame**: Defines hitbox data for a specific frame
-- **CopyFrame**: Copies hitbox data from the previous KeyFrame
-- **EmptyFrame**: No hitbox data (box is disabled)
+2. When the PixelAnimator initializes:
+   - It loads animation preferences
+   - Creates container objects for colliders
+   - Compiles all event functions
 
-### Event Types
+### Playing Animations
 
-1. **Sprite Events**:
-   - Triggered when a specific sprite is displayed
-   - Can call any method on components attached to the same GameObject
+To play an animation in code:
 
-2. **Collision Events**:
-   - **OnEnter**: Called when collision/trigger begins
-   - **OnStay**: Called while collision/trigger is active
-   - **OnExit**: Called when collision/trigger ends
+```csharp
+// Reference to your animator component
+private PixelAnimator pixelAnimator;
+
+// Reference to animation, could be from controller or direct
+public PixelAnimation idleAnimation;
+
+void Start() {
+    pixelAnimator = GetComponent<PixelAnimator>();
+    pixelAnimator.Play(idleAnimation);
+}
+```
+
+When an animation plays:
+1. The appropriate sprite is displayed
+2. Box colliders are created/updated based on the current frame
+3. Frame events are triggered
+
+## Event System
+
+### Sprite Events
+
+Sprite events trigger when a specific frame is shown:
+
+1. Events are defined using UnityEvents
+2. You can select any component on the GameObject and call its methods
+3. Methods are compiled at runtime for performance
+
+### Box Collision Events
+
+Box colliders can trigger events on collision/trigger interactions:
+
+1. Each box can have three event types:
+   - **OnEnter**: Triggered when collision begins
+   - **OnStay**: Triggered while collision continues
+   - **OnExit**: Triggered when collision ends
+
+2. Event behavior is determined by the box group's collision type:
+   - **Trigger**: Uses OnTriggerEnter2D/Stay2D/Exit2D with Collider2D parameter
+   - **Collider**: Uses OnCollisionEnter2D/Stay2D/Exit2D with Collision2D parameter
+
+## Technical Architecture
+
+### Animation Data Structure
+
+Pixel Animator uses a carefully designed data structure:
+
+- **PixelSprite**: Contains a sprite and associated method storage
+- **BoxGroup**: Groups related BoxCollider2D objects with shared properties
+- **BoxLayer**: Collection of BoxFrames across the animation timeline
+- **BoxFrame**: Per-frame box collider data including position, size, and events
+
+### Box Collider System
+
+During runtime:
+
+1. The PixelAnimator creates a container GameObject for colliders
+2. For each box group in the animation, a child GameObject is created
+3. BoxCollider2D components are added based on the animation data
+4. Appropriate handlers (ColliderInfo or CollisionInfo) are attached
+5. As frames change, box collider properties update automatically
+
+### Event Handling
+
+Events use a sophisticated serialization system:
+
+1. **MethodStorage**: Contains UnityEvents and MethodData structures
+2. **MethodData**: Serializes component references, methods, and parameters
+3. At runtime, functions are compiled using expression trees for performance
+4. Parameters are preserved through serialization with SerializableData<T>
 
 ## Best Practices
 
-1. **Animation Organization**:
-   - Group related animations in the same controller
-   - Name animations clearly for easier management
-   
-2. **Performance Optimization**:
-   - Use CopyFrames when hitboxes don't change between frames
-   - Only add events when necessary
-   - Consider using fewer, more versatile hitboxes
+1. **Organize animations by state**:
+   - Create separate animations for different character states (idle, run, jump, etc.)
 
-3. **Workflow Efficiency**:
-   - Configure box preferences before creating animations
-   - Create hitbox templates for common patterns
-   - Use the timeline view to visualize animation flow
+2. **Group related animations in controllers**:
+   - Put all player animations in one controller, enemy animations in another, etc.
+
+3. **Keep FPS consistent**:
+   - Use the same FPS across similar animations to maintain visual coherence
+
+4. **Optimize box colliders**:
+   - Use the minimum number of box colliders needed
+   - Utilize frame types (especially CopyFrame) to reduce redundancy
+
+5. **Use layers effectively**:
+   - Assign appropriate layers to different box types to control collision detection
 
 ## Troubleshooting
 
-### Common Issues
+Common issues and solutions:
 
-1. **Events not firing**:
-   - Ensure components referenced in events exist on the GameObject
-   - Check that collision layers are set up correctly
-   - Verify isTrigger settings match your event type
+1. **Animation doesn't play**:
+   - Ensure SpriteRenderer is properly assigned
+   - Check that sprites are added to the PixelAnimation
+   - Verify that Play() is being called
 
-2. **Hitboxes not appearing**:
-   - Make sure the animation is playing
-   - Check that box groups are properly configured
-   - Confirm frame types are set correctly
+2. **Box colliders not appearing**:
+   - Check if box groups are properly set up
+   - Make sure boxes are created as KeyFrames
+   - Verify box size is greater than zero
 
-3. **Animation not playing**:
-   - Verify the SpriteRenderer reference is assigned
-   - Check that the animation controller contains your animation
-   - Ensure the Play method is being called
+3. **Events not firing**:
+   - Ensure methods have compatible parameters
+   - Check component references
+   - Make sure collision layers are set up correctly
 
-## Extending The System
+4. **Performance issues**:
+   - Use PixelAnimationController to group animations
+   - Minimize the number of box colliders
+   - Reduce event complexity
 
-Pixel Animator uses a modular architecture that allows for extension:
+---
 
-1. **Custom Event Types**:
-   - Extend BaseMethodStorage and BaseMethodData
-   - Register new types with the serialization system
-
-2. **Additional Animation Features**:
-   - Add properties to PixelAnimation
-   - Extend the PixelAnimator to handle new features
-
-3. **Editor Enhancements**:
-   - Create custom editors for new components
-   - Add tools to the PixelAnimator window
+This documentation covers the Pixel Animator tool developed for Unity frame-by-frame animations with synchronized box colliders. For further assistance or to contribute to the project, visit the GitHub repository at https://github.com/biinci/PixelAnimator.
