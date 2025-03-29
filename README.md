@@ -1,95 +1,205 @@
-<br/>
-<p align="center">
-  <a href="https://github.com/biinci/PixelAnimator">
-    <picture>
-      <img width="180" alt="Pixel Animator logo" src="https://github.com/user-attachments/assets/bfd74fa0-289d-459a-9a33-fec06b99d303">
-    </picture>
-  </a>
-</p>
-<p align="center">
-  <a href="https://unity.com/releases/editor/whats-new/2023.2.20#installs"><img src="https://img.shields.io/badge/Unity-2023.2.7f1%2b-blue?logo=unity" alt="Unity"></a>
-<!--   <a href="https://unity.com/releases/editor/archive"><img src="https://img.shields.io/badge/Unity-6000.0.23f1%2b-blue?logo=unity" alt="Unity"></a> -->
+# Pixel Animator Documentation
 
-</p>
-<br/>
+## Overview
 
+Pixel Animator is a Unity tool designed specifically for frame-by-frame 2D pixel art animations. It offers a specialized alternative to Unity's default animation system, focusing on synchronizing frame-by-frame animations with BoxCollider2D components and events. The tool is particularly useful for game developers who want precise control over hitboxes and events during animation playback.
 
+## Key Features
 
-Pixel Animator
-------------------
+- **Frame-by-frame animation**: Create and manage sprite-based animations with precise timing control
+- **BoxCollider2D integration**: Synchronize collision boxes with specific animation frames
+- **Event system**: Trigger Unity events at specific frames of the animation
+- **Custom editor**: A dedicated editor window for visualizing and editing animations
+- **Performance optimization**: Group animations using controllers to improve runtime performance
 
-## Bu animatörü yaparken [AdamCYounis](https://www.youtube.com/@AdamCYounis)'ın **RetroBox** aracından esinlendim.
-> Bu araç kesinlikle bir RetroBox değil fakat benzer bir UI tasarımına sahiptir</em></h3>
+## Core Components
 
+### Scriptable Objects
 
+1. **PixelAnimation**
+   - Stores animation data including sprites, frame rate, and loop settings
+   - Contains BoxGroup data that defines collision shapes for each frame
+   - Handles sprite-based events
 
+2. **PixelAnimationController**
+   - Groups multiple PixelAnimation objects for better performance
+   - Acts as a container for related animations used by a specific animator
 
+### MonoBehaviours
 
-Öncellikle şunu belirtmeliyim ki bu animatör en verimli 2D Pixel Art animasyonlar için kullanılabilir. Zira başka bir tarzda hiç test etmedim.
+1. **PixelAnimator**
+   - Main component responsible for playing animations
+   - Manages the creation and updating of collision boxes
+   - Handles event triggering at specific frames
+   - Requires a SpriteRenderer component
 
-Pixel Animator, **kare kare** animasyonu ile **BoxCollider2D**'ları ve event'leri senkronize etmek için Unity dahilinde geliştirdiğim bir araçtır.
+2. **ColliderInfo/CollisionInfo**
+   - Manage trigger/collision events for BoxCollider2D components
+   - Handle method invocation for OnEnter, OnStay, and OnExit events
 
+## Animation Data Structure
 
+### PixelSprite
+Represents a single frame in an animation with:
+- Sprite reference
+- Unique identifier
+- Method storage for frame-specific events
 
-## **Pixel Animator Neyi Çözüyor?**
+### BoxGroup
+Represents a collection of collision boxes with:
+- Reference to BoxData (name, color, layer, physics material)
+- Collision type (Trigger or Collider)
+- List of BoxLayers
 
+### BoxLayer
+Represents a single collision box across all frames with:
+- List of BoxFrames for each animation frame
+- Methods to manage frame types (KeyFrame, CopyFrame, EmptyFrame)
 
-* Bu [videoda](https://www.youtube.com/watch?v=nBkiSJ5z-hE) gösterilen Unity'nin dahili animatöründeki ağ karmaşıklığından kaçmanıza olanak sağlar.
-* BoxCollider2D objeleriyle kare kare animasyonunuzla tam nedensel bağ kurmanızı sağlar.
-* GUI tarafından ayarlayabilceğiniz UnityEvent benzeri bir veri yapısıyla animasyonunuza event ekleyip (UnityEvent'den çok daha esnek) animasyonunuzu kodunuz ile tam senkron edebilirsiniz.
+### BoxFrame
+Represents the state of a collision box on a specific frame with:
+- Rect data (position, size)
+- Frame type (KeyFrame, CopyFrame, EmptyFrame)
+- Event method storage for OnEnter, OnStay, and OnExit events
 
-Etkisini daha iyi anlayabilmek için demo projesine bakabilirsiniz:
-[demo]() (yakında)
+## Event System
 
+Pixel Animator provides a flexible event system that allows:
 
-## **Başlarken**
+1. **Sprite-based events**: Execute methods when a specific sprite is displayed
+2. **Collision-based events**: Trigger methods during collision/trigger interactions (Enter, Stay, Exit)
 
+The event system uses:
+- **MethodStorage**: Stores and manages Unity events
+- **MethodData**: Serializes method information and parameters
+- **SerializableData**: Handles serialization of different data types
 
+## Getting Started
 
-### **Kurulum**
-Bu url'yi kullanarak [Unity Package olarak indirebilirsiniz](https://docs.unity3d.com/Manual/upm-ui-giturl.html):
+### Installation
+
+Add the package to your Unity project using the Package Manager with this Git URL:
 ```
 https://github.com/biinci/PixelAnimator.git
 ```
 
-### **Nesneler**
+### Creating an Animation
 
-* PixelAnimation (Scriptable Object)  
-* PixelAnimationController (Scriptable Object)  
-* PixelAnimator (MonoBehaviour)  
+1. Create a new PixelAnimation asset:
+   - Navigate to `Assets > Create > Pixel Animation > New Animation`
+   - Add sprites to the "Pixel Sprites" field
+   
+2. Open the PixelAnimator window:
+   - Go to `Window > PixelAnimator`
+   
+3. Configure your animation:
+   - Set animation properties (FPS, loop)
+   - Add sprite-based events if needed
+   - Configure collision boxes through the timeline interface
 
-Animator bu 3 temel nesne ile çalışır. PixelAnimation ile animasyonunuzu oluşturur ve PixelAnimator ile bu animasyonu oynatırsınız.
-PixelAnimationController ise performans arttırmak için kullanılır(ilerde başka amaçlar getirilebilir). Bu nesne ile animasyonlarınızı gruplayabilir ve bir animatorde hangi animasyonların kullanılcağını önceden belirlemiş olursunuz, bu da performans için önemlidir.
+### Setting Up Collision Boxes
 
+1. Open animation preferences:
+   - Click the burger menu in the timeline and select "Go to preferences"
+   - Configure box types (name, color, layer, physics material)
+   
+2. Add a box group to your animation:
+   - Use the burger menu to add a box group
+   - Configure the collision type (Trigger or Collider)
+   
+3. Design hitboxes:
+   - Adjust box positions and sizes for each keyframe
+   - Set frame types (KeyFrame, CopyFrame, EmptyFrame)
+   - Add collision events if needed
 
-### **Kullanım**
+### Using the Animation
 
-* ***AssetMenu>Create>PixelAnimator>New Animation*** yolunu izleyerek Pixel Animation nesnesini oluşturun.
-  * Kullanacağınız sprite'ları PixelAnimation'daki ***Pixel Sprites*** başlığına sürükleyin.
-* Animasyonlarınızı özelleştirmek için ***Window>PixelAnimator*** yolundan pencereyi açın.
-  * Sprite tabanlı event eklemek istiyorsanız (animator, o sprite'a geldiğide event çalışır) sol üst köşeden Sprite kısma gelin
-    * "+" ile Event ekleyin. İlk değişken, hangi tip bileşeni kullancağınızı belirler. İkinci değişken ise seçilen bileşenin içindeki hangi fonksiyonun çalışacağını belirler. 
-  * Eğer BoxCollıder2D kullanacaksanız:
-    * Timeline'daki Sol üstteki burger menu'den *Go to preferences* seçeneğine tıklayın.
-    * Buradan kutu tiplerinin özelliklerini ayarlayın, seçenekleriniz:
-      *  Kutu tipinin rengi (sadece editörde)
-      *  Kutu tipinin ismi (hem editörde hem runtime'da)
-      *  Kutu tipinin hangi [Layer](https://docs.unity3d.com/Manual/Layers.html)'da olacağı, BoxCollider2D'in gameobject'tini etkiler. (sadece runtime'da)
-      *  Kutu tipinde eğer olacaksa hangi [PhysicsMaterial2D](https://docs.unity3d.com/Manual/class-PhysicsMaterial2D.html)'nin kullanılcağı, BoxCollider2D'lerin *Material* etkiler. (sadece runtime'da)
-    * Tekrar burger menu'den animasyonunuza **kutu grubu** ekleyin (verileri Preferences kısmındaki kutu tipinden alır).
-    * **Kutu grubunun** üzerindeki butonlarla grubu özelleştirin.
-    * Kutulara event eklemek istiyorsanız sol üst köşeden *Hitbox* kısmını açın. Event eklemek için 3 seçeneğiniz var, bunlar; OnEnter, OnStay ve OnExit.
-      * **Kutu grubunun** _isTrigger_ özelliğine göre event ekleyebilirsiniz. Eğer **isTrigger** özelliği açıksa ilk paremetresi **Collider2D** olan, kapalıysa **Collision2D** olan fonksiyonları ekleyebilirsiniz.
-* Animasyonunuzu kullanmak için bir gameobject'e **PixelAnimator** bileşenini ekleyin.
-  * SpriteRenderer bileşenini animatöre referans olarak verin.
-  * Animatörün ve oluşturduğunuz animasyon objenizin referansını alarak Play fonksiyonu ile animasyonunuzu çalıştırın. `pixelAnimator.Play(idle)`
+1. Create a new PixelAnimationController:
+   - Navigate to `Assets > Create > Pixel Animation > New Animation Controller`
+   - Add your animations to the controller
+   
+2. Set up a GameObject:
+   - Add a SpriteRenderer component
+   - Add the PixelAnimator component
+   - Assign the SpriteRenderer reference
+   - Assign the PixelAnimationController reference
+   
+3. Play animations in code:
+   ```csharp
+   [SerializeField] private PixelAnimator animator;
+   [SerializeField] private PixelAnimation idleAnimation;
+   
+   void Start() {
+       animator.Play(idleAnimation);
+   }
+   ```
 
+## Advanced Features
 
-* *AssetMenu>Create>PixelAnimator>New Animation Controller* yolunu izleyerek Pixel Animation Controller nesnesini oluşturun ve içine hangi animasyonları kullanacaksanız onları ekleyin.
-  * Controller'ı kullancağınız animator'e referans olarak verin. 
+### Frame Types
 
-Umarım frame by frame animasyonlarınızda yardımcı olur.
+- **KeyFrame**: Defines hitbox data for a specific frame
+- **CopyFrame**: Copies hitbox data from the previous KeyFrame
+- **EmptyFrame**: No hitbox data (box is disabled)
 
+### Event Types
 
-Katkıda Bulunmak İçin
-------------------
+1. **Sprite Events**:
+   - Triggered when a specific sprite is displayed
+   - Can call any method on components attached to the same GameObject
+
+2. **Collision Events**:
+   - **OnEnter**: Called when collision/trigger begins
+   - **OnStay**: Called while collision/trigger is active
+   - **OnExit**: Called when collision/trigger ends
+
+## Best Practices
+
+1. **Animation Organization**:
+   - Group related animations in the same controller
+   - Name animations clearly for easier management
+   
+2. **Performance Optimization**:
+   - Use CopyFrames when hitboxes don't change between frames
+   - Only add events when necessary
+   - Consider using fewer, more versatile hitboxes
+
+3. **Workflow Efficiency**:
+   - Configure box preferences before creating animations
+   - Create hitbox templates for common patterns
+   - Use the timeline view to visualize animation flow
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Events not firing**:
+   - Ensure components referenced in events exist on the GameObject
+   - Check that collision layers are set up correctly
+   - Verify isTrigger settings match your event type
+
+2. **Hitboxes not appearing**:
+   - Make sure the animation is playing
+   - Check that box groups are properly configured
+   - Confirm frame types are set correctly
+
+3. **Animation not playing**:
+   - Verify the SpriteRenderer reference is assigned
+   - Check that the animation controller contains your animation
+   - Ensure the Play method is being called
+
+## Extending The System
+
+Pixel Animator uses a modular architecture that allows for extension:
+
+1. **Custom Event Types**:
+   - Extend BaseMethodStorage and BaseMethodData
+   - Register new types with the serialization system
+
+2. **Additional Animation Features**:
+   - Add properties to PixelAnimation
+   - Extend the PixelAnimator to handle new features
+
+3. **Editor Enhancements**:
+   - Create custom editors for new components
+   - Add tools to the PixelAnimator window
