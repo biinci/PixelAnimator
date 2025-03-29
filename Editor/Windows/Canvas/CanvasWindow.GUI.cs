@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 using UnityEditor;
 using binc.PixelAnimator.AnimationData;
+using PlasticPipe.PlasticProtocol.Messages;
 
 namespace binc.PixelAnimator.Editor.Windows{
 
@@ -68,10 +70,9 @@ namespace binc.PixelAnimator.Editor.Windows{
             {
                 var isBoxActive = isActiveGroup && boxGroup.isExpanded &&
                                   selectedLayerIndex == i;
-                var frame = boxGroup.boxes[i].frames[animatorWindow.IndexOfSelectedSprite];
-                
-                if(frame.Type == BoxFrameType.EmptyFrame) continue;
-                
+
+                var frame = boxGroup.boxes[i].GetFrame(animatorWindow.IndexOfSelectedSprite);
+                if (frame == null) continue;
                 var scaledRect = frame.boxRect; 
                 scaledRect.position *= spriteScale;
                 scaledRect.size *= spriteScale;
@@ -101,7 +102,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                     Handles.DrawSolidRectangleWithOutline(scaledRect, new Color(0.5f,0.5f,0.5f,0f), boxData.color );
                     var mousePos = Event.current.mousePosition;
                     var isClickedRect = scaledRect.IsClickedRect(0);
-                    if (isClickedRect && UsingBoxHandle==BoxHandleType.None && !GetActiveGUIBoxRect().Contains(mousePos))
+                    if (isClickedRect && UsingBoxHandle==BoxHandleType.None && !GetActiveGUIBoxRect().Contains(mousePos) && boxGroup.isVisible)
                     {
                         animatorWindow.SelectBoxGroup(groupIndex);
                         animatorWindow.SelectBox(i);
@@ -116,7 +117,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         {
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var boxGroup = animatorWindow.GetActiveBoxGroup();
-            if (!boxGroup.isExpanded) return new Rect(-1, -1, -1, -1);
+            if (!boxGroup.isExpanded || !boxGroup.isVisible) return new Rect(-1, -1, -1, -1);
             var rect = animatorWindow.GetActiveFrame().boxRect;
             rect.position *= spriteScale;
             rect.size *= spriteScale;

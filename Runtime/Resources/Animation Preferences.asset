@@ -25,3 +25,15 @@ MonoBehaviour:
     rounded: 0
     physicMaterial: {fileID: 0}
     guid: 4fd42eaf973b8d14ebf04c235720314c
+  - boxName: HurtBox
+    color: {r: 0.10980391, g: 0.18156381, b: 0.78039217, a: 1}
+    layer: 0
+    rounded: 0
+    physicMaterial: {fileID: 0}
+    guid: f4d14d33fae7277459b710e9d1f02fcf
+  - boxName: Grounded
+    color: {r: 0.5320754, g: 0.107418984, b: 0.26153582, a: 1}
+    layer: 0
+    rounded: 0
+    physicMaterial: {fileID: 0}
+    guid: d42de61dc48842d4bb96b4e14a5746f4

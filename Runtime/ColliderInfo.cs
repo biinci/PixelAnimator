@@ -27,7 +27,7 @@ namespace binc.PixelAnimator
 
         private void UpdateFrame(int index)
         {
-            frame = boxLayer.frames[index];
+            frame = boxLayer.GetFrame(index);
         }
 
         

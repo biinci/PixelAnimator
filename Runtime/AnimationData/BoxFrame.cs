@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using binc.PixelAnimator.DataManipulations;
 using UnityEditor;
+using UnityEngine.Tilemaps;
 
 namespace binc.PixelAnimator.AnimationData{
     
@@ -21,9 +22,10 @@ namespace binc.PixelAnimator.AnimationData{
         [SerializeReference] public BaseMethodStorage stayMethodStorage;
         [SerializeReference] public BaseMethodStorage exitMethodStorage;
 
-        public void ChangeMethodType<T>()
+        public void ChangeMethodType(CollisionTypes collisionTypes)
         {
-            var genericType = typeof(MethodStorage<>).MakeGenericType(typeof(T));
+            var collideType = collisionTypes == CollisionTypes.Collider ? typeof(Collision2D) : typeof(Collider2D);
+            var genericType = typeof(MethodStorage<>).MakeGenericType(collideType);
             enterMethodStorage = (BaseMethodStorage) Activator.CreateInstance(genericType);
             stayMethodStorage = (BaseMethodStorage) Activator.CreateInstance(genericType);
             exitMethodStorage = (BaseMethodStorage) Activator.CreateInstance(genericType);
@@ -32,6 +34,11 @@ namespace binc.PixelAnimator.AnimationData{
 
         public BoxFrame(string guid){
             this.guid = guid;
+        }
+        
+        public BoxFrame(string guid, CollisionTypes collisionType){
+            this.guid = guid;
+            ChangeMethodType(collisionType);
         }
 
         public void SetType(BoxFrameType boxFrameType)

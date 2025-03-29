@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEditor;
-
+using binc.PixelAnimator.AnimationData;
 
 namespace binc.PixelAnimator.Editor.Windows{
 
@@ -119,7 +119,7 @@ namespace binc.PixelAnimator.Editor.Windows{
 
         private void GroupButton(BoxGroup boxGroup){
             boxGroupMenu = new GenericMenu();
-            boxGroupMenu.AddItem(new GUIContent("Add Box"), false, ()=>{boxGroup.AddBox(SelectedAnim.PixelSprites);});
+            boxGroupMenu.AddItem(new GUIContent("Add Box"), false, ()=>{boxGroup.AddBox(PixelAnimatorWindow.AnimatorWindow.SelectedAnimation.PixelSprites);});
             boxGroupMenu.ShowAsContext();
         }
     
@@ -130,12 +130,13 @@ namespace binc.PixelAnimator.Editor.Windows{
         }
 
         private void AddBurgerMenuItems(){
-            var boxData = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences.BoxData;
+            var preferences = PixelAnimatorWindow.AnimatorWindow.AnimationPreferences;
+            var boxData = preferences.BoxData;
             for(var i = 0 ; i < boxData.Count; i ++){
                 burgerMenu.AddItem(new GUIContent($"Add BoxGroup/{boxData[i].boxName}"), false, 
                 obj=>{SelectedAnim.AddGroup(boxData[(int)obj].Guid);},i);
             }
-            burgerMenu.AddItem(new GUIContent("Go to preferences"),false, () => { EditorGUIUtility.PingObject(PixelAnimatorWindow.AnimatorWindow.AnimationPreferences); });
+            burgerMenu.AddItem(new GUIContent("Go to preferences"),false, () => { EditorGUIUtility.PingObject(preferences); });
         }
 
         private void ThumbnailButton(Tuple<int, Sprite> data)

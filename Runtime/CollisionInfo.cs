@@ -11,6 +11,9 @@ namespace binc.PixelAnimator
         public PixelAnimator animator;
         private BoxFrame frame;
         
+        private MethodStorage<Collision2D> enterMethodStorage;
+        private MethodStorage<Collision2D> stayMethodStorage;
+        private MethodStorage<Collision2D> exitMethodStorage;
         public static void Create(GameObject obj, PixelAnimator animator, BoxLayer layer)
         {
             var collisionInfo = obj.AddComponent<CollisionInfo>();
@@ -28,24 +31,26 @@ namespace binc.PixelAnimator
         
         private void UpdateFrame(int index)
         {
-            frame = boxLayer.frames[index];
+            frame = boxLayer.GetFrame(index);
+            enterMethodStorage = (MethodStorage<Collision2D>)frame.enterMethodStorage;
+            stayMethodStorage = (MethodStorage<Collision2D>)frame.stayMethodStorage;
+            exitMethodStorage = (MethodStorage<Collision2D>)frame.exitMethodStorage;
         }
         
 
         private void OnCollisionEnter2D(Collision2D other)
         {
-            ((MethodStorage<Collision2D>)frame.enterMethodStorage).methods.Invoke(other);
+            enterMethodStorage.methods.Invoke(other);
         }
 
         private void OnCollisionStay2D(Collision2D other)
         {
-            Debug.Log(boxLayer + "    " +frame);
-            ((MethodStorage<Collision2D>)frame.stayMethodStorage).methods.Invoke(other);
+            stayMethodStorage.methods.Invoke(other);
         }
 
         private void OnCollisionExit2D(Collision2D other)
         {
-            ((MethodStorage<Collision2D>)frame.exitMethodStorage).methods.Invoke(other);
+            exitMethodStorage.methods.Invoke(other);
 
         }
     }

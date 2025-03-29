@@ -309,26 +309,30 @@ namespace binc.PixelAnimator.Editor.Windows{
             {
                 var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
                 GUILayout.Label(label, animatorWindow.PixelAnimatorSkin.label, GUILayout.Width(50));
-                var serializedRect = animatorWindow.SerializedSelectedAnimation
+                animatorWindow.SerializedSelectedAnimation.Update();
+                var serializedFrames = animatorWindow.SerializedSelectedAnimation
                     .FindProperty("boxGroups")
                     .GetArrayElementAtIndex(groupIndex)
-                    .FindPropertyRelative("boxes")
-                    .GetArrayElementAtIndex(boxIndex)
-                    .FindPropertyRelative("frames")
-                    .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedSprite)
-                    .FindPropertyRelative("boxRect");
-                var serializedX = serializedRect.FindPropertyRelative("x");
-                var serializedY = serializedRect.FindPropertyRelative("y");
-                var serializedWidth = serializedRect.FindPropertyRelative("width");
-                var serializedHeight = serializedRect.FindPropertyRelative("height");
+                    .FindPropertyRelative("boxes").GetArrayElementAtIndex(boxIndex).FindPropertyRelative("frames");
+                if (serializedFrames.arraySize != 0)
+                {
+                    var serializedRect = serializedFrames
+                        .GetArrayElementAtIndex(animatorWindow.IndexOfSelectedSprite)
+                        .FindPropertyRelative("boxRect");
+                    var serializedX = serializedRect.FindPropertyRelative("x");
+                    var serializedY = serializedRect.FindPropertyRelative("y");
+                    var serializedWidth = serializedRect.FindPropertyRelative("width");
+                    var serializedHeight = serializedRect.FindPropertyRelative("height");
 
-                const int width = 35;
-                EditorGUILayout.PropertyField(serializedX, GUIContent.none,GUILayout.Width(width));
-                EditorGUILayout.PropertyField(serializedY, GUIContent.none, GUILayout.Width(width));
-                EditorGUILayout.PropertyField(serializedWidth, GUIContent.none, GUILayout.Width(width));
-                EditorGUILayout.PropertyField(serializedHeight, GUIContent.none, GUILayout.Width(width));
-            
-                serializedRect.serializedObject.ApplyModifiedProperties();
+                    const int width = 35;
+                    EditorGUILayout.PropertyField(serializedX, GUIContent.none,GUILayout.Width(width));
+                    EditorGUILayout.PropertyField(serializedY, GUIContent.none, GUILayout.Width(width));
+                    EditorGUILayout.PropertyField(serializedWidth, GUIContent.none, GUILayout.Width(width));
+                    EditorGUILayout.PropertyField(serializedHeight, GUIContent.none, GUILayout.Width(width));
+                
+                    serializedRect.serializedObject.ApplyModifiedProperties();
+                } 
+
             }
             catch (Exception e)
             {

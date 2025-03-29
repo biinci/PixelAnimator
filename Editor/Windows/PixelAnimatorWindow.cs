@@ -10,9 +10,6 @@ namespace binc.PixelAnimator.Editor.Windows{
     public class PixelAnimatorWindow : EditorWindow
     {
         #region Singleton
-
-        private static PixelAnimatorWindow animatorWindow;
-
         public static PixelAnimatorWindow AnimatorWindow
         {
             get
@@ -24,6 +21,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 return animatorWindow;
             }
         }
+        private static PixelAnimatorWindow animatorWindow;
         #endregion
         
         #region Variables
@@ -261,7 +259,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             if (!IsValidBoxGroup()) return false;
             return IndexOfSelectedBox < SelectedAnimation.BoxGroups[IndexOfSelectedBoxGroup].boxes.Count;
         }
-
         
         public bool IsValidFrame()
         {

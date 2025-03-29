@@ -72,14 +72,14 @@ namespace binc.PixelAnimator.Editor
             using (propertyScope)
             {
                 property.isExpanded = EditorGUI.Foldout(foldoutRect, property.isExpanded, GUIContent.none);
+                var showParameters = functionLabel != NoFunctionLabel && property.isExpanded;
+
                 DrawComponentType(objectRect, serializedComponentType, property);
                 DrawMethod(methodRect, serializedComponentType, functionTexRect, functionLabelRect, functionLabel, property);
-                
-                var showParameters = functionLabel != NoFunctionLabel && property.isExpanded;
                 if(showParameters)DrawParameters(property, serializedParameters, position); 
             }
 
-            UpdateReference(property, serializedComponentType);
+            // UpdateReference(property, serializedComponentType);
 
             
         }
@@ -214,17 +214,13 @@ namespace binc.PixelAnimator.Editor
 
             if (serializedMethodData.propertyType == SerializedPropertyType.ManagedReference)
             {
-                if (CachedManagedReferenceValueId.TryGetValue(key, out var id))
+                if (CachedManagedReferenceValueId.TryGetValue(key, out var id) && id == serializedMethodData.managedReferenceId)
                 {
-                    if (id == serializedMethodData.managedReferenceId) return;
-                    CachedManagedReferenceValueId[key] = serializedMethodData.managedReferenceId;
-                    CachedPropertyReference[key] = serializedMethodData.GetReference() as BaseMethodData;
+                    return;
                 }
-                else
-                {
-                    CachedManagedReferenceValueId[key] = serializedMethodData.managedReferenceId;
-                    CachedPropertyReference[key] = serializedMethodData.GetReference() as BaseMethodData;
-                }
+
+                CachedManagedReferenceValueId[key] = serializedMethodData.managedReferenceId;
+                CachedPropertyReference[key] = serializedMethodData.GetReference() as BaseMethodData;
                 return;
             }
             
@@ -267,6 +263,7 @@ namespace binc.PixelAnimator.Editor
 
             foreach (var method in methods)
             {
+                
                 functionMenu.AddItem(new GUIContent(method.Name), false, userData =>
                 {
                     var methodInfo = userData as MethodInfo;

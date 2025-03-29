@@ -92,8 +92,8 @@ namespace binc.PixelAnimator.DataManipulations
 
             var methodInfo = method.methodInfo;
             var reference = gameObject.GetComponent(componentType.SystemType);
-            if(!reference) return _ => { Debug.LogError("Reference not found"); };
             
+            if(!reference) return _ => { Debug.LogError("Reference not found"); };
             var editorParameters = parameters.Skip(1).Select(p => p.InheritData).ToArray();
             var lambdaParam = Expression.Parameter(typeof(object[]), "parameters");
 

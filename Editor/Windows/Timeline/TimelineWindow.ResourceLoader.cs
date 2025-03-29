@@ -1,8 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System;
-using System.Collections.Generic;
-
+using binc.PixelAnimator.AnimationData;
 namespace binc.PixelAnimator.Editor.Windows
 {
     public partial class TimelineWindow : Window

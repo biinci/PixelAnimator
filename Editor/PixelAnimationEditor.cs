@@ -1,4 +1,6 @@
 using System.Linq;
+using binc.PixelAnimator.AnimationData;
+using binc.PixelAnimator.DataManipulations;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
@@ -108,12 +110,13 @@ namespace binc.PixelAnimator.Editor{
             DrawPropertiesExcluding(serializedObject,  "m_Script", "pixelSprites");
             var serializedList = pixelSpriteList.serializedProperty;
             GUILayout.Space(10);
-            
+            serializedObject.ApplyModifiedProperties();
+
             serializedList.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(serializedList.isExpanded, "Pixel Sprites");
             lastRect = GUILayoutUtility.GetLastRect();
             if(serializedList.isExpanded) pixelSpriteList.DoLayoutList();
             EditorGUILayout.EndFoldoutHeaderGroup();
-            
+
             PixelAnimatorUtility.DropAreaGUI(lastRect, pixelSpriteList, obj =>
             {
                 var sprite = obj as Object;
@@ -135,6 +138,7 @@ namespace binc.PixelAnimator.Editor{
                     .FindPropertyRelative("sprite").objectReferenceValue = sprite;
             });
             serializedObject.ApplyModifiedProperties();
+
         }
 
         public static void AddPixelSprite(SerializedProperty serializedPixelSprites, int index)
@@ -152,9 +156,12 @@ namespace binc.PixelAnimator.Editor{
 
             var serializedBoxGroups = so.FindProperty("boxGroups");
                 
-            for (var i = 0; i < serializedBoxGroups.arraySize; i++) {
-                var layerProps = serializedBoxGroups.GetArrayElementAtIndex(i).FindPropertyRelative("boxes");
-                AddFrames(element, layerProps, index);
+            for (var i = 0; i < serializedBoxGroups.arraySize; i++)
+            {
+                var serializedBoxGroup = serializedBoxGroups.GetArrayElementAtIndex(i);
+                var collisionType =(CollisionTypes)serializedBoxGroup.FindPropertyRelative("collisionTypes").enumValueIndex;
+                var serializedBoxes = serializedBoxGroup.FindPropertyRelative("boxes");
+                AddFrames(element, serializedBoxes, index, collisionType);
             }
         }
 
@@ -166,7 +173,7 @@ namespace binc.PixelAnimator.Editor{
             serializedPixelSprites.serializedObject.ApplyModifiedProperties();
         }
 
-        private static void AddFrames(SerializedProperty element, SerializedProperty layersProps, int index){
+        private static void AddFrames(SerializedProperty element, SerializedProperty layersProps, int index, CollisionTypes collisionType){
             for (var i = 0; i < layersProps.arraySize; i ++) {
                 var framesProp = layersProps.GetArrayElementAtIndex(i).FindPropertyRelative("frames");
                 framesProp.InsertArrayElementAtIndex(index);
@@ -180,6 +187,21 @@ namespace binc.PixelAnimator.Editor{
                 hitBoxRectProp.FindPropertyRelative("y").floatValue = 16;
                 hitBoxRectProp.FindPropertyRelative("width").floatValue = 16;
                 hitBoxRectProp.FindPropertyRelative("height").floatValue = 16;
+                var enterMethodStorage = frame.FindPropertyRelative("enterMethodStorage");
+                var stayMethodStorage = frame.FindPropertyRelative("stayMethodStorage");
+                var exitMethodStorage = frame.FindPropertyRelative("exitMethodStorage");
+                if (collisionType == CollisionTypes.Collider)
+                {
+                    enterMethodStorage.managedReferenceValue = new MethodStorage<Collision2D>();
+                    stayMethodStorage.managedReferenceValue = new MethodStorage<Collision2D>();
+                    exitMethodStorage.managedReferenceValue = new MethodStorage<Collision2D>();
+                }
+                else
+                {
+                    enterMethodStorage.managedReferenceValue = new MethodStorage<Collider2D>();
+                    stayMethodStorage.managedReferenceValue = new MethodStorage<Collider2D>();
+                    exitMethodStorage.managedReferenceValue = new MethodStorage<Collider2D>();
+                }
             }
         }
         
@@ -192,5 +214,8 @@ namespace binc.PixelAnimator.Editor{
                 }
             }
         }
+
+
+
     }
 }

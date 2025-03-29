@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using binc.PixelAnimator.AnimationData;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace binc.PixelAnimator{
+namespace binc.PixelAnimator.AnimationData{
 
     public enum CollisionTypes{Collider = 1, Trigger = 2}
 
@@ -27,15 +27,16 @@ namespace binc.PixelAnimator{
             boxes.Add(new BoxLayer());
             var index = boxes.Count -1;
             foreach (var pixelSprite in pixelSprites) {
-                boxes[index].frames.Add(new BoxFrame(pixelSprite.spriteId){boxRect = new Rect(0,0,16,16)});
+                boxes[index].frames.Add(new BoxFrame(pixelSprite.spriteId, collisionTypes){boxRect = new Rect(0,0,16,16)});
             }
         }
-
+        
         public void ChangeCollisionType(CollisionTypes collisionType){
             collisionTypes = collisionType;
             foreach (var box in boxes)
             {
                 box.ChangeFrameMethodType(collisionTypes);
+                
             }
         }
 
@@ -50,22 +51,33 @@ namespace binc.PixelAnimator{
             frames = new List<BoxFrame>();
         }
 
+        #if UNITY_EDITOR
+        public void AddFrame(CollisionTypes collisionTypes){
+            frames.Add(new BoxFrame(GUID.Generate().ToString(),collisionTypes));
+            
+        }
+        #endif
+        
+        public BoxFrame GetFrame(int index){
+            if(index < 0 || index >= frames.Count) return null;
+            var frame = frames[index];
+            if (frame.Type == BoxFrameType.KeyFrame) return frame;
+            if (frame.Type == BoxFrameType.EmptyFrame) return null;
+            index--;
+            while (frames[index].Type == BoxFrameType.CopyFrame)
+            {
+                index--;
+            }
+
+            return frames[index];
+        }
+        
+        
         public void ChangeFrameMethodType(CollisionTypes collisionTypes){
             foreach (var frame in frames)
             {
-                switch (collisionTypes)
-                {
-                    case CollisionTypes.Collider:
-                        frame.ChangeMethodType<Collision2D>();
-                        break;
-                    case CollisionTypes.Trigger:
-                        frame.ChangeMethodType<Collider2D>();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                frame.ChangeMethodType(collisionTypes);
             }
-
         }
 
         

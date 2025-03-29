@@ -30,7 +30,7 @@ namespace binc.PixelAnimator.DataManipulations
     [Serializable]
     public class MethodStorage<T> : BaseMethodStorage
     {
-        [SerializeField] public UnityEvent<T> methods;
+        [NonSerialized] public UnityEvent<T> methods;
         [SerializeField] public List<MethodData<T>> methodData;
         
         public void CompileAllFunctions(GameObject gameObject)

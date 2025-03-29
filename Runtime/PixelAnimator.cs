@@ -5,8 +5,6 @@ using UnityEngine;
 using System;
 using System.Linq;
 using binc.PixelAnimator.DataManipulations;
-using UnityEngine.Serialization;
-using UnityEngine.UIElements;
 
 namespace binc.PixelAnimator{
     [RequireComponent(typeof(SpriteRenderer))]
@@ -16,11 +14,13 @@ namespace binc.PixelAnimator{
         private PixelAnimationPreferences preferences;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private PixelAnimationController animationController;
-        public PixelAnimation PlayingAnimation { get; private set; }
+        public PixelAnimation PlayingAnimation => playingAnimation;
+        [SerializeField, ReadOnly] private PixelAnimation playingAnimation;
         private PixelAnimation nextAnim;
         public int FrameIndex { get; private set; }
         private float elapsedTime;
         private bool isPlaying;
+        
 
         private GameObject titleObject;
         
@@ -37,11 +37,13 @@ namespace binc.PixelAnimator{
         }
 
         private void Awake(){
-            preferences = Resources.Load<PixelAnimationPreferences>("Animation Preferences");
+            LoadPreferences();
             CreateTitle();
             CompileFunctions();
         }
-
+        private void LoadPreferences(){
+            preferences = Resources.Load<PixelAnimationPreferences>("Animation Preferences");
+        }
         private void CompileFunctions()
         {
             foreach (var pixelAnimation in animationController.Animations)
@@ -54,21 +56,36 @@ namespace binc.PixelAnimator{
                 foreach (var boxGroup in from boxGroup in pixelAnimation.BoxGroups select boxGroup)
                 { 
                     var isTrigger = boxGroup.collisionTypes == CollisionTypes.Trigger;
-                    foreach (var frame in from box in boxGroup.boxes from frame in box.frames select frame)
+                    foreach (var box in from box in boxGroup.boxes select box)
                     {
-                        if (isTrigger)
+                        foreach (var frame in from frame in box.frames select frame)
                         {
-                            ((MethodStorage<Collider2D>)frame.enterMethodStorage).CompileAllFunctions(gameObject);
-                            ((MethodStorage<Collider2D>)frame.stayMethodStorage).CompileAllFunctions(gameObject);
-                            ((MethodStorage<Collider2D>)frame.exitMethodStorage).CompileAllFunctions(gameObject);
+                            try
+                            {
 
+                                if (isTrigger)
+                                {
+                                    ((MethodStorage<Collider2D>)frame.enterMethodStorage).CompileAllFunctions(gameObject);
+                                    ((MethodStorage<Collider2D>)frame.stayMethodStorage).CompileAllFunctions(gameObject);
+                                    ((MethodStorage<Collider2D>)frame.exitMethodStorage).CompileAllFunctions(gameObject);
+
+                                }
+                                else
+                                {
+                                    ((MethodStorage<Collision2D>)frame.enterMethodStorage).CompileAllFunctions(gameObject);
+                                    ((MethodStorage<Collision2D>)frame.stayMethodStorage).CompileAllFunctions(gameObject);
+                                    ((MethodStorage<Collision2D>)frame.exitMethodStorage).CompileAllFunctions(gameObject);
+                                }
+                            }
+                            catch(Exception e)
+                            {
+                                
+
+                                Debug.LogError("Animation: " + pixelAnimation.name + " Group: " + pixelAnimation.BoxGroups.IndexOf(boxGroup) + " Box: " + boxGroup.boxes.IndexOf(box) + " Frame: " + box.frames.IndexOf(frame));
+                            }
                         }
-                        else
-                        {
-                            ((MethodStorage<Collision2D>)frame.enterMethodStorage).CompileAllFunctions(gameObject);
-                            ((MethodStorage<Collision2D>)frame.stayMethodStorage).CompileAllFunctions(gameObject);
-                            ((MethodStorage<Collision2D>)frame.exitMethodStorage).CompileAllFunctions(gameObject);
-                        }
+
+
                     }
                 }
             }
@@ -102,7 +119,6 @@ namespace binc.PixelAnimator{
                 break;
             }
         }
-
         
         private void ApplyFrame()
         {
@@ -141,7 +157,8 @@ namespace binc.PixelAnimator{
         }
         private Rect GetAdjustedRect(BoxLayer box, int index){
             var f = index == -1 ? 0 : index;
-            return PixelAnimatorUtility.MapBoxRectToTransform(box.frames[f].boxRect, PlayingAnimation.GetSpriteList()[f]);
+            var frame = box.GetFrame(index);
+            return frame == null ? Rect.zero : PixelAnimatorUtility.MapBoxRectToTransform(frame.boxRect, PlayingAnimation.PixelSprites[f].sprite);
         }
 
         private GameObject CreateColliderObject(BoxData boxData){
@@ -160,7 +177,7 @@ namespace binc.PixelAnimator{
             FrameIndex = 0;
             elapsedTime = 0;
             isPlaying = true;
-            PlayingAnimation = nextAnimation;
+            playingAnimation = nextAnimation;
             RefreshColliderObjects();
             SetBoxes(PlayingAnimation.BoxGroups);
             OnFrameChanged.Invoke(0);
@@ -177,45 +194,77 @@ namespace binc.PixelAnimator{
             }
         }
         
-        //When the current animation changes, the collider info component and the box collider component are added. The size and position of the box collider are adjusted.
         private void SetBoxes(List<BoxGroup> boxGroups){
             foreach (var boxGroup in boxGroups) {
                 var colliderObj = SetColliderObject(boxGroup);
-                foreach (var box in boxGroup.boxes)
-                {
-                    SetCollider(colliderObj, box, boxGroup);
-                }
+                // var boxColliders = colliderObj.GetComponents<BoxCollider2D>();
+                //
+                // for (var i = 0; i < boxGroup.boxes.Count; i++)
+                // {
+                //     var box = boxGroup.boxes[i];
+                //     SetColliderComponents(colliderObj, box, boxGroup, boxColliders[i]);
+                // }
             }
         }
         
-        //When the current animation changes, the objects of the groups are checked. The collider object is refreshed depending on the situation.
         private GameObject SetColliderObject(BoxGroup boxGroup){
             GameObject colliderObj;
             var boxData = preferences.GetBoxData(boxGroup.BoxDataGuid);
             var isExist = colliderObjects.Keys.Contains(boxData.boxName);
-            if (!isExist){
-                colliderObj = CreateColliderObject(boxData);
-                colliderObjects.Add(colliderObj.name, colliderObj);
+            if (isExist){
+                colliderObj = colliderObjects[boxData.boxName].gameObject;
+                
+                foreach (var component in colliderObj.GetComponents<Component>()){
+                    if(component is not Transform && component is not BoxCollider2D) Destroy(component);
+                }
+
+                var cols = colliderObj.GetComponents<BoxCollider2D>();
+                if (cols.Length < boxGroup.boxes.Count)
+                {
+                    for(var i = cols.Length; i < boxGroup.boxes.Count; i++){
+                        var col = colliderObj.AddComponent<BoxCollider2D>();
+                        // SetColliderComponents(colliderObj, boxGroup.boxes[i], boxGroup, col);
+                    }
+                }
+                else if (cols.Length > boxGroup.boxes.Count)
+                {
+                    for (var i = boxGroup.boxes.Count; i < cols.Length; i++)
+                    {
+                        Debug.Log(cols[i]);
+                        Destroy(cols[i]);
+                    }    
+                }
+                
             }
             else{
-                colliderObj = colliderObjects[boxData.boxName].gameObject;
+                colliderObj = CreateColliderObject(boxData);
+                colliderObjects.Add(colliderObj.name, colliderObj);
+                foreach (var box in boxGroup.boxes)
+                {
+                    var col = colliderObj.AddComponent<BoxCollider2D>();
+                    // SetColliderComponents(colliderObj, box, boxGroup, col);
+                }
             }
 
-            foreach (var component in colliderObj.GetComponents<Component>()){
-                if(component is not Transform) Destroy(component);
+            for (var i = 0; i < boxGroup.boxes.Count; i++)
+            {
+                var box = boxGroup.boxes[i];
+                var col = colliderObj.GetComponents<BoxCollider2D>()[i];
+                SetColliderComponents(colliderObj, box, boxGroup, col);
             }
-
+            
             return colliderObj;
         }
         
-        private void SetCollider(GameObject colliderObj, BoxLayer box, BoxGroup boxGroup){
-            var col = colliderObj.AddComponent<BoxCollider2D>();
-            col.enabled = false;
+        private void SetColliderComponents(GameObject colliderObj, BoxLayer box, BoxGroup boxGroup, BoxCollider2D col)
+        {
+            
+            // col.enabled = false;
             var rect = GetAdjustedRect(box, FrameIndex);
             col.isTrigger = boxGroup.collisionTypes == CollisionTypes.Trigger;
             col.size = rect.size;
             col.offset = new Vector2(rect.position.x, rect.position.y);
-            col.enabled = true;
+            // col.enabled = true;
             if (col.isTrigger)
             {
                 ColliderInfo.Create(colliderObj, this, box);
@@ -225,7 +274,5 @@ namespace binc.PixelAnimator{
                 CollisionInfo.Create(colliderObj, this, box);
             }
         }
-
-
     }
 }
