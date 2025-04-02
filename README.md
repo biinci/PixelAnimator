@@ -1,9 +1,13 @@
 # Pixel Animator
 ## Complete Documentation
 
-<img width="180" alt="Pixel Animator logo" src="https://github.com/user-attachments/assets/bfd74fa0-289d-459a-9a33-fec06b99d303">
-
-[![Unity](https://img.shields.io/badge/Unity-2023.2.7f1%2b-blue?logo=unity)](https://unity.com/releases/editor/whats-new/2023.2.20#installs)
+<div align="center">
+  <img width="180" alt="Pixel Animator logo" src="https://github.com/user-attachments/assets/bfd74fa0-289d-459a-9a33-fec06b99d303">
+  <br>
+  <a href="https://unity.com/releases/editor/whats-new/2023.2.20#installs">
+    <img src="https://img.shields.io/badge/Unity-2023.2.7f1%2b-blue?logo=unity">
+  </a>
+</div>
 
 ---
 
