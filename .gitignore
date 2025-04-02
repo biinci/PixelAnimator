@@ -57,6 +57,5 @@ sysinfo.txt
 
 # Crashlytics generated file
 crashlytics-build.properties
-
-Runtime/Resources/Animation Preferences.asset
-Runtime/Resources/Animation Preferences.asset.meta
+Resources/Animation Preferences.asset
+Resources/Animation Preferences.asset.meta
