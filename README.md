@@ -1,5 +1,4 @@
 # Pixel Animator
-## Complete Documentation
 
 <div align="center">
   <img width="180" alt="Pixel Animator logo" src="https://github.com/user-attachments/assets/bfd74fa0-289d-459a-9a33-fec06b99d303">
@@ -50,7 +49,6 @@ The primary goal of Pixel Animator is to create a direct causal relationship bet
 - **Box Collider Synchronization**: Automatically updates BoxCollider2D objects in sync with animation frames
 - **Flexible Event System**: Add events to specific frames or box colliders that trigger at precise moments
 - **Visual Editor**: User-friendly editor window for creating and managing animations
-- **Performance Optimization**: Group animations with controllers for more efficient resource usage
 
 ## Getting Started
 
@@ -296,5 +294,3 @@ Common issues and solutions:
    - Reduce event complexity
 
 ---
-
-This documentation covers the Pixel Animator tool developed for Unity frame-by-frame animations with synchronized box colliders. For further assistance or to contribute to the project, visit the GitHub repository at https://github.com/biinci/PixelAnimator.
