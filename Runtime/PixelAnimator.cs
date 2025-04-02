@@ -5,6 +5,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using binc.PixelAnimator.DataManipulations;
+using UnityEngine.Serialization;
 
 namespace binc.PixelAnimator{
     [RequireComponent(typeof(SpriteRenderer))]
@@ -19,9 +20,9 @@ namespace binc.PixelAnimator{
         private PixelAnimation nextAnim;
         public int FrameIndex { get; private set; }
         private float elapsedTime;
-        private bool isPlaying;
-        
+        public bool IsPlaying { get; private set; }
 
+        private bool isLastFrame;
         private GameObject titleObject;
         
         private readonly Dictionary<string, GameObject> colliderObjects = new();
@@ -79,8 +80,7 @@ namespace binc.PixelAnimator{
                             }
                             catch(Exception e)
                             {
-                                
-
+                                Debug.LogError(e);
                                 Debug.LogError("Animation: " + pixelAnimation.name + " Group: " + pixelAnimation.BoxGroups.IndexOf(boxGroup) + " Box: " + boxGroup.boxes.IndexOf(box) + " Frame: " + box.frames.IndexOf(frame));
                             }
                         }
@@ -103,19 +103,28 @@ namespace binc.PixelAnimator{
         }
         
         private void NextFrame(){
-            if (!isPlaying) return;
+            if (!IsPlaying) return;
             elapsedTime += Time.deltaTime;
             var secondsPerFrame = 1 / (float)PlayingAnimation.fps;
             var spriteCount = PlayingAnimation.PixelSprites.Count;
             
             while (elapsedTime >= secondsPerFrame){
                 
-                FrameIndex = (FrameIndex + 1) % spriteCount;
-                OnFrameChanged?.Invoke(FrameIndex);
-                elapsedTime -= secondsPerFrame;
                 if (FrameIndex != spriteCount - 1 || PlayingAnimation.loop)
+                {
+                    FrameIndex = (FrameIndex + 1) % spriteCount;
+                    OnFrameChanged?.Invoke(FrameIndex);
+                    elapsedTime -= secondsPerFrame; 
                     continue;
-                isPlaying = false;
+                }
+                else if (FrameIndex == spriteCount -1 && !PlayingAnimation.loop && !isLastFrame)
+                {
+                    isLastFrame = true;
+                    elapsedTime -= secondsPerFrame;
+                    continue;
+                }
+                elapsedTime -= secondsPerFrame;
+                IsPlaying = false;
                 break;
             }
         }
@@ -158,7 +167,9 @@ namespace binc.PixelAnimator{
         private Rect GetAdjustedRect(BoxLayer box, int index){
             var f = index == -1 ? 0 : index;
             var frame = box.GetFrame(index);
-            return frame == null ? Rect.zero : PixelAnimatorUtility.MapBoxRectToTransform(frame.boxRect, PlayingAnimation.PixelSprites[f].sprite);
+            var rect = frame == null ? Rect.zero : PixelAnimatorUtility.MapBoxRectToTransform(frame.boxRect, PlayingAnimation.PixelSprites[f].sprite);
+            rect.x *= spriteRenderer.flipX ? -1 : 1;
+            return rect;
         }
 
         private GameObject CreateColliderObject(BoxData boxData){
@@ -174,13 +185,21 @@ namespace binc.PixelAnimator{
         }
         
         public void Play(PixelAnimation nextAnimation){//TODO: need to fix
+            if (!animationController.Animations.Contains(nextAnimation))
+            {
+                Debug.LogError("Animation not found in the animation controller");
+                return;
+            }
             FrameIndex = 0;
             elapsedTime = 0;
-            isPlaying = true;
+            IsPlaying = true;
+            isLastFrame = false;
             playingAnimation = nextAnimation;
             RefreshColliderObjects();
             SetBoxes(PlayingAnimation.BoxGroups);
             OnFrameChanged.Invoke(0);
+            
+            
         }
         
         private void RefreshColliderObjects(){

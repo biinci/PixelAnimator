@@ -15,14 +15,17 @@ namespace binc.PixelAnimator.Editor
     {
         private static Texture2D _functionIcon;
         private const float Padding = 2;
-        private static readonly Dictionary<string, Object> ObjectListByPropertyPath = new();
-        private static readonly Dictionary<string, BaseMethodData> CachedPropertyReference = new();
-        private static readonly Dictionary<string, long> CachedManagedReferenceValueId = new();
+        private static  Dictionary<string, Object> ObjectListByPropertyPath = new();
+        private static Dictionary<string, BaseMethodData> CachedPropertyReference = new();
+        private static  Dictionary<string, long> CachedManagedReferenceValueId = new();
         private const string NoFunctionLabel = "No function";
         private const string EmptyReferenceTip = "Reference is empty";
     
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            ObjectListByPropertyPath = new Dictionary<string, Object>();
+            CachedPropertyReference = new Dictionary<string, BaseMethodData>();
+            CachedManagedReferenceValueId = new Dictionary<string, long>();
             SetPropertyReference(property);
             var reference = CachedPropertyReference[property.propertyPath];
             if (reference == null) return;

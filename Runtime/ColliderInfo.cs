@@ -12,7 +12,13 @@ namespace binc.PixelAnimator
         public BoxLayer boxLayer;
         public PixelAnimator animator;
         private BoxFrame frame;
+        
+        private MethodStorage<Collider2D> enterMethodStorage;
+        private MethodStorage<Collider2D> stayMethodStorage;
+        private MethodStorage<Collider2D> exitMethodStorage;
 
+        private bool isValidFrame = true;
+        
         public static void Create(GameObject obj, PixelAnimator animator, BoxLayer layer)
         {
             var colliderInfo = obj.AddComponent<ColliderInfo>();
@@ -28,23 +34,36 @@ namespace binc.PixelAnimator
         private void UpdateFrame(int index)
         {
             frame = boxLayer.GetFrame(index);
+            if (frame == null)
+            {
+                isValidFrame = false;
+                return;
+            }
+            isValidFrame = true;
+            
+            enterMethodStorage = (MethodStorage<Collider2D>)frame.enterMethodStorage;
+            stayMethodStorage = (MethodStorage<Collider2D>)frame.stayMethodStorage;
+            exitMethodStorage = (MethodStorage<Collider2D>)frame.exitMethodStorage;
         }
 
         
         private void OnTriggerEnter2D(Collider2D other)
         {
-            ((MethodStorage<Collider2D>)frame.enterMethodStorage).methods.Invoke(other);
+            if (!isValidFrame) return;
+            enterMethodStorage.methods.Invoke(other);
         }
 
         private void OnTriggerStay2D(Collider2D other)
         {
-            ((MethodStorage<Collider2D>)frame.stayMethodStorage).methods.Invoke(other);
+            if (!isValidFrame) return;
+            stayMethodStorage.methods.Invoke(other);
 
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
-            ((MethodStorage<Collider2D>)frame.exitMethodStorage).methods.Invoke(other);
+            if (!isValidFrame) return;
+            exitMethodStorage.methods.Invoke(other);
         }
         
     }

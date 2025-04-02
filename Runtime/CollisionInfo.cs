@@ -14,6 +14,8 @@ namespace binc.PixelAnimator
         private MethodStorage<Collision2D> enterMethodStorage;
         private MethodStorage<Collision2D> stayMethodStorage;
         private MethodStorage<Collision2D> exitMethodStorage;
+
+        private bool isFrameValid;
         public static void Create(GameObject obj, PixelAnimator animator, BoxLayer layer)
         {
             var collisionInfo = obj.AddComponent<CollisionInfo>();
@@ -32,6 +34,13 @@ namespace binc.PixelAnimator
         private void UpdateFrame(int index)
         {
             frame = boxLayer.GetFrame(index);
+            if (frame == null)
+            {
+                isFrameValid = false;
+                return;
+            }
+
+            isFrameValid = true;
             enterMethodStorage = (MethodStorage<Collision2D>)frame.enterMethodStorage;
             stayMethodStorage = (MethodStorage<Collision2D>)frame.stayMethodStorage;
             exitMethodStorage = (MethodStorage<Collision2D>)frame.exitMethodStorage;
@@ -40,16 +49,20 @@ namespace binc.PixelAnimator
 
         private void OnCollisionEnter2D(Collision2D other)
         {
+            if(!isFrameValid) return;
             enterMethodStorage.methods.Invoke(other);
         }
-
+        
         private void OnCollisionStay2D(Collision2D other)
         {
+            if(!isFrameValid) return;
+
             stayMethodStorage.methods.Invoke(other);
         }
 
         private void OnCollisionExit2D(Collision2D other)
         {
+            if(!isFrameValid) return;
             exitMethodStorage.methods.Invoke(other);
 
         }
