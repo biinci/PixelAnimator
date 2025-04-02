@@ -34,6 +34,8 @@
     - [Event Handling](#event-handling)
 9. [Best Practices](#best-practices)
 10. [Troubleshooting](#troubleshooting)
+11. [Contributing](#contributing)
+    - [Reporting Issues](#reporting-issues)
 
 ---
 
@@ -293,4 +295,21 @@ Common issues and solutions:
    - Minimize the number of box colliders
    - Reduce event complexity
 
+## Contributing
+I need your help to make Pixel Animator better! (it's very buggy) Here are some ways you can contribute:
+### Reporting Issues
+
+If you find a bug or have a feature request, please open an issue on GitHub with the following information:
+
+- **Bug Reports**
+   - Clear description of the bug
+   - Steps to reproduce
+   - Expected behavior
+   - Screenshots if applicable
+   - Unity version and other relevant environment information
+
+- **Feature Requests**
+   - Clear description of the proposed feature
+   - Explanation of why this would be valuable to the project
+   - Any implementation ideas you might have
 ---
