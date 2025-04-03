@@ -3,10 +3,8 @@ using System.Linq;
 using binc.PixelAnimator.AnimationData;
 using UnityEngine;
 
-
 namespace binc.PixelAnimator.Preferences{
     
-    [CreateAssetMenu(menuName = "Pixel Animation/ New Animation Preferences")]
     public class PixelAnimationPreferences : ScriptableObject{
         public List<BoxData> BoxData => boxData;
         [SerializeField] private List<BoxData> boxData;
