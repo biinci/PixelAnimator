@@ -45,7 +45,8 @@ Pixel Animator is a specialized Unity tool designed for frame-by-frame 2D pixel 
 
 The primary goal of Pixel Animator is to create a direct causal relationship between sprite animations and collision boxes while adding flexible event triggering that works in perfect sync with your animation frames.
 
-For demo: [Click here](https://your-demo-link.com)
+For demo: [Click here](https://github.com/biinci/PixelAnimator-Demo)
+
 
 ## Key Features
 
