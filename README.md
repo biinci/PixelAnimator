@@ -6,6 +6,7 @@
   <a href="https://unity.com/releases/editor/whats-new/2023.2.20#installs">
     <img src="https://img.shields.io/badge/Unity-2023.2.7f1%2b-blue?logo=unity">
   </a>
+ <a href="https://discord.gg/Aht7Mwe9gq"><img src="https://img.shields.io/discord/1356966333123788870?style=flat&logo=discord&logoColor=fff&color=404eed" alt="discord"></a>
 </div>
 
 ---
