@@ -10,7 +10,15 @@ namespace binc.PixelAnimator.Preferences{
         [SerializeField] private List<BoxData> boxData;
         
         public BoxData GetBoxData(string guid){
-            return boxData.First(x => x.Guid == guid);
+            try
+            {
+                return boxData.First(x => x.Guid == guid);
+            }
+            catch
+            {
+                Debug.LogError($"BoxData with GUID {guid} not found.");
+                return new BoxData();
+            }
         }
     }
 }
