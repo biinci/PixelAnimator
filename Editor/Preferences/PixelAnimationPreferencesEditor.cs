@@ -2,8 +2,8 @@ using binc.PixelAnimator.Preferences;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-
-
+using System.Linq;
+using binc.PixelAnimator.AnimationData;
 namespace binc.PixelAnimator.Editor.Preferences{
 
     [CustomEditor(typeof(PixelAnimationPreferences))]
@@ -14,8 +14,9 @@ namespace binc.PixelAnimator.Editor.Preferences{
 
         private SerializedObject editorSerializedObject;
         private SerializedProperty serializedBoxData;
-        
+
         private ReorderableList boxDataList;
+        private string text;
 
         #endregion
 
@@ -31,8 +32,35 @@ namespace binc.PixelAnimator.Editor.Preferences{
             serializedObject.Update();
             boxDataList.DoLayoutList();
             serializedObject.ApplyModifiedProperties();
+            GuidButton();
+
         }
 
+        private void GuidButton()
+        {
+            var preferences = target as PixelAnimationPreferences;
+            var boxData = preferences?.BoxData;
+            if(boxData == null) return;
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Manually Add GUID"))
+            {
+                if (string.IsNullOrEmpty(text) || text.Length != 32)
+                {
+                    Debug.LogError("Please enter a valid GUID.");
+                    return;
+                }
+                var exist = boxData.Any(x => x.Guid == text);
+                if (!exist)
+                {
+                    AddGroupElement(text);
+                }
+            }
+            text = EditorGUILayout.TextField(text);
+            EditorGUILayout.EndHorizontal();
+
+        }
+        
         #region BoxData
 
         private void InitGroupList(){
@@ -53,6 +81,15 @@ namespace binc.PixelAnimator.Editor.Preferences{
             boxDataList.index = index;
             var element = boxDataList.serializedProperty.GetArrayElementAtIndex(index);
             element.FindPropertyRelative("guid").stringValue = GUID.Generate().ToString();
+            element.serializedObject.ApplyModifiedProperties();
+        }
+        
+        private void AddGroupElement(string guid){
+            var index = boxDataList.serializedProperty.arraySize;
+            boxDataList.serializedProperty.arraySize ++;
+            boxDataList.index = index;
+            var element = boxDataList.serializedProperty.GetArrayElementAtIndex(index);
+            element.FindPropertyRelative("guid").stringValue = guid;
             element.serializedObject.ApplyModifiedProperties();
         }
 
