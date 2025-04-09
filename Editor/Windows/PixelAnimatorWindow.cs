@@ -43,9 +43,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         public float EditorDeltaTime { get; private set; }
         private float lifeTime;
 
-        private List<PixelAnimation> recentAnimations = new();
-        private Vector2 recentScrollPos;
-        private bool showRecentAnimations = true;
+        public event Action<PixelAnimation> onAnimationSelected;
 
         #endregion
         
@@ -121,24 +119,25 @@ namespace binc.PixelAnimator.Editor.Windows{
             foreach (var obj in Selection.objects)
             {
                 if (obj is not PixelAnimation anim) continue;
+                onAnimationSelected?.Invoke(anim);
 
-                selectedAnimation = anim;
-                SerializedSelectedAnimation = new SerializedObject(selectedAnimation);
-                SelectBoxGroup(0);
-                SelectBox(0);
-                SelectSprite(0);
-                var spriteList = selectedAnimation.GetSpriteList();
-                if (spriteList != null)
-                    lifeTime = 0;
+                SetSelectedAnimation(anim);
 
-                if (!recentAnimations.Contains(anim))
-                {
-                    recentAnimations.Insert(0, anim);
-                    if (recentAnimations.Count > 5)
-                        recentAnimations.RemoveAt(recentAnimations.Count - 1);
-                }
+
             }
             Repaint();
+        }
+        
+        public void SetSelectedAnimation(PixelAnimation anim)
+        {
+            selectedAnimation = anim;
+            SerializedSelectedAnimation = new SerializedObject(selectedAnimation);
+            SelectBoxGroup(0);
+            SelectBox(0);
+            SelectSprite(0);
+            var spriteList = selectedAnimation.GetSpriteList();
+            if (spriteList != null)
+                lifeTime = 0;
         }
         
         private void OnGUI()
@@ -154,8 +153,6 @@ namespace binc.PixelAnimator.Editor.Windows{
                 DrawMissingPreferencesPrompt();
                 return;
             }
-
-            DrawRecentAnimationsPanel();
             ProcessWindows();
 
             if (Event.current.button == 0 && Event.current.type == EventType.MouseDown)
@@ -164,31 +161,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 Event.current.Use();
             }
         }
-
-        private void DrawRecentAnimationsPanel()
-        {
-            var height = showRecentAnimations ? 150 : 20;
-            GUILayout.BeginArea(new Rect(position.width - 220, 10, 210, height), EditorStyles.helpBox);
-            showRecentAnimations = EditorGUILayout.Foldout(showRecentAnimations, "Recent Animations", true);
-            if (showRecentAnimations)
-            {
-                recentScrollPos = GUILayout.BeginScrollView(recentScrollPos);
-                foreach (var anim in recentAnimations)
-                {
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button(anim.name, GUILayout.ExpandWidth(true)))
-                    {
-                        Selection.activeObject = anim;
-                    }
-
-                    var icon = EditorGUIUtility.ObjectContent(anim, typeof(ScriptableObject)).image;
-                    GUILayout.Label(icon, GUILayout.Width(20), GUILayout.Height(20));
-                    GUILayout.EndHorizontal();
-                }
-                GUILayout.EndScrollView();
-            }
-            GUILayout.EndArea();
-        }
+        
 
         private void DrawMissingPreferencesPrompt()
         {
