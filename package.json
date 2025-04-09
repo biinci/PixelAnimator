@@ -3,7 +3,7 @@
     "version" : "0.0.1",
     "displayName": "Pixel Animator",
     "description": "Custom Animator for 2D Sprites!",
-    "unity" : "2021.3",
+    "unity" : "2023.2",
     "dependencies": {},
     "keywords": ["pixel", "animator"],
     "author": {
