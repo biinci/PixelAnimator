@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System;
+using System.Collections.Generic;
 using binc.PixelAnimator.AnimationData;
 using binc.PixelAnimator.Preferences;
 using binc.PixelAnimator.Editor.Preferences;
@@ -41,6 +42,11 @@ namespace binc.PixelAnimator.Editor.Windows{
         public SerializedObject SerializedSelectedAnimation { get; private set; }
         public float EditorDeltaTime { get; private set; }
         private float lifeTime;
+
+        private List<PixelAnimation> recentAnimations = new();
+        private Vector2 recentScrollPos;
+        private bool showRecentAnimations = true;
+
         #endregion
         
         #region Initialize
@@ -75,13 +81,6 @@ namespace binc.PixelAnimator.Editor.Windows{
         
         private void LoadResources()
         {
-
-            if (AnimationPreferences == null)
-            {
-                Debug.LogWarning("PixelAnimationPreferences not found. User will be prompted to create one.");
-            }
-
-            AnimatorPreferences = Resources.Load<PixelAnimatorPreferences>("Animator Preferences");
             PixelAnimatorSkin = Resources.Load<GUISkin>("PixelAnimationSkin");
         }
 
@@ -92,6 +91,10 @@ namespace binc.PixelAnimator.Editor.Windows{
             if (guids.Length <= 0) return;
             var path = AssetDatabase.GUIDToAssetPath(guids[0]);
             AnimationPreferences = AssetDatabase.LoadAssetAtPath<PixelAnimationPreferences>(path);
+            if (AnimationPreferences == null)
+            {
+                Debug.LogWarning("PixelAnimationPreferences not found. User will be prompted to create one.");
+            }
         }
 
         
@@ -127,6 +130,13 @@ namespace binc.PixelAnimator.Editor.Windows{
                 var spriteList = selectedAnimation.GetSpriteList();
                 if (spriteList != null)
                     lifeTime = 0;
+
+                if (!recentAnimations.Contains(anim))
+                {
+                    recentAnimations.Insert(0, anim);
+                    if (recentAnimations.Count > 5)
+                        recentAnimations.RemoveAt(recentAnimations.Count - 1);
+                }
             }
             Repaint();
         }
@@ -145,6 +155,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 return;
             }
 
+            DrawRecentAnimationsPanel();
             ProcessWindows();
 
             if (Event.current.button == 0 && Event.current.type == EventType.MouseDown)
@@ -153,6 +164,32 @@ namespace binc.PixelAnimator.Editor.Windows{
                 Event.current.Use();
             }
         }
+
+        private void DrawRecentAnimationsPanel()
+        {
+            var height = showRecentAnimations ? 150 : 20;
+            GUILayout.BeginArea(new Rect(position.width - 220, 10, 210, height), EditorStyles.helpBox);
+            showRecentAnimations = EditorGUILayout.Foldout(showRecentAnimations, "Recent Animations", true);
+            if (showRecentAnimations)
+            {
+                recentScrollPos = GUILayout.BeginScrollView(recentScrollPos);
+                foreach (var anim in recentAnimations)
+                {
+                    GUILayout.BeginHorizontal();
+                    if (GUILayout.Button(anim.name, GUILayout.ExpandWidth(true)))
+                    {
+                        Selection.activeObject = anim;
+                    }
+
+                    var icon = EditorGUIUtility.ObjectContent(anim, typeof(ScriptableObject)).image;
+                    GUILayout.Label(icon, GUILayout.Width(20), GUILayout.Height(20));
+                    GUILayout.EndHorizontal();
+                }
+                GUILayout.EndScrollView();
+            }
+            GUILayout.EndArea();
+        }
+
         private void DrawMissingPreferencesPrompt()
         {
             GUILayout.BeginVertical(GUILayout.ExpandHeight(true));
@@ -171,6 +208,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             GUILayout.FlexibleSpace();
             GUILayout.EndVertical();
         }
+
         private void CreatePreferencesFile()
         {
             var prefs = CreateInstance<PixelAnimationPreferences>();
@@ -195,6 +233,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             InitWindows();
             Repaint();
         }
+
         private void SelectPreferencesFile()
         {
             var path = EditorUtility.OpenFilePanel("Select PixelAnimationPreferences", "Assets", "asset");
@@ -390,7 +429,7 @@ namespace binc.PixelAnimator.Editor.Windows{
                 return;
             }
             SelectSprite(IndexOfSelectedSprite++);
-            PixelAnimationEditor.AddPixelSprite(SerializedSelectedAnimation.FindProperty("pixelSprites"), index);
+            PixelSpriteUtility.AddSprite(SerializedSelectedAnimation.FindProperty("pixelSprites"), index);
             SerializedSelectedAnimation.Update();
         }
         public void RemovePixelSprite(int index)
@@ -404,7 +443,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             {
                 SelectSprite(IndexOfSelectedSprite--);
             }
-            PixelAnimationEditor.RemovePixelSprite(SerializedSelectedAnimation.FindProperty("pixelSprites"), index);
+            PixelSpriteUtility.RemoveSprite(SerializedSelectedAnimation.FindProperty("pixelSprites"), index);
             SerializedSelectedAnimation.Update();
         }
     }
