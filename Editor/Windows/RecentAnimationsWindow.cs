@@ -13,6 +13,7 @@ namespace binc.PixelAnimator.Editor.Windows
         private TimelineWindow timelineWindow;
         public override void Initialize(int id)
         {
+            
             if (!PixelAnimatorWindow.AnimatorWindow)
             {
                 Debug.LogError("PixelAnimatorWindow is not initialized.");
@@ -37,16 +38,18 @@ namespace binc.PixelAnimator.Editor.Windows
 
         public override void ProcessWindow()
         {
+            if (!PixelAnimatorWindow.AnimatorWindow) return;
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
+            var height = showRecentAnimations ? 150 : 20;
+
+            windowRect = new Rect(animatorWindow.position.width - 220, 10, 210, height);
             if (timelineWindow.IsPlaying) return;
             DrawRecentAnimationsPanel();
         }
         
         private void DrawRecentAnimationsPanel()
         {
-            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
-            var position = animatorWindow.position;
-            var height = showRecentAnimations ? 150 : 20;
-            GUILayout.BeginArea(new Rect(position.width - 220, 10, 210, height), EditorStyles.helpBox);
+            GUILayout.BeginArea(windowRect, EditorStyles.helpBox);
             showRecentAnimations = EditorGUILayout.Foldout(showRecentAnimations, "Recent Animations", true);
             if (showRecentAnimations)
             {
