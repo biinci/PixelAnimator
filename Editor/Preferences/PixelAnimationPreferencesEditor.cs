@@ -58,6 +58,8 @@ namespace binc.PixelAnimator.Editor.Preferences{
             }
             text = EditorGUILayout.TextField(text);
             EditorGUILayout.EndHorizontal();
+            EditorGUILayout.HelpBox("Use this area when encountering issues related to GUIDs.", MessageType.Warning);
+
 
         }
         
