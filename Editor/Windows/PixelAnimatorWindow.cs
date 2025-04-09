@@ -62,6 +62,7 @@ namespace binc.PixelAnimator.Editor.Windows{
             OnSelectionChange();
             wantsMouseMove = true;
             LoadResources();
+            TryReloadPreferences(); 
             InitWindows();
             IndexOfSelectedBoxGroup = IndexOfSelectedBox = IndexOfSelectedSprite = 0;
         }
@@ -74,11 +75,26 @@ namespace binc.PixelAnimator.Editor.Windows{
         
         private void LoadResources()
         {
-            AnimationPreferences = Resources.Load<PixelAnimationPreferences>("Animation Preferences");
+
+            if (AnimationPreferences == null)
+            {
+                Debug.LogWarning("PixelAnimationPreferences not found. User will be prompted to create one.");
+            }
+
             AnimatorPreferences = Resources.Load<PixelAnimatorPreferences>("Animator Preferences");
             PixelAnimatorSkin = Resources.Load<GUISkin>("PixelAnimationSkin");
         }
 
+        private void TryReloadPreferences()
+        {
+            if (AnimationPreferences != null) return;
+            var guids = AssetDatabase.FindAssets("t:PixelAnimationPreferences");
+            if (guids.Length <= 0) return;
+            var path = AssetDatabase.GUIDToAssetPath(guids[0]);
+            AnimationPreferences = AssetDatabase.LoadAssetAtPath<PixelAnimationPreferences>(path);
+        }
+
+        
         private void InitWindows()
         {
             var windows = AnimatorPreferences.windows;
@@ -117,27 +133,97 @@ namespace binc.PixelAnimator.Editor.Windows{
         
         private void OnGUI()
         {
+            if (selectedAnimation)
+                SerializedSelectedAnimation ??= new SerializedObject(selectedAnimation);
 
-            if(selectedAnimation)SerializedSelectedAnimation ??= new SerializedObject(selectedAnimation);
             DrawBackground();
-            ProcessWindows();
             SetEditorDeltaTime();
-            // if (Event.current.type == EventType.MouseMove) Repaint();
-            if(Event.current.button == 0 && Event.current.type == EventType.MouseDown){
+
+            if (AnimationPreferences == null)
+            {
+                DrawMissingPreferencesPrompt();
+                return;
+            }
+
+            ProcessWindows();
+
+            if (Event.current.button == 0 && Event.current.type == EventType.MouseDown)
+            {
                 GUI.FocusControl(null);
                 Event.current.Use();
             }
+        }
+        private void DrawMissingPreferencesPrompt()
+        {
+            GUILayout.BeginVertical(GUILayout.ExpandHeight(true));
+            GUILayout.FlexibleSpace();
+
+            EditorGUILayout.HelpBox("Pixel Animation Preferences asset not found\nPlease create one to continue", MessageType.Warning);
+
+            if (GUILayout.Button("Create New Preferences Asset"))
+            {
+                CreatePreferencesFile();
+            }
+            if (GUILayout.Button("Select Existing Preferences"))
+            {
+                SelectPreferencesFile();
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndVertical();
+        }
+        private void CreatePreferencesFile()
+        {
+            var prefs = CreateInstance<PixelAnimationPreferences>();
+
+
+            var path = EditorUtility.SaveFilePanelInProject(
+                "Create Pixel Animation Preferences",
+                "Animation Preferences",
+                "asset",
+                "Please choose a location to save the preferences asset."
+            );
+
+            if (string.IsNullOrEmpty(path)) return;
+
+            AssetDatabase.CreateAsset(prefs, path);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            AnimationPreferences = AssetDatabase.LoadAssetAtPath<PixelAnimationPreferences>(path);
+            Debug.Log("PixelAnimationPreferences asset created and loaded.");
+
+            InitWindows();
+            Repaint();
+        }
+        private void SelectPreferencesFile()
+        {
+            var path = EditorUtility.OpenFilePanel("Select PixelAnimationPreferences", "Assets", "asset");
+
+            if (string.IsNullOrEmpty(path)) return;
+            if (path.StartsWith(Application.dataPath))
+            {
+                path = "Assets" + path[Application.dataPath.Length..];
+            }
+            var prefs = AssetDatabase.LoadAssetAtPath<PixelAnimationPreferences>(path);
+            if (prefs == null)
+            {
+                EditorUtility.DisplayDialog("Invalid File", "The selected file is not a valid PixelAnimationPreferences asset.", "OK");
+                return;
+            }
+            AnimationPreferences = prefs;
+            Debug.Log("Existing preferences file selected and loaded.");
+
+            InitWindows();
+            Repaint();
         }
 
         private void UpdateSelectedIndex()
         {
             if (SelectedAnimation == null) return;
-            if (!IsValidFrame())
-            {
-                IndexOfSelectedSprite = 0;
-                IndexOfSelectedBoxGroup = 0;
-                IndexOfSelectedBox = 0;
-            }
+            if (IsValidFrame()) return;
+            IndexOfSelectedSprite = 0;
+            IndexOfSelectedBoxGroup = 0;
+            IndexOfSelectedBox = 0;
         }
         private void DrawBackground()
         {
