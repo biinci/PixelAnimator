@@ -15,7 +15,7 @@ MonoBehaviour:
   windows:
   - rid: 8428581573893029987
   - rid: 8428581573893029986
-  - rid: 3952229941669790202
+  - rid: 3952229954321383498
   - rid: 8428581573893029985
   windowScripts:
   - {fileID: 11500000, guid: 9f915ddaac9934a3b9ba2bc25ee6054a, type: 3}
@@ -25,15 +25,15 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 3952229941669790202
+    - rid: 3952229954321383498
       type: {class: RecentAnimations, ns: binc.PixelAnimator.Editor.Windows, asm: Unity.PixelAnimator.Editor}
       data:
         windowRect:
           serializedVersion: 2
-          x: 0
-          y: 0
-          width: 0
-          height: 0
+          x: 496
+          y: 10
+          width: 210
+          height: 150
     - rid: 8428581573893029985
       type: {class: CanvasWindow, ns: binc.PixelAnimator.Editor.Windows, asm: Unity.PixelAnimator.Editor}
       data:
@@ -41,8 +41,8 @@ MonoBehaviour:
           serializedVersion: 2
           x: 0
           y: 0
-          width: 998
-          height: 443
+          width: 800
+          height: 445
     - rid: 8428581573893029986
       type: {class: PropertyWindow, ns: binc.PixelAnimator.Editor.Windows, asm: Unity.PixelAnimator.Editor}
       data:
@@ -50,7 +50,7 @@ MonoBehaviour:
           serializedVersion: 2
           x: 10
           y: 10
-          width: 300.02988
+          width: 250
           height: 250
     - rid: 8428581573893029987
       type: {class: TimelineWindow, ns: binc.PixelAnimator.Editor.Windows, asm: Unity.PixelAnimator.Editor}
@@ -58,6 +58,6 @@ MonoBehaviour:
         windowRect:
           serializedVersion: 2
           x: 0
-          y: 443
-          width: 998
+          y: 445
+          width: 800
           height: 139

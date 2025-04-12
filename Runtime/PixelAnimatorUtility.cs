@@ -13,6 +13,24 @@ namespace binc.PixelAnimator
 {
     public static class PixelAnimatorUtility
     {
+        /// <summary>
+        /// Loads the first asset of type T from all Resources folders.
+        /// </summary>
+        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <returns>The first found asset of type T, or null if none found.</returns>
+        public static T LoadFirstAssetOfType<T>() where T : UnityEngine.Object
+        {
+            T[] assets = Resources.LoadAll<T>("");
+            if (assets != null && assets.Length > 0)
+            {
+                return assets[0];
+            }
+
+            Debug.LogError($"Asset of type {typeof(T).Name} not found in any Resources folder. Please create one and place it inside a Resources directory.");
+            return null;
+        }
+
+
         public delegate void PixelAnimationListener(object userData);
 
         public static Rect MapBoxRectToTransform(Rect rect, Sprite sprite)

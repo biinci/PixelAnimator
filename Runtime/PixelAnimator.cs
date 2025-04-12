@@ -5,14 +5,14 @@ using UnityEngine;
 using System;
 using System.Linq;
 using binc.PixelAnimator.DataManipulations;
-using UnityEngine.Serialization;
+
 
 namespace binc.PixelAnimator{
     [RequireComponent(typeof(SpriteRenderer))]
     public class PixelAnimator : MonoBehaviour{
         public event Action<int> OnFrameChanged;
 
-        private PixelAnimationPreferences preferences;
+        private static PixelAnimationPreferences preferences;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private PixelAnimationController animationController;
         public PixelAnimation PlayingAnimation => playingAnimation;
@@ -38,12 +38,14 @@ namespace binc.PixelAnimator{
         }
 
         private void Awake(){
-            LoadPreferences();
+            TryLoadPreferences();
             CreateTitle();
             CompileFunctions();
         }
-        private void LoadPreferences(){
-            preferences = Resources.Load<PixelAnimationPreferences>("Animation Preferences");
+        private static void TryLoadPreferences()
+        {
+            if (preferences != null) return;
+            preferences = PixelAnimatorUtility.LoadFirstAssetOfType<PixelAnimationPreferences>();
         }
         private void CompileFunctions()
         {
@@ -117,7 +119,8 @@ namespace binc.PixelAnimator{
                     elapsedTime -= secondsPerFrame; 
                     continue;
                 }
-                else if (FrameIndex == spriteCount -1 && !PlayingAnimation.loop && !isLastFrame)
+
+                if (FrameIndex == spriteCount -1 && !PlayingAnimation.loop && !isLastFrame)
                 {
                     isLastFrame = true;
                     elapsedTime -= secondsPerFrame;

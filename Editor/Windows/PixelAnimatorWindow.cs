@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEditor;
 using System;
-using System.Collections.Generic;
 using binc.PixelAnimator.AnimationData;
 using binc.PixelAnimator.Preferences;
 using binc.PixelAnimator.Editor.Preferences;
@@ -79,6 +78,7 @@ namespace binc.PixelAnimator.Editor.Windows{
         
         private void LoadResources()
         {
+            AnimatorPreferences = Resources.Load<PixelAnimatorPreferences>("Animator Preferences");
             PixelAnimatorSkin = Resources.Load<GUISkin>("PixelAnimationSkin");
         }
 
