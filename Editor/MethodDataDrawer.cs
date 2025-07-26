@@ -23,9 +23,6 @@ namespace binc.PixelAnimator.Editor
     
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            ObjectListByPropertyPath = new Dictionary<string, Object>();
-            CachedPropertyReference = new Dictionary<string, BaseMethodData>();
-            CachedManagedReferenceValueId = new Dictionary<string, long>();
             SetPropertyReference(property);
             var reference = CachedPropertyReference[property.propertyPath];
             if (reference == null) return;
@@ -87,6 +84,23 @@ namespace binc.PixelAnimator.Editor
             
         }
 
+        private void OnDisable()
+        {
+            CleanupCaches();
+        }
+
+        private void OnDestroy()  
+        {
+            CleanupCaches();
+        }
+
+        private static void CleanupCaches()
+        {
+            ObjectListByPropertyPath?.Clear();
+            CachedPropertyReference?.Clear();
+            CachedManagedReferenceValueId?.Clear();
+        }
+        
         private void UpdateReference(SerializedProperty serializedMethodData,SerializedProperty serializedComponentType)
         {
             if (ObjectListByPropertyPath.TryGetValue(serializedComponentType.propertyPath, out var obj) && obj?.GetType() != CachedPropertyReference[serializedMethodData.propertyPath].componentType.SystemType)
