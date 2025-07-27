@@ -40,9 +40,6 @@ namespace binc.PixelAnimator.Editor.Windows
             UsingBoxHandle = BoxHandleType.None;
             spritePreview = new Texture2D(0,0);
         }
-        public override void Dispose()
-        {
-        }
     }
 }
 
