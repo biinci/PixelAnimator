@@ -7,7 +7,30 @@ namespace binc.PixelAnimator.Editor.Windows
     public partial class TimelineWindow : Window
     {
         #region Variables
-        public bool IsPlaying { get; private set; }
+        
+        private float playTimer;
+        private double lastPlayTime;
+        private bool isPlaying;
+        public bool IsPlaying 
+        { 
+            get => isPlaying;
+            private set
+            {
+                if (isPlaying == value) return;
+                isPlaying = value;
+                
+                if (isPlaying)
+                {
+                    EditorApplication.update += UpdatePlayback;
+                    lastPlayTime = EditorApplication.timeSinceStartup;
+                    playTimer = 0f;
+                }
+                else
+                {
+                    EditorApplication.update -= UpdatePlayback;
+                }
+            }
+        }
         
         private Rect handleRect,
             columnRect,
@@ -152,6 +175,36 @@ namespace binc.PixelAnimator.Editor.Windows
 
         #endregion
         
+        private void UpdatePlayback()
+        {
+            if (!IsPlaying || !SelectedAnim) return;
+        
+            var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
+            var fps = SelectedAnim.fps;
+            var count = animatorWindow.GetSpriteCount();
+
+            if (fps <= 0 || count <= 0)
+            {
+                IsPlaying = false; 
+                return;
+            }
+
+            var currentTime = EditorApplication.timeSinceStartup;
+            var deltaTime = (float)(currentTime - lastPlayTime);
+            lastPlayTime = currentTime;
+        
+            playTimer += deltaTime;
+            var frameInterval = 1f / fps;
+
+            if (!(playTimer >= frameInterval)) return;
+            playTimer -= frameInterval;
+            
+            var frame = (animatorWindow.IndexOfSelectedSprite + 1) % count;
+            animatorWindow.SelectSprite(frame);
+            
+            animatorWindow.Repaint();
+        }
+        
         public override void Dispose()
         {
             thumbnailButton.DownClick -= ThumbnailButton;
@@ -165,6 +218,7 @@ namespace binc.PixelAnimator.Editor.Windows
             visibilityButton.DownClick -= VisibilityButton;
             expandGroupButton.DownClick -= ExpandGroupButton;
             colliderButton.DownClick -= ColliderButton;
+            EditorApplication.update -= UpdatePlayback;
 
         }
         

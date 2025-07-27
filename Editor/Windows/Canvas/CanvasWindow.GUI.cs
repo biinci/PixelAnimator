@@ -28,20 +28,26 @@ namespace binc.PixelAnimator.Editor.Windows{
         {
             var size = Vector2.one * 64;
             if(spritePreview) size = new Vector2(spritePreview.width, spritePreview.height);
-        
-            if (cachedGridTexture == null || 
-                size != lastGridSize || 
-                blackColor != lastBlackColor || 
-                whiteColor != lastWhiteColor)
-            {
-                GenerateGridTexture(size);
-                lastGridSize = size;
-                lastBlackColor = blackColor;
-                lastWhiteColor = whiteColor;
-            }
-        
             var rect = spriteRect;
-            GUI.DrawTexture(rect, cachedGridTexture, ScaleMode.StretchToFill);
+            var grid = new Rect(rect.x, rect.y, 16 * spriteScale, 16 * spriteScale);
+        
+            var maxGridsX = Mathf.Min((int)(size.x / 16), (int)(rect.width / grid.width) + 2);
+            var maxGridsY = Mathf.Min((int)(size.y / 16), (int)(rect.height / grid.height) + 2);
+        
+            for (var i = 0; i < maxGridsX; i++) {
+                for (var j = 0; j < maxGridsY; j += 2) {
+                    var color = i % 2 == 0 ? blackColor : whiteColor;
+                    EditorGUI.DrawRect(grid, color);
+                    grid.y += grid.height;
+
+                    if (j + 1 >= maxGridsY) continue;
+                    var contrastColor = color == blackColor ? whiteColor : blackColor;
+                    EditorGUI.DrawRect(grid, contrastColor);
+                    grid.y += grid.height;
+                }
+                grid.y = rect.y;
+                grid.x += grid.width;
+            }
         }
         private void ProcessBoxes(int groupIndex, BoxGroup boxGroup, BoxData boxData){
             

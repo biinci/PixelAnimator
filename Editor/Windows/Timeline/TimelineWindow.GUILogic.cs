@@ -16,7 +16,6 @@ namespace binc.PixelAnimator.Editor.Windows{
             FocusWindowIfClicked();
             if (!SelectedAnim) return;
             SetShortcuts();
-            if(IsPlaying) Play();
             
         }
         
@@ -183,17 +182,16 @@ namespace binc.PixelAnimator.Editor.Windows{
                 timer -= 1f/fps;
                 var frame = (  animatorWindow.IndexOfSelectedSprite +1 ) % count;
                 animatorWindow.SelectSprite(frame);
+                animatorWindow.Repaint();
+
             }
-            animatorWindow.Repaint();
         }
         
         private void PlayPauseButton()
         {
             GUI.FocusControl("PlayButton");
-            timer = 0;
             IsPlaying = !IsPlaying;
             playPauseTex = IsPlaying ? pauseTex : playTex;
-            
         }
         
         private void PingAnimationButton()

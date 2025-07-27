@@ -147,43 +147,9 @@ namespace binc.PixelAnimator.Editor.Windows
             PixelAnimatorUtility.AddCursorCondition(canvasRect,UsingBoxHandle == type, cursor);
         }
         
-        private void GenerateGridTexture(Vector2 size)
-        {
-            var width = Mathf.FloorToInt(size.x);
-            var height = Mathf.FloorToInt(size.y);
-            if(width <= 0 || height <= 0) return;
-
-            if (cachedGridTexture)
-            {
-                Object.DestroyImmediate(cachedGridTexture);
-            }
-        
-            cachedGridTexture = new Texture2D(width, height, TextureFormat.RGB24, false)
-            {
-                filterMode = FilterMode.Point
-            };
-
-            var pixels = new Color32[width * height];
-        
-            for (var x = 0; x < width; x++)
-            {
-                for (var y = 0; y < height; y++)
-                {
-                    var gridX = x / 16;
-                    var gridY = y / 16;
-                    var color = (gridX + gridY) % 2 == 0 ? blackColor : whiteColor;
-                    pixels[y * width + x] = color;
-                }
-            }
-        
-            cachedGridTexture.SetPixels32(pixels);
-            cachedGridTexture.Apply();
-        }
         public override void Dispose()
         {
-            if (cachedGridTexture == null) return;
-            Object.DestroyImmediate(cachedGridTexture);
-            cachedGridTexture = null;
+
         }
         
     }
