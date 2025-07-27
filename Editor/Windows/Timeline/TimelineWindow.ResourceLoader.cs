@@ -167,5 +167,22 @@ namespace binc.PixelAnimator.Editor.Windows
             colliderButton.DownClick -= ColliderButton;
 
         }
+        
+        public void OnDisable()
+        {
+            thumbnailButton.DownClick -= ThumbnailButton;
+            groupButton.DownClick -= GroupButton;
+            layerButton.DownClick -= BoxButton;
+            frameButton.DownClick -= FrameButton;
+            mainMenuButton.DownClick -= BurgerMenuButton;
+            playPauseButton.DownClick -= PlayPauseButton;
+            previousNextSpriteButton.DownClick -= ChangeSpriteButton;
+            pingAnimationButton.DownClick -= PingAnimationButton;
+            visibilityButton.DownClick -= VisibilityButton;
+            expandGroupButton.DownClick -= ExpandGroupButton;
+            colliderButton.DownClick -= ColliderButton;
+
+        }
+        
     }
 }

@@ -134,14 +134,12 @@ namespace binc.PixelAnimator.Editor.Windows
             }
         
             var preview = AssetPreview.GetAssetPreview(sprite);
-            if (preview != null)
-            {
-                preview.filterMode = FilterMode.Point;
-                cachedSpritePreview = preview;
-                spritePreview = preview;
-                lastCachedSprite = sprite;
-                lastSpriteIndex = index;
-            }
+            if (!preview) return;
+            preview.filterMode = FilterMode.Point;
+            cachedSpritePreview = preview;
+            spritePreview = preview;
+            lastCachedSprite = sprite;
+            lastSpriteIndex = index;
         }
 
         private void AddCursorRect(Rect rect, MouseCursor cursor, BoxHandleType type){
@@ -153,15 +151,18 @@ namespace binc.PixelAnimator.Editor.Windows
         {
             var width = Mathf.FloorToInt(size.x);
             var height = Mathf.FloorToInt(size.y);
-        
-            if (cachedGridTexture != null)
+            if(width <= 0 || height <= 0) return;
+
+            if (cachedGridTexture)
             {
-                DestroyImmediate(cachedGridTexture);
+                Object.DestroyImmediate(cachedGridTexture);
             }
         
-            cachedGridTexture = new Texture2D(width, height, TextureFormat.RGB24, false);
-            cachedGridTexture.filterMode = FilterMode.Point;
-        
+            cachedGridTexture = new Texture2D(width, height, TextureFormat.RGB24, false)
+            {
+                filterMode = FilterMode.Point
+            };
+
             var pixels = new Color32[width * height];
         
             for (var x = 0; x < width; x++)
@@ -180,12 +181,9 @@ namespace binc.PixelAnimator.Editor.Windows
         }
         public override void Dispose()
         {
-            if (cachedGridTexture != null)
-            {
-                DestroyImmediate(cachedGridTexture);
-                cachedGridTexture = null;
-            }
-            base.Dispose();
+            if (cachedGridTexture == null) return;
+            Object.DestroyImmediate(cachedGridTexture);
+            cachedGridTexture = null;
         }
         
     }
