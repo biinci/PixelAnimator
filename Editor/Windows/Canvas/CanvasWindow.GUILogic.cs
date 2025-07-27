@@ -5,6 +5,10 @@ namespace binc.PixelAnimator.Editor.Windows
 {
     public partial class CanvasWindow
     {
+        private Texture2D cachedSpritePreview;
+        private Sprite lastCachedSprite;
+        private int lastSpriteIndex = -1;
+        
         public override void ProcessWindow()
         {
             windowRect = new Rect(Vector2.zero,
@@ -108,18 +112,81 @@ namespace binc.PixelAnimator.Editor.Windows
             spriteRect = new Rect(Vector2.zero, canvasRect.size);
         }
         
-        private void SetSpritePreview(){
+        private void SetSpritePreview()
+        {
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var pixelSprites = animatorWindow.SelectedAnimation.PixelSprites;
             var index = animatorWindow.IndexOfSelectedSprite;
+        
+            if (index == lastSpriteIndex && cachedSpritePreview != null)
+            {
+                spritePreview = cachedSpritePreview;
+                return;
+            }
+        
             var sprite = pixelSprites[index].sprite;
-            spritePreview = AssetPreview.GetAssetPreview(sprite);
-            if (spritePreview) spritePreview.filterMode = FilterMode.Point;
+        
+            if (sprite == lastCachedSprite && cachedSpritePreview != null)
+            {
+                spritePreview = cachedSpritePreview;
+                lastSpriteIndex = index;
+                return;
+            }
+        
+            var preview = AssetPreview.GetAssetPreview(sprite);
+            if (preview != null)
+            {
+                preview.filterMode = FilterMode.Point;
+                cachedSpritePreview = preview;
+                spritePreview = preview;
+                lastCachedSprite = sprite;
+                lastSpriteIndex = index;
+            }
         }
 
         private void AddCursorRect(Rect rect, MouseCursor cursor, BoxHandleType type){
             EditorGUIUtility.AddCursorRect(rect, cursor);
             PixelAnimatorUtility.AddCursorCondition(canvasRect,UsingBoxHandle == type, cursor);
         }
+        
+        private void GenerateGridTexture(Vector2 size)
+        {
+            var width = Mathf.FloorToInt(size.x);
+            var height = Mathf.FloorToInt(size.y);
+        
+            if (cachedGridTexture != null)
+            {
+                DestroyImmediate(cachedGridTexture);
+            }
+        
+            cachedGridTexture = new Texture2D(width, height, TextureFormat.RGB24, false);
+            cachedGridTexture.filterMode = FilterMode.Point;
+        
+            var pixels = new Color32[width * height];
+        
+            for (var x = 0; x < width; x++)
+            {
+                for (var y = 0; y < height; y++)
+                {
+                    var gridX = x / 16;
+                    var gridY = y / 16;
+                    var color = (gridX + gridY) % 2 == 0 ? blackColor : whiteColor;
+                    pixels[y * width + x] = color;
+                }
+            }
+        
+            cachedGridTexture.SetPixels32(pixels);
+            cachedGridTexture.Apply();
+        }
+        public override void Dispose()
+        {
+            if (cachedGridTexture != null)
+            {
+                DestroyImmediate(cachedGridTexture);
+                cachedGridTexture = null;
+            }
+            base.Dispose();
+        }
+        
     }
 }

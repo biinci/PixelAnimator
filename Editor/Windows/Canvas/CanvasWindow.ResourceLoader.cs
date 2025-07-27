@@ -4,6 +4,11 @@ namespace binc.PixelAnimator.Editor.Windows
 {
     public partial class CanvasWindow : Window
     {
+        private Texture2D cachedGridTexture;
+        private Vector2 lastGridSize;s
+        private Color lastBlackColor;
+        private Color lastWhiteColor;
+        
         private Rect spriteRect;
         private Rect canvasRect;
         private Texture2D spritePreview;

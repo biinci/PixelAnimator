@@ -28,38 +28,21 @@ namespace binc.PixelAnimator.Editor.Windows{
         {
             var size = Vector2.one * 64;
             if(spritePreview) size = new Vector2(spritePreview.width, spritePreview.height);
-            var rect = spriteRect;
-            var grid = new Rect(rect.x, rect.y, 16 * spriteScale, 16 * spriteScale);
-            
-            for (var i = 0; i < size.x / 16; i++) {
-                for (var j = 0; j < size.y / 16; j += 2) {
-                    var color = i % 2 == 0 ? blackColor : whiteColor;
-                    EditorGUI.DrawRect(grid,color);
-                    grid.y += grid.height; 
-                    var contrastColor = color == blackColor ? whiteColor : blackColor;
-                    EditorGUI.DrawRect(grid, contrastColor);
-                    grid.y += grid.height;
-                }
-            
-                grid.y = rect.y;
-                grid.x += grid.width;
-            }
-            
-            if (!(rect.x + rect.width - grid.x > 0)) return;
-            
-            grid.width = rect.x + rect.width - grid.x; 
-            
-            for (var j = 0; j < size.y / 16; j += 2) {
-                EditorGUI.DrawRect(grid, whiteColor);
-                grid.y += grid.height;
-                EditorGUI.DrawRect(grid, blackColor);
-                grid.y += grid.height;
-            }
-            
-            grid.height = rect.y + rect.height - grid.y;
-            if (rect.y + rect.height - grid.y > 0) EditorGUI.DrawRect(grid, blackColor); 
-        }
         
+            if (cachedGridTexture == null || 
+                size != lastGridSize || 
+                blackColor != lastBlackColor || 
+                whiteColor != lastWhiteColor)
+            {
+                GenerateGridTexture(size);
+                lastGridSize = size;
+                lastBlackColor = blackColor;
+                lastWhiteColor = whiteColor;
+            }
+        
+            var rect = spriteRect;
+            GUI.DrawTexture(rect, cachedGridTexture, ScaleMode.StretchToFill);
+        }
         private void ProcessBoxes(int groupIndex, BoxGroup boxGroup, BoxData boxData){
             
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
