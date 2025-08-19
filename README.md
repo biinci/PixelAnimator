@@ -22,7 +22,7 @@
     - [Working with Sprite Events](#working-with-sprite-events)
     - [Using Box Colliders](#using-box-colliders)
     - [Box Types and Properties](#box-types-and-properties)
-5. [Animation Controller](#animation-controller)
+5. [Animation Group](#animation-group)
 6. [Runtime Implementation](#runtime-implementation)
     - [Setting Up the Animator](#setting-up-the-animator)
     - [Playing Animations](#playing-animations)
@@ -79,9 +79,9 @@ Pixel Animator works with three primary components:
    - Contains the animation data including sprites, frame rate, and collider information
    - Created via Assets > Create > Pixel Animation > New Animation
 
-2. **PixelAnimationController** (ScriptableObject)
+2. **PixelAnimationGroup** (ScriptableObject)
    - Groups animations for performance optimization
-   - Created via Assets > Create > Pixel Animation > New Animation Controller
+   - Created via Assets > Create > Pixel Animation > New Animation Group
 
 3. **PixelAnimator** (MonoBehaviour)
    - The runtime component that plays animations and handles collisions
@@ -155,18 +155,18 @@ Frame types for boxes:
 - **CopyFrame**: Inherits box properties from the previous KeyFrame
 - **EmptyFrame**: No box collider appears on this frame
 
-## Animation Controller
+## Animation Group
 
-The PixelAnimationController improves performance by grouping animations:
+The PixelAnimationGroup improves performance by grouping animations:
 
-1. Create a controller:
-   - Create > Pixel Animation > New Animation Controller
+1. Create a Group:
+   - Create > Pixel Animation > New Animation Group
    
 2. Add animations:
-   - Drag your PixelAnimation assets to the controller's list
+   - Drag your PixelAnimation assets to the Group's list
 
-3. Set the controller:
-   - Assign the controller to your PixelAnimator component
+3. Set the Group:
+   - Assign the group to your PixelAnimator component
 
 ## Runtime Implementation
 
@@ -175,7 +175,7 @@ The PixelAnimationController improves performance by grouping animations:
 1. Add the PixelAnimator component:
    - Attach to a GameObject with a SpriteRenderer
    - Assign the SpriteRenderer to the component's reference
-   - Assign a PixelAnimationController containing your animations
+   - Assign a PixelAnimationGroup containing your animations
 
 2. When the PixelAnimator initializes:
    - It loads animation preferences
@@ -190,7 +190,7 @@ To play an animation in code:
 // Reference to your animator component
 private PixelAnimator pixelAnimator;
 
-// Reference to animation, could be from controller or direct
+// Reference to animation, could be from Group or direct
 public PixelAnimation idleAnimation;
 
 void Start() {
@@ -262,8 +262,8 @@ Events use a sophisticated serialization system:
 1. **Organize animations by state**:
    - Create separate animations for different character states (idle, run, jump, etc.)
 
-2. **Group related animations in controllers**:
-   - Put all player animations in one controller, enemy animations in another, etc.
+2. **Group related animations in groups**:
+   - Put all player animations in one Group, enemy animations in another, etc.
 
 3. **Keep FPS consistent**:
    - Use the same FPS across similar animations to maintain visual coherence
@@ -295,7 +295,6 @@ Common issues and solutions:
    - Make sure collision layers are set up correctly
 
 4. **Performance issues**:
-   - Use PixelAnimationController to group animations
    - Minimize the number of box colliders
    - Reduce event complexity
 

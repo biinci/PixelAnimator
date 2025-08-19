@@ -5,6 +5,7 @@ using UnityEngine;
 using binc.PixelAnimator.Preferences;
 using binc.PixelAnimator.AnimationData;
 using binc.PixelAnimator.DataManipulations;
+using UnityEngine.Serialization;
 
 namespace binc.PixelAnimator
 {
@@ -17,7 +18,7 @@ namespace binc.PixelAnimator
     /// <para>
     /// <b>Usage</b>:<br/>
     /// 1) Add this component to a GameObject (requires a SpriteRenderer).<br/>
-    /// 2) Assign animations to <see cref="animationController"/>.<br/>
+    /// 2) Assign animations to <see cref="animationGroup"/>.<br/>
     /// 3) Call <see cref="Play(PixelAnimation)"/> to start playback.<br/>
     /// </para>
     ///
@@ -44,8 +45,9 @@ namespace binc.PixelAnimator
         [Tooltip("Target SpriteRenderer used to swap frame sprites.")]
         [SerializeField] private SpriteRenderer spriteRenderer;
 
+        [FormerlySerializedAs("animationController")]
         [Tooltip("Holds the available PixelAnimation clips for this animator.")]
-        [SerializeField] private PixelAnimationController animationController;
+        [SerializeField] private PixelAnimationGroup animationGroup;
 
         /// <summary>Currently playing animation (null means nothing is playing).</summary>
         public PixelAnimation PlayingAnimation => playingAnimation;
@@ -144,7 +146,7 @@ namespace binc.PixelAnimator
         /// </summary>
         private void CompileFunctions()
         {
-            foreach (var pixelAnimation in animationController.Animations)
+            foreach (var pixelAnimation in animationGroup.Animations)
             {
                 // Per-sprite user methods:
                 foreach (var methodStorage in pixelAnimation.PixelSprites.Select(ps => ps.methodStorage))
@@ -333,7 +335,7 @@ namespace binc.PixelAnimator
                 return;
             }
 
-            if (animationController == null || !animationController.Animations.Contains(nextAnimation))
+            if (animationGroup == null || !animationGroup.Animations.Contains(nextAnimation))
             {
                 Debug.LogError("Animation not found in the animation controller");
                 return;
