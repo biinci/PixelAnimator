@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bd935be7c7dc78488dc2ccbdd942db9, type: 3}
+  m_Name: Animator Preferences
+  m_EditorClassIdentifier: 
+  windows:
+  - rid: 8428581573893029987
+  - rid: 8428581573893029986
+  - rid: 3952229954321383498
+  - rid: 8428581573893029985
+  windowScripts:
+  - {fileID: 11500000, guid: 9f915ddaac9934a3b9ba2bc25ee6054a, type: 3}
+  - {fileID: 11500000, guid: a57b1bc73750cc24a8cd720e3f8aea15, type: 3}
+  - {fileID: 11500000, guid: c3e3b6a302b5bc846b163fe82421d982, type: 3}
+  - {fileID: 11500000, guid: e9fcf5cf068f8954b9346d6adb50358d, type: 3}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3952229954321383498
+      type: {class: RecentAnimations, ns: binc.PixelAnimator.Editor.Windows, asm: Unity.PixelAnimator.Editor}
+      data:
+        windowRect:
+          serializedVersion: 2
+          x: 496
+          y: 10
+          width: 210
+          height: 150
+    - rid: 8428581573893029985
+      type: {class: CanvasWindow, ns: binc.PixelAnimator.Editor.Windows, asm: Unity.PixelAnimator.Editor}
+      data:
+        windowRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 800
+          height: 445
+    - rid: 8428581573893029986
+      type: {class: PropertyWindow, ns: binc.PixelAnimator.Editor.Windows, asm: Unity.PixelAnimator.Editor}
+      data:
+        windowRect:
+          serializedVersion: 2
+          x: 10
+          y: 10
+          width: 250
+          height: 250
+    - rid: 8428581573893029987
+      type: {class: TimelineWindow, ns: binc.PixelAnimator.Editor.Windows, asm: Unity.PixelAnimator.Editor}
+      data:
+        windowRect:
+          serializedVersion: 2
+          x: 0
+          y: 445
+          width: 800
+          height: 139

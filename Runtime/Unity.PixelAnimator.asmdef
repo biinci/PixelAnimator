@@ -1,0 +1,19 @@
+{
+    "name": "Unity.PixelAnimator",
+    "rootNamespace": "binc.PixelAnimator",
+    "references": [
+        "GUID:d528c8c98d269ca44a06cd9624a03945",
+        "GUID:b93f844d45cfcc44fa2b0eed5c9ec6bb",
+        "GUID:8b845b123ab418448a8be2935fa804e0",
+        "GUID:b68762e9e54fa0a41ab085fa35babc52"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

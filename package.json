@@ -1,0 +1,13 @@
+{
+    "name" : "com.binc.pixel-animator",
+    "version" : "0.0.1",
+    "displayName": "Pixel Animator",
+    "description": "Custom Animator for 2D Sprites!",
+    "unity" : "2023.2",
+    "dependencies": {},
+    "keywords": ["pixel", "animator"],
+    "author": {
+        "name" : "Bilal İnci",
+        "email": "bilalinci6@gmail.com"
+    }
+}
