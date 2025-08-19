@@ -58,4 +58,21 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+# IDE generated
+.vscode/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
 
