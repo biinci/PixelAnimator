@@ -7,7 +7,7 @@ namespace binc.PixelAnimator.Editor.Windows
     {
         private Texture2D cachedSpritePreview;
         private Sprite lastCachedSprite;
-        private int lastSpriteIndex = -1;
+        private string lastSpriteId = "";
         
         public override void ProcessWindow()
         {
@@ -116,20 +116,21 @@ namespace binc.PixelAnimator.Editor.Windows
         {
             var animatorWindow = PixelAnimatorWindow.AnimatorWindow;
             var pixelSprites = animatorWindow.SelectedAnimation.PixelSprites;
-            var index = animatorWindow.IndexOfSelectedSprite;
-        
-            if (index == lastSpriteIndex && cachedSpritePreview != null)
+            var pixelSprite = pixelSprites[animatorWindow.IndexOfSelectedSprite];
+            var id = pixelSprite.spriteId;
+
+            if (id == lastSpriteId && cachedSpritePreview != null)
             {
                 spritePreview = cachedSpritePreview;
                 return;
             }
         
-            var sprite = pixelSprites[index].sprite;
+            var sprite = pixelSprite.sprite;
         
             if (sprite == lastCachedSprite && cachedSpritePreview != null)
             {
                 spritePreview = cachedSpritePreview;
-                lastSpriteIndex = index;
+                lastSpriteId = id;
                 return;
             }
         
@@ -139,7 +140,7 @@ namespace binc.PixelAnimator.Editor.Windows
             cachedSpritePreview = preview;
             spritePreview = preview;
             lastCachedSprite = sprite;
-            lastSpriteIndex = index;
+            lastSpriteId = id;
         }
 
         private void AddCursorRect(Rect rect, MouseCursor cursor, BoxHandleType type){

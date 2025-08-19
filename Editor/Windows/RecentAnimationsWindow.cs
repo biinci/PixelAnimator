@@ -59,7 +59,7 @@ namespace binc.PixelAnimator.Editor.Windows
                     GUILayout.BeginHorizontal();
                     if (GUILayout.Button(anim.name, GUILayout.ExpandWidth(true)))
                     {
-                        Selection.activeObject = anim;
+                        PixelAnimatorWindow.AnimatorWindow.SetSelectedAnimation(anim);
                     }
 
                     var icon = EditorGUIUtility.ObjectContent(anim, typeof(ScriptableObject)).image;
