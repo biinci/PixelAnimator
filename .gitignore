@@ -76,3 +76,4 @@ crashlytics-build.properties
 *.opendb
 *.VC.db
 
+LICENSE.meta
